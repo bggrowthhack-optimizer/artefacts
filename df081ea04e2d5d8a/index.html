@@ -3,7 +3,6 @@
 <html lang="ru">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex,nofollow,noarchive">
 <title>Аудит «Мои Анализы»</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -162,6 +161,43 @@ input[type="range"]::-moz-range-thumb {
 }
 .scn-btn.active { border-color: var(--primary); color: var(--primary); background: var(--info-bg); }
 .scn-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* ---------- script button + modal ---------- */
+.script-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  border: 1px solid var(--border); background: var(--info-bg); color: var(--info-text);
+  border-radius: var(--radius-pill); padding: 3px 10px; font-size: 12px; font-weight: 600;
+  cursor: pointer; font-family: var(--font-sans); white-space: nowrap;
+}
+.script-btn:hover { border-color: var(--info); }
+.script-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+#scriptOverlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(13,18,27,0.5);
+  display: none; align-items: center; justify-content: center;
+  padding: 24px;
+}
+#scriptOverlay.open { display: flex; }
+#scriptModal {
+  background: var(--card); border-radius: var(--radius-card);
+  box-shadow: 0 16px 48px -12px rgb(0 0 0 / 0.35);
+  max-width: 560px; width: 100%; padding: 28px 28px 24px; position: relative;
+  max-height: 85vh; overflow-y: auto;
+}
+#scriptModal .modal-close {
+  position: absolute; top: 16px; right: 16px;
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--card); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font-size: 16px; color: var(--muted-foreground);
+}
+#scriptModal .modal-close:hover { background: var(--muted); }
+#scriptModal h3 { font-size: 22px; font-weight: 700; margin: 0 0 4px; padding-right: 32px; }
+#scriptModal .modal-eyebrow { font-size: 13px; font-weight: 600; color: var(--primary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+#scriptModal .modal-row { margin-top: 16px; }
+#scriptModal .modal-row .label { font-size: 13px; font-weight: 600; color: var(--muted-foreground); margin-bottom: 4px; }
+#scriptModal .modal-row .value { font-size: 15px; line-height: 1.5; margin: 0; }
+#scriptModal .modal-row .value.quote { background: var(--muted); border-radius: 10px; padding: 12px 14px; font-style: italic; }
 
 @media print {
   :root { --scale: 1 !important; }
@@ -593,11 +629,11 @@ input[type="range"]::-moz-range-thumb {
   </div>
   <div class="slide-body" style="justify-content:center;">
     <table style="font-size:13px;">
-      <tr><th style="width:15%;">Комплекс</th><th style="width:30%;">Состав</th><th>Почему именно он</th></tr>
-      <tr><td><b>Базовое здоровье</b></td><td>Общий анализ крови + Общий анализ мочи + Глюкоза + Холестерин + Мочевина</td><td>Привычный набор без объяснений — все 5 позиций уже в топе по спросу, маржа ≈59%</td></tr>
-      <tr><td><b>Контроль сахара</b></td><td>Глюкоза + Гликозилированный гемоглобин + Общий анализ крови</td><td>Диабет и преддиабет — самая частая хроническая тема 40+, даёт повод на регулярность раз в полгода, маржа ≈59%</td></tr>
-      <tr><td><b>Женское здоровье</b></td><td>Ферритин + Витамин D + Витамин B12 + Общий анализ крови</td><td>Дефицит железа и витамина D — самый частый женский запрос; сегмент 30–59 и так приносит больше всех выручки, маржа ≈60%</td></tr>
-      <tr><td><b>Щитовидная железа</b></td><td>ТТГ + Т4 свободный + Антитела к ТПО</td><td>Ровно то, что уже направляют нутрициологи — комплекс формализует существующий канал, маржа ≈50%</td></tr>
+      <tr><th style="width:15%;">Комплекс</th><th style="width:27%;">Состав</th><th>Почему именно он</th><th style="width:11%;">Сценарий</th></tr>
+      <tr><td><b>Базовое здоровье</b></td><td>Общий анализ крови + Общий анализ мочи + Глюкоза + Холестерин + Мочевина</td><td>Привычный набор без объяснений — все 5 позиций уже в топе по спросу, маржа ≈59%</td><td><button class="script-btn" onclick="openScript('base')">Как предложить</button></td></tr>
+      <tr><td><b>Контроль сахара</b></td><td>Глюкоза + Гликозилированный гемоглобин + Общий анализ крови</td><td>Диабет и преддиабет — самая частая хроническая тема 40+, даёт повод на регулярность раз в полгода, маржа ≈59%</td><td><button class="script-btn" onclick="openScript('sugar')">Как предложить</button></td></tr>
+      <tr><td><b>Женское здоровье</b></td><td>Ферритин + Витамин D + Витамин B12 + Общий анализ крови</td><td>Дефицит железа и витамина D — самый частый женский запрос; сегмент 30–59 и так приносит больше всех выручки, маржа ≈60%</td><td><button class="script-btn" onclick="openScript('female')">Как предложить</button></td></tr>
+      <tr><td><b>Щитовидная железа</b></td><td>ТТГ + Т4 свободный + Антитела к ТПО</td><td>Ровно то, что уже направляют нутрициологи — комплекс формализует существующий канал, маржа ≈50%</td><td><button class="script-btn" onclick="openScript('thyroid')">Как предложить</button></td></tr>
     </table>
   </div>
   <div class="slide-foot">Маржа — среднее по марже входящих позиций, посчитано по факту продаж за 9 мес. Продолжение — следующий слайд.</div>
@@ -614,11 +650,11 @@ input[type="range"]::-moz-range-thumb {
   </div>
   <div class="slide-body" style="justify-content:center;">
     <table style="font-size:13px;">
-      <tr><th style="width:15%;">Комплекс</th><th style="width:30%;">Состав</th><th>Почему именно он</th></tr>
-      <tr><td><b>Печень и обмен веществ</b></td><td>АЛТ + АСТ + Билирубин + Холестерин + Глюкоза</td><td>Самая высокая маржа из всех 8 комплексов — ≈70%, все 5 позиций входят в топ-30 по марже сами по себе</td></tr>
-      <tr><td><b>Сердце и сосуды</b></td><td>Холестерин общий + ЛПНП + ЛПВП + С-реактивный белок</td><td>45–59 лет — вторая по размеру возрастная группа клиентов, маржа ≈66%</td></tr>
-      <tr><td><b>Мужское здоровье</b></td><td>ПСА + Тестостерон + Креатинин</td><td>Мужчины — только 34% пациентов (280 из 829), отдельный повод их привлечь, маржа ≈57%</td></tr>
-      <tr><td><b>Почки и соли</b></td><td>Креатинин + СКФ + Калий/Натрий/Хлор + Мочевая кислота</td><td>Вторая по доходности маржа (≈69%), подходит для физического труда — актуально для завода «Молот»</td></tr>
+      <tr><th style="width:15%;">Комплекс</th><th style="width:27%;">Состав</th><th>Почему именно он</th><th style="width:11%;">Сценарий</th></tr>
+      <tr><td><b>Печень и обмен веществ</b></td><td>АЛТ + АСТ + Билирубин + Холестерин + Глюкоза</td><td>Самая высокая маржа из всех 8 комплексов — ≈70%, все 5 позиций входят в топ-30 по марже сами по себе</td><td><button class="script-btn" onclick="openScript('liver')">Как предложить</button></td></tr>
+      <tr><td><b>Сердце и сосуды</b></td><td>Холестерин общий + ЛПНП + ЛПВП + С-реактивный белок</td><td>45–59 лет — вторая по размеру возрастная группа клиентов, маржа ≈66%</td><td><button class="script-btn" onclick="openScript('heart')">Как предложить</button></td></tr>
+      <tr><td><b>Мужское здоровье</b></td><td>ПСА + Тестостерон + Креатинин</td><td>Мужчины — только 34% пациентов (280 из 829), отдельный повод их привлечь, маржа ≈57%</td><td><button class="script-btn" onclick="openScript('male')">Как предложить</button></td></tr>
+      <tr><td><b>Почки и соли</b></td><td>Креатинин + СКФ + Калий/Натрий/Хлор + Мочевая кислота</td><td>Вторая по доходности маржа (≈69%), подходит для физического труда — актуально для завода «Молот»</td><td><button class="script-btn" onclick="openScript('kidney')">Как предложить</button></td></tr>
     </table>
     <div class="card" style="flex:0 0 auto; padding:14px 24px;">
       <div class="card-title" style="font-size:14px; margin-bottom:2px;">Как оформлять для партнёра</div>
@@ -861,6 +897,26 @@ input[type="range"]::-moz-range-thumb {
 </section>
 </div>
 
+</div>
+
+<div id="scriptOverlay" onclick="if(event.target===this) closeScript()">
+  <div id="scriptModal">
+    <button class="modal-close" onclick="closeScript()" aria-label="Закрыть">&#10005;</button>
+    <div class="modal-eyebrow">Сценарий продажи</div>
+    <h3 id="scriptTitle"></h3>
+    <div class="modal-row">
+      <div class="label">Кому предлагать</div>
+      <p class="value" id="scriptAudience"></p>
+    </div>
+    <div class="modal-row">
+      <div class="label">Фраза для разговора</div>
+      <p class="value quote" id="scriptLine"></p>
+    </div>
+    <div class="modal-row">
+      <div class="label">Если спросят про цену</div>
+      <p class="value" id="scriptPrice"></p>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1109,6 +1165,7 @@ function go(i){
 document.getElementById('prevBtn').addEventListener('click', ()=>go(cur-1));
 document.getElementById('nextBtn').addEventListener('click', ()=>go(cur+1));
 document.addEventListener('keydown', e=>{
+  if(document.getElementById('scriptOverlay').classList.contains('open')) return;
   if(e.key==='ArrowRight'||e.key===' ') { go(cur+1); e.preventDefault(); }
   if(e.key==='ArrowLeft') { go(cur-1); e.preventDefault(); }
 });
@@ -1116,6 +1173,73 @@ const io = new IntersectionObserver(entries=>{
   entries.forEach(en=>{ if(en.isIntersecting){ const idx = frames.indexOf(en.target); if(idx>-1){ cur=idx; document.getElementById('curNo').textContent = cur+1; } } });
 }, {threshold:0.6});
 frames.forEach(s=>io.observe(s));
+
+/* ===== сценарии продажи комплексов ===== */
+const bundleScripts = {
+  base: {
+    title: 'Базовое здоровье',
+    audience: 'Любой сотрудник, без специального повода — подходит как стартовое предложение партнёру.',
+    line: '«Можем организовать для ваших сотрудников комплексную проверку — кровь, моча, сахар, холестерин — в удобное для вас время».',
+    price: 'Набор дешевле, чем эти же анализы по отдельности — цена фиксированная за комплект, не скидка.',
+  },
+  sugar: {
+    title: 'Контроль сахара',
+    audience: 'Сотрудники 40+, особенно при физическом труде или сменном графике.',
+    line: '«Предлагаем раз в полгода проверять сахар и гликированный гемоглобин — это показывает риск диабета до того, как появятся симптомы».',
+    price: 'Если спросят «зачем это компании» — меньше больничных и выше внимательность на смене.',
+  },
+  female: {
+    title: 'Женское здоровье',
+    audience: 'Женщины-сотрудницы 30–59 лет — самый частый и самый ценный запрос у вас в базе.',
+    line: '«У многих женщин в этом возрасте низкий ферритин и витамин D, просто никто не проверял — давайте один раз посмотрим на цифры».',
+    price: 'Личный пример работает лучше любого аргумента — если сами проверяли и находили дефицит, об этом стоит сказать.',
+  },
+  thyroid: {
+    title: 'Щитовидная железа',
+    audience: 'Те, кого уже направил нутрициолог, или кто жалуется на усталость/перепады веса.',
+    line: '«Это тот же набор анализов, который вам уже советовали — просто теперь его можно сделать компактно, одним визитом».',
+    price: 'Маржа здесь ниже остальных комплексов (≈50%) — не предлагать с доп.скидкой, цена и так справедливая.',
+  },
+  liver: {
+    title: 'Печень и обмен веществ',
+    audience: 'Любой сотрудник — универсальный повод для профилактики, не привязан к возрасту или полу.',
+    line: '«Простой набор, который показывает, как работает печень и обмен веществ — многие делают его раз в год просто для профилактики».',
+    price: 'Самая высокая маржа из всех 8 комплексов — здесь можно быть щедрее с условиями для партнёра.',
+  },
+  heart: {
+    title: 'Сердце и сосуды',
+    audience: 'Сотрудники 45–59 лет — вторая по размеру возрастная группа в вашей базе.',
+    line: '«В этом возрасте стоит раз в год смотреть холестерин и воспалительный маркер — недорого и совсем не больно, а риски видно заранее».',
+    price: 'Маржа ≈66% — запас есть, можно пойти навстречу по цене для первого захода с новым партнёром.',
+  },
+  male: {
+    title: 'Мужское здоровье',
+    audience: 'Мужчины 40+ — реально недообслуженный сегмент: мужчин всего 34% от всех ваших пациентов.',
+    line: '«Мужчины обычно вообще не сдают анализы, пока не заболеют — предлагаем простой набор на 5 минут, одним визитом».',
+    price: 'Маржа ≈57%, средняя по больнице — стандартная цена комплекта, торговаться не обязательно.',
+  },
+  kidney: {
+    title: 'Почки и соли',
+    audience: 'Сотрудники физического труда — завод, склад, любая работа на ногах/с нагрузкой.',
+    line: '«Для тех, кто много работает руками или на ногах — проверка почек и солевого баланса, это как раз про вашу нагрузку».',
+    price: 'Вторая по доходности маржа (≈69%) — хороший кандидат на первое корпоративное предложение.',
+  },
+};
+function openScript(key){
+  const s = bundleScripts[key];
+  if(!s) return;
+  document.getElementById('scriptTitle').textContent = s.title;
+  document.getElementById('scriptAudience').textContent = s.audience;
+  document.getElementById('scriptLine').textContent = s.line;
+  document.getElementById('scriptPrice').textContent = s.price;
+  document.getElementById('scriptOverlay').classList.add('open');
+}
+function closeScript(){
+  document.getElementById('scriptOverlay').classList.remove('open');
+}
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape') closeScript();
+});
 </script>
 </body>
 </html>
