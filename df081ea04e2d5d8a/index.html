@@ -1,0 +1,1121 @@
+<meta charset="utf-8">
+<!doctype html>
+<html lang="ru">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>Аудит «Мои Анализы»</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+
+  --background: #F5F7F9;
+  --card: #FFFFFF;
+  --foreground: #0D121B;
+  --muted: #F3F5F9;
+  --muted-foreground: #646972;
+  --primary: #2B62EF;
+  --border: #DBDEE5;
+  --border-strong: #BFC4CD;
+
+  --excellent: #00A245;  --excellent-text: #00892C;  --excellent-bg: #E6F6EC;
+  --good: #ED990E;       --good-text: #B16100;       --good-bg: #FDF5E7;
+  --poor: #DF202E;       --poor-text: #DF202E;       --poor-bg: #FCE9EA;
+  --info: #0095D3;       --info-text: #007DBA;       --info-bg: #E6F4FB;
+
+  --chart-1: #4076F5; --chart-2: #00A68A; --chart-3: #A46BF5;
+  --chart-4: #59B842; --chart-5: #FC8C45;
+
+  --radius-card: 16px;
+  --radius-pill: 9999px;
+  --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+
+  --slide-w: 1280px;
+  --slide-h: 720px;
+  --slide-pad: 48px;
+  --gap: 24px;
+  --scale: 1;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--background);
+  font-family: var(--font-sans);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- nav ---------- */
+#nav {
+  position: fixed; top: 16px; right: 16px; z-index: 50;
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(255,255,255,0.92);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 8px 16px;
+  box-shadow: var(--shadow-card);
+  font-size: 13px; color: var(--muted-foreground);
+}
+#nav button {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--card);
+  color: var(--foreground); cursor: pointer; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+}
+#nav button:hover { background: var(--muted); }
+#nav button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+#nav .count { font-variant-numeric: tabular-nums; min-width: 44px; text-align: center; }
+
+/* ---------- deck ---------- */
+#deck { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 12px 0 40px; }
+.slide-frame {
+  width: calc(var(--slide-w) * var(--scale, 1));
+  height: calc(var(--slide-h) * var(--scale, 1));
+  flex: 0 0 auto;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 8px 24px -8px rgb(0 0 0 / 0.08);
+  scroll-margin-top: 32px;
+}
+.slide {
+  width: var(--slide-w); height: var(--slide-h);
+  transform: scale(var(--scale, 1));
+  transform-origin: top left;
+  background: var(--background);
+  padding: var(--slide-pad);
+  display: flex; flex-direction: column;
+  position: relative;
+}
+.slide-head { border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: var(--gap); }
+.slide-title { font-size: 36px; font-weight: 700; line-height: 1.25; letter-spacing: -0.025em; text-wrap: balance; margin: 0 0 6px; }
+.slide-sub { font-size: 20px; font-weight: 400; color: var(--muted-foreground); line-height: 1.5; margin: 0; }
+.slide-body { flex: 1; display: flex; flex-direction: column; gap: var(--gap); overflow: hidden; }
+.slide-foot { font-size: 14px; color: var(--muted-foreground); padding-top: 12px; }
+.eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--primary); }
+
+/* ---------- cards & grids ---------- */
+.row { display: flex; gap: var(--gap); flex: 1; }
+.col { display: flex; flex-direction: column; gap: var(--gap); flex: 1; }
+.card {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card); padding: 24px; display: flex; flex-direction: column; gap: 10px;
+}
+.card.kpi { position: relative; padding-top: 27px; }
+.card.kpi::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: var(--radius-card) var(--radius-card) 0 0; background: var(--status, var(--primary)); }
+.kpi-label { font-size: 14px; color: var(--muted-foreground); }
+.kpi-value { font-size: 44px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+.kpi-compare { font-size: 14px; font-weight: 500; }
+.card-title { font-size: 18px; font-weight: 600; }
+.muted { color: var(--muted-foreground); }
+.tabular { font-variant-numeric: tabular-nums; }
+
+.pill { display: inline-flex; align-items: center; gap: 6px; border-radius: var(--radius-pill); padding: 3px 10px; font-size: 13px; font-weight: 600; }
+.pill.poor { background: var(--poor-bg); color: var(--poor-text); }
+.pill.good { background: var(--good-bg); color: var(--good-text); }
+.pill.excellent { background: var(--excellent-bg); color: var(--excellent-text); }
+.pill.info { background: var(--info-bg); color: var(--info-text); }
+
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+th { font-size: 13px; color: var(--muted-foreground); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+tr.total td { border-top: 1px solid var(--border-strong); font-weight: 700; }
+
+ol.ranked, ul.plain { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+ul.applist { margin: 0; padding: 0; list-style: none; color: var(--foreground); }
+ul.applist li { break-inside: avoid; margin-bottom: 2px; }
+ul.applist .muted { font-size: 0.92em; }
+.gi { display: flex; gap: 14px; align-items: flex-start; padding: 10px 12px; border-radius: 10px; background: var(--card); border: 1px solid var(--border); }
+.gi .num { font-size: 15px; font-weight: 700; color: var(--primary); min-width: 22px; }
+.gi .txt { font-size: 14px; line-height: 1.4; }
+.gi .txt b { font-weight: 600; }
+
+svg text { font-family: var(--font-sans); fill: var(--foreground); }
+.axis-label { font-size: 12px; fill: var(--muted-foreground); }
+.bar-label { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.grid-line { stroke: var(--border); stroke-width: 1; }
+
+input[type="range"] {
+  -webkit-appearance: none; appearance: none;
+  height: 6px; border-radius: 3px; background: var(--border); margin: 6px 0 2px;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--primary); cursor: pointer; border: 2px solid #fff; box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--primary); cursor: pointer; border: 2px solid #fff; box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
+}
+
+/* scenario toggle */
+.scn-toggle { display: flex; gap: 8px; }
+.scn-btn {
+  border: 1px solid var(--border); background: var(--card); border-radius: 10px;
+  padding: 10px 16px; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--muted-foreground);
+  font-family: var(--font-sans);
+}
+.scn-btn.active { border-color: var(--primary); color: var(--primary); background: var(--info-bg); }
+.scn-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+@media print {
+  :root { --scale: 1 !important; }
+  #nav { display: none; }
+  body { background: #fff; }
+  #deck { gap: 0; padding: 0; }
+  .slide-frame { box-shadow: none; page-break-after: always; margin: 0; width: var(--slide-w); height: var(--slide-h); }
+}
+</style>
+</head>
+<body>
+
+<div id="nav" aria-hidden="false">
+  <button id="prevBtn" aria-label="Предыдущий слайд">&#8592;</button>
+  <span class="count"><span id="curNo">1</span> / 27</span>
+  <button id="nextBtn" aria-label="Следующий слайд">&#8594;</button>
+</div>
+
+<div id="deck">
+<!-- 1. ТИТУЛЬНЫЙ -->
+<div class="slide-frame">
+<section class="slide" id="s1">
+  <div class="slide-body" style="justify-content:center; align-items:flex-start; gap:4px;">
+    <div class="eyebrow">Финансовый аудит · «Мои Анализы», Вятские Поляны</div>
+    <h1 style="font-size:52px; font-weight:700; letter-spacing:-0.03em; margin:12px 0 8px; text-wrap:balance;">Из убытка — в управляемую прибыль без найма и вложений</h1>
+    <p style="font-size:20px; color:var(--muted-foreground); max-width:760px; line-height:1.5; margin:0 0 32px;">
+      Анализ продаж, расходов и рынка кабинета сдачи анализов. Период данных: 20.10.2025 – 31.07.2026.
+    </p>
+    <div class="row" style="flex:0; gap:16px;">
+      <div class="card" style="flex:0 0 220px;"><div class="kpi-label">Заказчик</div><div style="font-size:18px; font-weight:600;">ИП Самигуллин Ф.И.</div></div>
+      <div class="card" style="flex:0 0 220px;"><div class="kpi-label">Объект</div><div style="font-size:18px; font-weight:600;">ООО «Мои Анализы»</div></div>
+      <div class="card" style="flex:0 0 220px;"><div class="kpi-label">Подготовлено</div><div style="font-size:18px; font-weight:600;">Команда Роста</div></div>
+    </div>
+  </div>
+  <div class="slide-foot">02.10.2026 · Данные: ЛИС Ситисофт, банковские платежи, открытые источники</div>
+</section>
+</div>
+
+<!-- 2. ГЛАВНЫЙ ДИАГНОЗ -->
+<div class="slide-frame">
+<section class="slide" id="s2">
+  <div class="slide-head">
+    <div class="eyebrow">Диагноз</div>
+    <h2 class="slide-title">Бизнес убыточен — но не потому, что анализы продаются невыгодно</h2>
+    <p class="slide-sub">Три разных вопроса, три разных ответа. Путь к плюсу есть — без новых вложений.</p>
+  </div>
+  <div class="slide-body">
+    <div class="row">
+      <div class="card kpi" style="--status:var(--poor);">
+        <div class="kpi-label">Прибыль — был ли хоть один месяц в плюсе</div>
+        <div class="kpi-value" style="color:var(--poor-text);">0 из 9</div>
+        <div class="kpi-compare"><span class="pill poor">Требует внимания</span> месяцев в плюсе, если правильно сопоставить расходы с месяцем работы</div>
+      </div>
+      <div class="card kpi" style="--status:var(--poor);">
+        <div class="kpi-label">Касса — хватало ли реальных денег на счету</div>
+        <div class="kpi-value" style="color:var(--poor-text);">−649 668 ₽</div>
+        <div class="kpi-compare"><span class="pill poor">Требует внимания</span> самая глубокая нехватка денег, май 2026</div>
+      </div>
+      <div class="card kpi" style="--status:var(--excellent);">
+        <div class="kpi-label">Финмодель — есть ли путь к плюсу</div>
+        <div class="kpi-value" style="color:var(--excellent-text);">+50 646 ₽/мес*</div>
+        <div class="kpi-compare"><span class="pill excellent">Хорошо</span> тем же составом, без найма и вложений</div>
+      </div>
+    </div>
+    <div class="card" style="flex:1;">
+      <div class="card-title">Что на самом деле произошло</div>
+      <p style="font-size:15px; line-height:1.5; margin:0;">
+        Если считать по одному анализу — каждый проданный тест приносит 55–63% прибыли сверх своей себестоимости, это хорошо.
+        Убыток появляется не здесь, а выше: поток визитов не стабилен (от 74 до 197 визитов в месяц), а постоянные расходы
+        (труд + аренда ≈ 173 тыс ₽/мес) и рваные по времени налоговые платежи «съедают» эту прибыль даже в лучшие месяцы.
+        Апрель и июль выходили почти в ноль <b>до</b> уплаты налогов — значит бизнес близок к тому, чтобы сводить концы с концами,
+        а не устроен в корне неправильно.
+      </p>
+    </div>
+  </div>
+  <div class="slide-foot">Источник: Ситисофт 01.10.25–31.07.26, банк. платежи. Авг–сен — без данных. *Половина суммы — непроверенный спрос на корп.визиты (слайд 11).</div>
+</section>
+</div>
+
+<!-- 3. П&Л -->
+<div class="slide-frame">
+<section class="slide" id="s3">
+  <div class="slide-head">
+    <div class="eyebrow">Прибыль по месяцам</div>
+    <h2 class="slide-title">Ни один месяц не был прибыльным — апрель и июль ближе всего</h2>
+    <p class="slide-sub">Зарплату считаем за тот месяц, когда её заработали, а не когда выплатили — иначе картина искажается.</p>
+  </div>
+  <div class="slide-body" style="justify-content:center;">
+    <table style="font-size:13px;">
+      <tr><th>Месяц</th><th class="num">Выручка</th><th class="num">Себестоимость</th><th class="num">Труд</th><th class="num">Аренда</th><th class="num">Налоги</th><th class="num">Прочие расходы</th><th class="num">Прибыль</th></tr>
+      <tr><td>Ноябрь</td><td class="num">106 694</td><td class="num">39 478 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(37%)</span></td><td class="num">88 764 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(83%)</span></td><td class="num">50 000 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(47%)</span></td><td class="num">13 718 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(13%)</span></td><td class="num">32 118 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(30%)</span></td><td class="num" style="color:var(--poor-text); font-weight:700; background:var(--poor-bg);">−117 383 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(−110%)</span></td></tr>
+      <tr><td>Декабрь</td><td class="num">189 820</td><td class="num">79 995 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(42%)</span></td><td class="num">90 764 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(48%)</span></td><td class="num">60 000 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(32%)</span></td><td class="num">46 447 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(24%)</span></td><td class="num">16 975 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(9%)</span></td><td class="num" style="color:var(--poor-text); font-weight:700; background:var(--poor-bg);">−104 361 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(−55%)</span></td></tr>
+      <tr><td>Январь</td><td class="num">273 352</td><td class="num">120 642 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(44%)</span></td><td class="num">113 385 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(41%)</span></td><td class="num">60 000 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(22%)</span></td><td class="num">4 446 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(2%)</span></td><td class="num">28 373 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(10%)</span></td><td class="num" style="color:var(--poor-text); font-weight:700; background:var(--poor-bg);">−53 494 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(−20%)</span></td></tr>
+      <tr><td>Февраль</td><td class="num">285 808</td><td class="num">125 478 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(44%)</span></td><td class="num">113 385 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(40%)</span></td><td class="num">60 000 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(21%)</span></td><td class="num">36 936 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(13%)</span></td><td class="num">31 824 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(11%)</span></td><td class="num" style="color:var(--poor-text); font-weight:700; background:var(--poor-bg);">−81 815 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(−29%)</span></td></tr>
+      <tr><td>Март</td><td class="num">329 068</td><td class="num">148 021 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(45%)</span></td><td class="num">113 385 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(34%)</span></td><td class="num">60 000 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(18%)</span></td><td class="num">40 077 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(12%)</span></td><td class="num">61 940 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(19%)</span></td><td class="num" style="color:var(--poor-text); font-weight:700; background:var(--poor-bg);">−94 354 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(−29%)</span></td></tr>
+      <tr><td>Апрель</td><td class="num">383 907</td><td class="num">175 163 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(46%)</span></td><td class="num">113 385 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(30%)</span></td><td class="num">60 000 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(16%)</span></td><td class="num">37 236 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(10%)</span></td><td class="num">26 522 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(7%)</span></td><td class="num" style="color:var(--poor-text); font-weight:700; background:var(--poor-bg);">−28 399 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(−7%)</span></td></tr>
+      <tr><td>Май*</td><td class="num">161 440</td><td class="num">68 165 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(42%)</span></td><td class="num">86 653 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(54%)</span></td><td class="num">60 000 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(37%)</span></td><td class="num">41 704 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(26%)</span></td><td class="num">64 865 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(40%)</span></td><td class="num" style="color:var(--poor-text); font-weight:700; background:var(--poor-bg);">−159 948 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(−99%)</span></td></tr>
+      <tr><td>Июнь</td><td class="num">362 315</td><td class="num">141 364 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(39%)</span></td><td class="num">113 385 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(31%)</span></td><td class="num">60 000 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(17%)</span></td><td class="num">29 548 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(8%)</span></td><td class="num">42 423 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(12%)</span></td><td class="num" style="color:var(--poor-text); font-weight:700; background:var(--poor-bg);">−24 405 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(−7%)</span></td></tr>
+      <tr><td>Июль</td><td class="num">401 517</td><td class="num">154 537 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(38%)</span></td><td class="num">113 385 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(28%)</span></td><td class="num">60 000 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(15%)</span></td><td class="num">36 936 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(9%)</span></td><td class="num">39 584 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(10%)</span></td><td class="num" style="color:var(--poor-text); font-weight:700; background:var(--poor-bg);">−2 925 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(−1%)</span></td></tr>
+      <tr class="total"><td>Итого за 9 мес</td><td class="num">2 493 921</td><td class="num">1 052 843 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(42%)</span></td><td class="num">946 491 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(38%)</span></td><td class="num">530 000 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(21%)</span></td><td class="num">287 048 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(12%)</span></td><td class="num">344 623 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(14%)</span></td><td class="num" style="color:var(--poor-text);">−667 083 <span style="font-size:11px; color:var(--muted-foreground); font-weight:400;">(−27%)</span></td></tr>
+    </table>
+  </div>
+  <div class="slide-foot">Маленькое число под суммой — доля от выручки этого месяца. Выручка минус себестоимость (прайс Ситилаб, сверено с реальными счетами, расхождение 1,8%) минус труд минус аренда минус налоги минус прочие расходы. Май — неполный месяц (10 из 31 дня).</div>
+</section>
+</div>
+
+<!-- 4. ДДС -->
+<div class="slide-frame">
+<section class="slide" id="s4">
+  <div class="slide-head">
+    <div class="eyebrow">Касса по месяцам</div>
+    <h2 class="slide-title">Денег на счету не хватало сильнее, чем видно по прибыли — и по другой причине</h2>
+    <p class="slide-sub">Январь и июнь выглядели «хорошими» только из-за совпадения дат платежей, не из-за того, что бизнес сработал лучше.</p>
+  </div>
+  <div class="slide-body" style="justify-content:center;">
+    <table style="font-size:16px;">
+      <tr><th>Месяц</th><th class="num">Пришло</th><th class="num">Ушло</th><th class="num">Разница за месяц</th><th class="num">Остаток нарастающим итогом</th></tr>
+      <tr><td>Ноябрь</td><td class="num">106 694</td><td class="num">185 970</td><td class="num" style="color:var(--poor-text);">−79 276</td><td class="num" style="font-weight:700;">−79 276</td></tr>
+      <tr><td>Декабрь</td><td class="num">189 820</td><td class="num">323 954</td><td class="num" style="color:var(--poor-text);">−134 135</td><td class="num" style="font-weight:700;">−213 411</td></tr>
+      <tr><td>Январь</td><td class="num">273 352</td><td class="num">242 253</td><td class="num" style="color:var(--excellent-text);">+31 099</td><td class="num" style="font-weight:700;">−182 311</td></tr>
+      <tr><td>Февраль</td><td class="num">285 808</td><td class="num">361 909</td><td class="num" style="color:var(--poor-text);">−76 101</td><td class="num" style="font-weight:700;">−258 412</td></tr>
+      <tr><td>Март</td><td class="num">329 068</td><td class="num">395 184</td><td class="num" style="color:var(--poor-text);">−66 115</td><td class="num" style="font-weight:700;">−324 527</td></tr>
+      <tr><td>Апрель</td><td class="num">383 907</td><td class="num">385 648</td><td class="num" style="color:var(--poor-text);">−1 741</td><td class="num" style="font-weight:700;">−326 269</td></tr>
+      <tr style="background:var(--poor-bg);"><td>Май</td><td class="num">161 440</td><td class="num">484 840</td><td class="num" style="color:var(--poor-text);">−323 400</td><td class="num" style="font-weight:700; color:var(--poor-text);">−649 668 ← дно</td></tr>
+      <tr><td>Июнь</td><td class="num">362 315</td><td class="num">259 758</td><td class="num" style="color:var(--excellent-text);">+102 557</td><td class="num" style="font-weight:700;">−547 111</td></tr>
+      <tr><td>Июль</td><td class="num">401 517</td><td class="num">387 008</td><td class="num" style="color:var(--excellent-text);">+14 509</td><td class="num" style="font-weight:700;">−532 602</td></tr>
+    </table>
+  </div>
+  <div class="slide-foot">Пришло = выручка по дате визита. Ушло = реальные платежи с банковского счёта по дате. Остаток считается от нуля в начале периода — это не остаток на реальном счёте, а показывает, насколько глубоко бизнес «ушёл в минус» за эти месяцы.</div>
+</section>
+</div>
+
+<!-- 7. РЫНОК И ПОТЕНЦИАЛ -->
+<div class="slide-frame">
+<section class="slide" id="s10">
+  <div class="slide-head">
+    <div class="eyebrow">Рынок · Вятские Поляны</div>
+    <h2 class="slide-title">Охвачено 2,9% города — рост за счёт доли, не роста города</h2>
+    <p class="slide-sub">Город сжимается (−10% за 5 лет: 31 873 → 28 574), значит расти можно только за счёт переманивания клиентов у конкурентов.</p>
+  </div>
+  <div class="slide-body">
+    <div class="row" style="flex:0 0 130px;">
+      <div class="card kpi" style="--status:var(--info);">
+        <div class="kpi-label">Население города</div>
+        <div class="kpi-value" style="font-size:34px;">28 574</div>
+        <div class="kpi-compare muted">было 31 873 в 2020</div>
+      </div>
+      <div class="card kpi" style="--status:var(--good);">
+        <div class="kpi-label">Ваши пациенты за 9 мес</div>
+        <div class="kpi-value" style="font-size:34px;">831</div>
+        <div class="kpi-compare muted">= 2,9% города — факт, не оценка</div>
+      </div>
+      <div class="card kpi" style="--status:var(--excellent);">
+        <div class="kpi-label">Из них постоянные</div>
+        <div class="kpi-value" style="font-size:34px;">201</div>
+        <div class="kpi-compare muted">24,2% — база для роста без привлечения новых</div>
+      </div>
+    </div>
+    <div class="card" style="flex:1;">
+      <div class="card-title" style="margin-bottom:6px;">Что если доля вырастет — выручка за тот же период (9 мес), при той же выручке на пациента</div>
+      <table>
+        <tr><th>Доля города</th><th class="num">Пациентов</th><th class="num">Выручка за 9 мес</th><th class="num">К текущей</th></tr>
+        <tr><td>2,9% (сейчас)</td><td class="num">831</td><td class="num">2 493 921 ₽</td><td class="num">—</td></tr>
+        <tr><td>5%</td><td class="num">1 429</td><td class="num">4 288 585 ₽</td><td class="num" style="color:var(--excellent-text); font-weight:700;">+72%</td></tr>
+        <tr><td>7%</td><td class="num">2 000</td><td class="num">6 002 218 ₽</td><td class="num" style="color:var(--excellent-text); font-weight:700;">+141%</td></tr>
+        <tr><td>10%</td><td class="num">2 857</td><td class="num">8 574 168 ₽</td><td class="num" style="color:var(--excellent-text); font-weight:700;">+244%</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="slide-foot">Доля города, которую вы уже обслуживаете (2,9%) — факт по собственным данным (831/28 574). Остальные строки — прикидка "что если", не прогноз: предполагает ту же среднюю выручку на пациента, которая реально может снижаться при росте охвата.</div>
+</section>
+</div>
+
+<!-- 7b. КОНКУРЕНТЫ ПО ЦЕНЕ -->
+<div class="slide-frame">
+<section class="slide" id="s10b">
+  <div class="slide-head">
+    <div class="eyebrow">Конкуренты · цены</div>
+    <h2 class="slide-title">Почти везде дешевле Гемотеста — запас на повышение цены есть</h2>
+    <p class="slide-sub">Главный конкурент дороже на 11-28% на самых популярных анализах — и у него же жалобы на очереди.</p>
+  </div>
+  <div class="slide-body">
+    <div class="card" style="flex:0 0 auto;">
+      <div class="card-title" style="margin-bottom:2px;">Цена Фархада vs Гемотест, ₽</div>
+      <div style="display:flex; gap:16px; font-size:13px; color:var(--muted-foreground); margin-bottom:2px;"><span><span style="display:inline-block;width:10px;height:10px;background:var(--chart-1);border-radius:2px;margin-right:4px;"></span>Фархад (факт)</span><span><span style="display:inline-block;width:10px;height:10px;background:var(--chart-5);border-radius:2px;margin-right:4px;"></span>Гемотест</span></div>
+      <div id="chartCompetitors" style="height:170px;"><svg viewBox="0 0 1100 214" width="100%" height="100%" preserveAspectRatio="xMidYMid meet"><text x="196" y="28" text-anchor="end" class="axis-label" font-weight="600" font-size="13">ТТГ</text><rect x="210" y="4" width="352.3" height="16" rx="3" fill="var(--chart-1)"/><text x="572.3" y="16" class="bar-label" font-size="12">229 ₽</text><rect x="210" y="22" width="492.3" height="16" rx="3" fill="var(--chart-5)"/><text x="712.3" y="33" class="bar-label" font-size="12">320 ₽</text><text x="196" y="70" text-anchor="end" class="axis-label" font-weight="600" font-size="13">Т4 свободный</text><rect x="210" y="46" width="515.4" height="16" rx="3" fill="var(--chart-1)"/><text x="735.4" y="58" class="bar-label" font-size="12">335 ₽</text><rect x="210" y="64" width="661.5" height="16" rx="3" fill="var(--chart-5)"/><text x="881.5" y="75" class="bar-label" font-size="12">430 ₽</text><text x="196" y="112" text-anchor="end" class="axis-label" font-weight="600" font-size="13">Общий анализ крови</text><rect x="210" y="88" width="664.6" height="16" rx="3" fill="var(--chart-1)"/><text x="884.6" y="100" class="bar-label" font-size="12">432 ₽</text><rect x="210" y="106" width="800.0" height="16" rx="3" fill="var(--chart-5)"/><text x="1020.0" y="117" class="bar-label" font-size="12">520 ₽</text><text x="196" y="154" text-anchor="end" class="axis-label" font-weight="600" font-size="13">Холестерин общий</text><rect x="210" y="130" width="253.8" height="16" rx="3" fill="var(--chart-1)"/><text x="473.8" y="142" class="bar-label" font-size="12">165 ₽</text><rect x="210" y="148" width="353.8" height="16" rx="3" fill="var(--chart-5)"/><text x="573.8" y="159" class="bar-label" font-size="12">230 ₽</text><text x="196" y="196" text-anchor="end" class="axis-label" font-weight="600" font-size="13">Общий анализ мочи</text><rect x="210" y="172" width="398.5" height="16" rx="3" fill="var(--chart-1)"/><text x="618.5" y="184" class="bar-label" font-size="12">259 ₽</text><rect x="210" y="190" width="446.2" height="16" rx="3" fill="var(--chart-5)"/><text x="666.2" y="201" class="bar-label" font-size="12">290 ₽</text></svg></div>
+    </div>
+    <div class="card" style="flex:1;">
+      <div class="card-title" style="font-size:14px; margin-bottom:2px;">Кто есть кто на рынке</div>
+      <ul class="plain" style="font-size:12.5px; gap:3px; line-height:1.3;">
+        <li>• <b>Гемотест</b> — федеральная сеть, ул. Гагарина 3. В отзывах — жалобы на очереди (штат 1+1, как у вас)</li>
+        <li>• <b>Доктор+</b> — многопрофильный, есть выезд на дом (500₽)</li>
+        <li>• <b>Здоровье</b> — существует (22 врача, отзывы), цены не подтверждены</li>
+        <li>• ЦРБ — бесплатно по ОМС, фоновая альтернатива, не прямой конкурент по цене</li>
+      </ul>
+    </div>
+  </div>
+  <div class="slide-foot">Конкуренты — прямое открытие сайтов, 01.10.2026. ИНВИТРО/КДЛ/СМ-Клиника — не найдены в городе.</div>
+</section>
+</div>
+
+<!-- 8. УТП -->
+<div class="slide-frame">
+<section class="slide" id="s11">
+  <div class="slide-head">
+    <div class="eyebrow">Чем вы отличаетесь от конкурентов</div>
+    <h2 class="slide-title">«Конфиденциальность» не работает на треть клиентов — заменить на «без очереди»</h2>
+    <p class="slide-sub">34% пациентов — старше 60 лет. У главного конкурента документированная слабость именно в очередях.</p>
+  </div>
+  <div class="slide-body">
+    <div class="row">
+      <div class="card" style="flex:1; padding:16px 24px;">
+        <div class="kpi-label" style="color:var(--poor-text);">Сейчас: конфиденциальность</div>
+        <p style="font-size:14px; line-height:1.4; margin:4px 0 0;">Один пациент у администратора за раз. На практике группы и пенсионеры не соблюдают — сам Фархад это отмечал.</p>
+      </div>
+      <div class="card" style="flex:1; padding:16px 24px; --status:var(--excellent);">
+        <div class="kpi-label" style="color:var(--excellent-text);">Предлагается: «без очереди»</div>
+        <p style="font-size:14px; line-height:1.4; margin:4px 0 0;">В отзывах на Гемотест — жалобы на долгие очереди при той же структуре штата (1+1). Рыночно проверенный фактор выбора.</p>
+      </div>
+    </div>
+    <div class="card" style="flex:1;">
+      <div class="card-title">Возраст реальных пациентов Фархада — % от всех 829 пациентов в каждой возрастной группе</div>
+      <div id="chartAge" style="flex:1;"><svg viewBox="0 0 1100 220" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" ><line x1="56" y1="184.0" x2="1084" y2="184.0" class="grid-line"/><rect x="112.5" y="107.2" width="143.9" height="76.8" rx="4" fill="var(--chart-1)"/><text x="184.5" y="99.2" text-anchor="middle" class="bar-label">16%</text><text x="184.5" y="210" text-anchor="middle" class="axis-label">до 30</text><rect x="369.5" y="71.5" width="143.9" height="112.5" rx="4" fill="var(--chart-1)"/><text x="441.5" y="63.5" text-anchor="middle" class="bar-label">24%</text><text x="441.5" y="210" text-anchor="middle" class="axis-label">30–44</text><rect x="626.5" y="65.8" width="143.9" height="118.2" rx="4" fill="var(--chart-1)"/><text x="698.5" y="57.8" text-anchor="middle" class="bar-label">25%</text><text x="698.5" y="210" text-anchor="middle" class="axis-label">45–59</text><rect x="883.5" y="20.0" width="143.9" height="164.0" rx="4" fill="var(--chart-5)"/><text x="955.5" y="12.0" text-anchor="middle" class="bar-label">34%</text><text x="955.5" y="210" text-anchor="middle" class="axis-label">60+</text></svg></div>
+    </div>
+  </div>
+  <div class="slide-foot">Возраст считан напрямую по датам рождения 829 пациентов (из 831, 2 исключены — битые поля). Медиана — 49,9 лет.</div>
+</section>
+</div>
+
+<!-- 9. СЕГМЕНТАЦИЯ УСЛУГ -->
+<div class="slide-frame">
+<section class="slide" id="s8">
+  <div class="slide-head">
+    <div class="eyebrow">Какие услуги что дают</div>
+    <h2 class="slide-title">63% выручки — обычные анализы по одному, но рост даёт продажа пакетом</h2>
+    <p class="slide-sub">Визит, где предложили пакет анализов, даёт чек в 2,3 раза больше — и это не угаданный процент, а факт по данным.</p>
+  </div>
+  <div class="slide-body">
+    <div class="card"><div class="card-title" style="margin-bottom:8px;">Структура выручки по типу услуги</div><div id="chartTypes"><svg viewBox="0 0 1100 90" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" ><rect x="10.0" y="20" width="682.6" height="36" fill="var(--chart-1)" rx="6"/><text x="351.3" y="72" text-anchor="middle" class="axis-label" font-weight="600">Рутинные тесты</text><text x="351.3" y="42" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">63.2%</text><rect x="692.6" y="20" width="229.0" height="36" fill="var(--chart-2)" rx="0"/><text x="807.0" y="72" text-anchor="middle" class="axis-label" font-weight="600">Профили/скрининги</text><text x="807.0" y="42" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">21.2%</text><rect x="921.5" y="20" width="89.6" height="36" fill="var(--chart-3)" rx="0"/><text x="966.3" y="72" text-anchor="middle" class="axis-label" font-weight="600">Инфекции/иммунология</text><text x="966.3" y="42" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">8.3%</text><rect x="1011.2" y="20" width="78.8" height="36" fill="var(--chart-4)" rx="0"/><text x="1050.6" y="72" text-anchor="middle" class="axis-label" font-weight="600">Забор крови</text><text x="1050.6" y="42" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">7.3%</text></svg></div></div>
+    <div class="row">
+      <div class="card" style="flex:1;">
+        <div class="kpi-label">Визит без пакета анализов</div>
+        <div class="kpi-value" style="font-size:32px;">1 367 ₽</div>
+        <div class="kpi-compare muted">3,0 услуги за визит · маржа 754 ₽</div>
+      </div>
+      <div class="card" style="flex:1; --status:var(--excellent);" class="card kpi">
+        <div class="kpi-label">Визит с пакетом анализов</div>
+        <div class="kpi-value" style="font-size:32px; color:var(--excellent-text);">3 095 ₽ <span style="font-size:16px; font-weight:600;">(+126%)</span></div>
+        <div class="kpi-compare muted">7,0 услуг за визит · маржа 1 829 ₽ (62% разницы чека остаётся в марже)</div>
+      </div>
+      <div class="card" style="flex:1;">
+        <div class="kpi-label">Доля визитов с пакетом анализов сейчас</div>
+        <div class="kpi-value" style="font-size:32px;">46,6%</div>
+        <div class="kpi-compare muted">цель сценария 3 — 62% (+15 п.п.)</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-foot">Источник: Сводные данные Ситисофт, визиты сгруппированы по заявке. Самопроверка пройдена.</div>
+</section>
+</div>
+
+<!-- 10. КЛИЕНТСКИЕ СЕГМЕНТЫ -->
+<div class="slide-frame">
+<section class="slide" id="s9">
+  <div class="slide-head">
+    <div class="eyebrow">Группы клиентов и кто возвращается</div>
+    <h2 class="slide-title">Постоянный клиент даёт в 2,5–4 раза больше выручки на человека</h2>
+    <p class="slide-sub">24% повторных пациентов уже дают 41% выручки — удержание важнее привлечения.</p>
+  </div>
+  <div class="slide-body">
+    <div class="row">
+      <div class="card" style="flex:1.3;">
+        <div class="card-title">Выручка на человека, ₽ (по возрасту и тому, насколько часто возвращается)</div>
+        <table>
+          <tr><th>Возраст</th><th class="num">Разовый</th><th class="num">Повторный</th><th class="num">Постоянный</th></tr>
+          <tr><td>до 30</td><td class="num">2 419</td><td class="num">3 977</td><td class="num">4 093</td></tr>
+          <tr><td>30–59</td><td class="num">2 527</td><td class="num">5 471</td><td class="num tabular" style="font-weight:700;">7 702</td></tr>
+          <tr><td>60+</td><td class="num">1 852</td><td class="num">3 270</td><td class="num">6 459</td></tr>
+        </table>
+      </div>
+      <div class="col" style="flex:1;">
+        <div class="card kpi" style="--status:var(--info);">
+          <div class="kpi-label">Повторные визиты — два разных поведения</div>
+          <div class="kpi-value" style="font-size:28px;">14% сдают регулярно</div>
+          <div class="kpi-compare muted">возвращаются через 91–180+ дней — скорее всего, следят за хроническим заболеванием. Им стоит напоминать о повторной сдаче</div>
+        </div>
+        <div class="card kpi" style="--status:var(--good);">
+          <div class="kpi-label">«Потерянные» разовые клиенты</div>
+          <div class="kpi-value" style="font-size:28px;">64% / 24%</div>
+          <div class="kpi-compare muted">не возвращались 90+ / 180+ дней — часть просто не дошла до цикла</div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="flex:0 0 auto; padding:10px 24px;">
+      <div class="card-title" style="font-size:13px; margin-bottom:2px;">Средний чек за один визит по возрасту</div>
+      <p style="font-size:13px; line-height:1.3; margin:0;">
+        <b>до 30:</b> 2 130 ₽ · <b style="color:var(--excellent-text);">30–44: 2 491 ₽</b> · <b style="color:var(--excellent-text);">45–59: 2 444 ₽</b> · 60+: 1 741 ₽.
+        Больше всех тратят люди <b>30–59 лет</b>, а не самые молодые — расти нужно за счёт этой группы, не пенсионеров.
+      </p>
+    </div>
+  </div>
+  <div class="slide-foot">Пациентов узнавали по имени и дате рождения вручную — в программе лаборатории готового номера клиента нет. Поэтому это оценка, не точный факт. Проверка: сумма по группам отличается от факта на 1,1% (2 заявки с пустыми полями). Средний чек по возрасту — отдельный расчёт за визит, 1 146 визитов с известной датой рождения.</div>
+</section>
+</div>
+
+<!-- 11. ЦЕНООБРАЗОВАНИЕ -->
+<div class="slide-frame">
+<section class="slide" id="s7">
+  <div class="slide-head">
+    <div class="eyebrow">Ценообразование</div>
+    <h2 class="slide-title">Чем популярнее анализ — тем осторожнее поднимаем на него цену</h2>
+    <p class="slide-sub">С поправкой на риск потерять часть клиентов из-за повышения: +112 687 ₽ за 9 месяцев.</p>
+  </div>
+  <div class="slide-body">
+    <table id="priceMatrix">
+      <tr><th>Частота</th><th>Маржа</th><th class="num">Услуг</th><th class="num">Выручка, ₽</th><th>Правило</th></tr>
+      <tr><td>Топ (1-100)</td><td>Выше средней (&gt;54%)</td><td class="num">69</td><td class="num">1 226 579</td><td><b>0% — держать</b></td></tr>
+      <tr><td>Топ (1-100)</td><td>Ниже средней</td><td class="num">31</td><td class="num">539 346</td><td><b>+12%</b></td></tr>
+      <tr><td>Средние (101-180)</td><td>Выше средней</td><td class="num">21</td><td class="num">67 705</td><td><b>0% — держать</b></td></tr>
+      <tr><td>Средние (101-180)</td><td>Ниже средней</td><td class="num">54</td><td class="num">230 604</td><td><b>+15%</b></td></tr>
+      <tr><td>Средние (101-180)</td><td>Убыточные</td><td class="num">5</td><td class="num">16 226</td><td><b>+30%</b></td></tr>
+      <tr><td>Редкие (181+)</td><td>Выше средней</td><td class="num">41</td><td class="num">73 648</td><td><b>0% — держать</b></td></tr>
+      <tr><td>Редкие (181+)</td><td>Ниже средней</td><td class="num">70</td><td class="num">136 807</td><td><b>+20%</b></td></tr>
+      <tr><td>Редкие (181+)</td><td>Убыточные</td><td class="num">9</td><td class="num">20 165</td><td><b>+50% или только под заказ</b></td></tr>
+    </table>
+  </div>
+  <div class="slide-foot">Редкие тесты — клиенту всё равно нужен именно этот анализ, цена его не остановит. Популярные позиции — риск, что клиент уйдёт к конкуренту, выше.</div>
+</section>
+</div>
+
+<!-- 5. ФИНМОДЕЛЬ -->
+<div class="slide-frame">
+<section class="slide" id="s5">
+  <div class="slide-head">
+    <div class="eyebrow">Финмодель · потенциал роста</div>
+    <h2 class="slide-title">Четыре рычага — поток, цена, допродажа, корп.сегмент — дают +50 646 ₽/мес</h2>
+    <p class="slide-sub">Первые три — управленческая дисциплина с тем же составом. Четвёртый (корпоративный сегмент) — отдельно помечен звёздочкой: спрос у местных работодателей не проверен.</p>
+  </div>
+  <div class="slide-body">
+    <div class="scn-toggle" id="scnToggle">
+      <button class="scn-btn" data-s="0">0 · Факт</button>
+      <button class="scn-btn" data-s="1">1 · + Стабилизация потока</button>
+      <button class="scn-btn" data-s="2">2 · + Ценообразование</button>
+      <button class="scn-btn" data-s="3">3 · + Допродажа пакетов (62%)</button>
+      <button class="scn-btn active" data-s="4">4 · + Корпоративный сегмент*</button>
+    </div>
+    <div class="row" style="flex:1;">
+      <div class="card" style="flex:0 0 280px; justify-content:center;">
+        <div class="kpi-label" id="scnLabel">Сценарий 4 · поток + цена + допродажа + корп.сегмент*</div>
+        <div class="kpi-value" id="scnValue" style="font-size:56px; color:var(--excellent-text);">+50 646 ₽</div>
+        <div class="kpi-compare muted">в среднем за месяц</div>
+      </div>
+      <div class="card" style="flex:1;">
+        <div id="chartScn" style="height:100%;"><svg viewBox="0 0 1100 260" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" ><line x1="56" y1="110.6" x2="1084" y2="110.6" class="grid-line"/><rect x="101.2" y="110.6" width="115.1" height="113.4" rx="4" fill="var(--poor)"/><text x="158.8" y="240.0" text-anchor="middle" class="bar-label">−63 392 ₽</text><text x="158.8" y="250" text-anchor="middle" class="axis-label">Сц.0</text><rect x="306.8" y="110.6" width="115.1" height="33.2" rx="4" fill="var(--poor)"/><text x="364.4" y="159.8" text-anchor="middle" class="bar-label">−18 576 ₽</text><text x="364.4" y="250" text-anchor="middle" class="axis-label">Сц.1</text><rect x="512.4" y="110.6" width="115.1" height="3.8" rx="4" fill="var(--poor)"/><text x="570.0" y="130.4" text-anchor="middle" class="bar-label">−2 147 ₽</text><text x="570.0" y="250" text-anchor="middle" class="axis-label">Сц.2</text><rect x="718.0" y="62.5" width="115.1" height="48.1" rx="4" fill="var(--excellent)"/><text x="775.6" y="54.5" text-anchor="middle" class="bar-label">+26 869 ₽</text><text x="775.6" y="250" text-anchor="middle" class="axis-label">Сц.3</text><rect x="923.6" y="20.0" width="115.1" height="90.6" rx="4" fill="var(--primary)"/><text x="981.2" y="12.0" text-anchor="middle" class="bar-label">+50 646 ₽</text><text x="981.2" y="250" text-anchor="middle" class="axis-label">Сц.4*</text></svg></div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-foot">Сценарий 1 — среднее апрель/июнь/июль (уже доказано достижимо). Сценарий 2 — правило цены (слайд 10). Сценарий 3 — рост доли визитов с пакетом анализов на 15 п.п. (с 47% до 62%). Сценарий 4* — плюс 13 визитов/мес от местных работодателей (профосмотры) — это предположение, не факт: спрос не проверялся.</div>
+</section>
+</div>
+
+<!-- 6. КАЛЬКУЛЯТОР ПОТЕНЦИАЛА -->
+<div class="slide-frame">
+<section class="slide" id="s5b">
+  <div class="slide-head">
+    <div class="eyebrow">Калькулятор потенциала · прикидка, не точный расчёт</div>
+    <h2 class="slide-title">Сколько нужно, чтобы дойти до конкретной цели</h2>
+    <p class="slide-sub">Двигайте ползунки — для разговора «а если...». Сценарии 0-3 на предыдущем слайде остаются точным расчётом по реальным данным.</p>
+  </div>
+  <div class="slide-body">
+    <div class="scn-toggle" id="calcPresets" style="flex:0 0 auto;">
+      <button class="scn-btn" data-cs="0">0 · Факт</button>
+      <button class="scn-btn" data-cs="1">1 · Стабилизация потока</button>
+      <button class="scn-btn" data-cs="2">2 · + Цена</button>
+      <button class="scn-btn" data-cs="3">3 · + Допродажа (62%)</button>
+      <button class="scn-btn" data-cs="4">4 · + Корп.сегмент*</button>
+    </div>
+    <div class="row" style="flex:1; gap:var(--gap);">
+      <div class="card" style="flex:1.1; gap:20px;">
+        <div class="card-title" style="margin-bottom:-6px;">Параметры — жмите сценарий выше или двигайте ползунки сами</div>
+
+        <div>
+          <div style="display:flex; justify-content:space-between; font-size:14px;"><span>Визитов в месяц</span><b id="vVisits" class="tabular">180</b></div>
+          <input type="range" id="slVisits" min="100" max="350" step="5" value="180" style="width:100%;">
+          <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--muted-foreground);"><span>100</span><span>лучший месяц (июль): 197</span><span>350</span></div>
+        </div>
+
+        <div>
+          <div style="display:flex; justify-content:space-between; font-size:14px;"><span>Доля визитов, где предложили пакет анализов</span><b id="vProfile" class="tabular">47%</b></div>
+          <input type="range" id="slProfile" min="30" max="80" step="1" value="47" style="width:100%;">
+          <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--muted-foreground);"><span>30%</span><span>сейчас: 47%</span><span>80%</span></div>
+        </div>
+
+        <div>
+          <div style="display:flex; justify-content:space-between; font-size:14px;"><span>Применение правила цены (слайд 10)</span><b id="vPricing" class="tabular">0%</b></div>
+          <input type="range" id="slPricing" min="0" max="100" step="10" value="0" style="width:100%;">
+        </div>
+
+        <div>
+          <div style="display:flex; justify-content:space-between; font-size:14px;"><span>Доп. корпоративные визиты/мес</span><b id="vCorp" class="tabular">0</b></div>
+          <input type="range" id="slCorp" min="0" max="60" step="1" value="0" style="width:100%;">
+          <div style="font-size:12px; color:var(--muted-foreground);">это не проверено — мы не знаем, какой у местных работодателей спрос на такие визиты</div>
+        </div>
+      </div>
+
+      <div class="col" style="flex:1;">
+        <div class="card kpi" id="calcCard" style="--status:var(--poor); flex:1; justify-content:center;">
+          <div class="kpi-label">Расчётная прибыль в месяц</div>
+          <div class="kpi-value" id="calcPnl" style="font-size:52px; color:var(--poor-text);">−17 470 ₽</div>
+          <div class="kpi-compare muted" id="calcRev">выручка ≈ 392 250 ₽/мес</div>
+        </div>
+        <div class="card" style="font-size:13px; color:var(--muted-foreground); line-height:1.5;">
+          <b style="color:var(--foreground);">Как считает:</b> прибыль с визита — измеренная (754₽ без пакета анализов / 1829₽ с пакетом), корпоративный визит считается как визит с пакетом. Цена — % от посчитанного эффекта (слайд 10). Постоянные расходы — труд + аренда + налоги ≈ 244 135 ₽/мес (факт). Упрощённый расчёт — для сценариев 0-4 опирайтесь на точные цифры (слайд 11).
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-foot">Ориентир: чтобы получить +150 000 ₽/мес при текущей структуре маржи, нужно ≈315 визитов/мес — на 66% больше лучшего месяца в истории.</div>
+</section>
+</div>
+
+<!-- 6b. КОРПОРАТИВНЫЕ КОМПЛЕКСЫ 1/2 -->
+<div class="slide-frame">
+<section class="slide" id="s5c">
+  <div class="slide-head">
+    <div class="eyebrow">Корпоративный сегмент · что предлагать (1/2)</div>
+    <h2 class="slide-title">8 готовых комплексов — из позиций с маржой выше среднего</h2>
+    <p class="slide-sub">Ничего нового не выдумываем — это то, что и так хорошо продаётся, просто собранное в наборы под конкретный повод.</p>
+  </div>
+  <div class="slide-body" style="justify-content:center;">
+    <table style="font-size:13px;">
+      <tr><th style="width:15%;">Комплекс</th><th style="width:30%;">Состав</th><th>Почему именно он</th></tr>
+      <tr><td><b>Базовое здоровье</b></td><td>Общий анализ крови + Общий анализ мочи + Глюкоза + Холестерин + Мочевина</td><td>Привычный набор без объяснений — все 5 позиций уже в топе по спросу, маржа ≈59%</td></tr>
+      <tr><td><b>Контроль сахара</b></td><td>Глюкоза + Гликозилированный гемоглобин + Общий анализ крови</td><td>Диабет и преддиабет — самая частая хроническая тема 40+, даёт повод на регулярность раз в полгода, маржа ≈59%</td></tr>
+      <tr><td><b>Женское здоровье</b></td><td>Ферритин + Витамин D + Витамин B12 + Общий анализ крови</td><td>Дефицит железа и витамина D — самый частый женский запрос; сегмент 30–59 и так приносит больше всех выручки, маржа ≈60%</td></tr>
+      <tr><td><b>Щитовидная железа</b></td><td>ТТГ + Т4 свободный + Антитела к ТПО</td><td>Ровно то, что уже направляют нутрициологи — комплекс формализует существующий канал, маржа ≈50%</td></tr>
+    </table>
+  </div>
+  <div class="slide-foot">Маржа — среднее по марже входящих позиций, посчитано по факту продаж за 9 мес. Продолжение — следующий слайд.</div>
+</section>
+</div>
+
+<!-- 6c. КОРПОРАТИВНЫЕ КОМПЛЕКСЫ 2/2 -->
+<div class="slide-frame">
+<section class="slide" id="s5c2">
+  <div class="slide-head">
+    <div class="eyebrow">Корпоративный сегмент · что предлагать (2/2)</div>
+    <h2 class="slide-title">Ещё 4 комплекса — на позициях с самой высокой маржой</h2>
+    <p class="slide-sub">Печень и почки дают маржу выше, чем всё остальное в прайсе — на них можно предлагать щедрее.</p>
+  </div>
+  <div class="slide-body" style="justify-content:center;">
+    <table style="font-size:13px;">
+      <tr><th style="width:15%;">Комплекс</th><th style="width:30%;">Состав</th><th>Почему именно он</th></tr>
+      <tr><td><b>Печень и обмен веществ</b></td><td>АЛТ + АСТ + Билирубин + Холестерин + Глюкоза</td><td>Самая высокая маржа из всех 8 комплексов — ≈70%, все 5 позиций входят в топ-30 по марже сами по себе</td></tr>
+      <tr><td><b>Сердце и сосуды</b></td><td>Холестерин общий + ЛПНП + ЛПВП + С-реактивный белок</td><td>45–59 лет — вторая по размеру возрастная группа клиентов, маржа ≈66%</td></tr>
+      <tr><td><b>Мужское здоровье</b></td><td>ПСА + Тестостерон + Креатинин</td><td>Мужчины — только 34% пациентов (280 из 829), отдельный повод их привлечь, маржа ≈57%</td></tr>
+      <tr><td><b>Почки и соли</b></td><td>Креатинин + СКФ + Калий/Натрий/Хлор + Мочевая кислота</td><td>Вторая по доходности маржа (≈69%), подходит для физического труда — актуально для завода «Молот»</td></tr>
+    </table>
+    <div class="card" style="flex:0 0 auto; padding:14px 24px;">
+      <div class="card-title" style="font-size:14px; margin-bottom:2px;">Как оформлять для партнёра</div>
+      <p style="font-size:13px; line-height:1.4; margin:0;">Не «скидка», а «комплексное обследование для ваших сотрудников» с фиксированной ценой. Проводить после 10 утра — это время, когда поток и так падает (слайд 16), а не создаёт нагрузку сверху. Предлагать и для членов семьи сотрудника — расширяет охват без новых переговоров.</p>
+    </div>
+  </div>
+  <div class="slide-foot">Доля мужчин — факт по полю «Пол» в выгрузке Ситисофт. Полный список всех 300 услуг — слайды 19–27 в конце колоды, с кодом и выручкой — в приложенном xlsx-файле. Комплексы — рабочая гипотеза для первого партнёра, не финальный прайс.</div>
+</section>
+</div>
+
+<!-- 6c. НАПРАВЛЯЮЩИЕ ПАРТНЁРЫ -->
+<div class="slide-frame">
+<section class="slide" id="s5d">
+  <div class="slide-head">
+    <div class="eyebrow">Направляющие партнёры</div>
+    <h2 class="slide-title">Сначала партнёр получает ценность сам — потом делится ей с клиентами</h2>
+    <p class="slide-sub">Узисты, нутрициологи, аптеки — такой канал уже есть, просто без системы.</p>
+  </div>
+  <div class="slide-body">
+    <div class="card" style="flex:0 0 auto; padding:16px 24px; --status:var(--info);">
+      <div class="kpi-label" style="color:var(--info-text);">Принцип</div>
+      <p style="font-size:14px; line-height:1.4; margin:4px 0 0;">Не «вот вам процент», а конкретная забота о человеке — личное внимание вместо коммерческого условия. Предложение никогда не звучит как скидка.</p>
+    </div>
+    <div class="row">
+      <div class="card" style="flex:1;">
+        <div class="card-title">Узисты</div>
+        <p style="font-size:13px; line-height:1.4; margin:4px 0 0;">3 точки в городе, 2 — личные знакомые. Предложить обследование для них самих или их семей бесплатно или по себестоимости.</p>
+      </div>
+      <div class="card" style="flex:1;">
+        <div class="card-title">Нутрициологи</div>
+        <p style="font-size:13px; line-height:1.4; margin:4px 0 0;">Уже направляют клиентов (пример — специалист из «Здоровье»). Закрепить за ними пакет «Щитовидная железа» (слайд 13) — чтобы было что конкретно предлагать.</p>
+      </div>
+      <div class="card" style="flex:1;">
+        <div class="card-title">Аптеки «Альчиковские»</div>
+        <p style="font-size:13px; line-height:1.4; margin:4px 0 0;">7 точек по городу. Начать с предложения для их собственных сотрудников — прежде чем просить направлять клиентов.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-foot">Не делать: не выходить с фразой «дадим скидку» — по итогам разговора 05.10.2026 решили, что предложение всегда звучит как забота о конкретном человеке, не как коммерческое условие.</div>
+</section>
+</div>
+
+<!-- 12. ПЕРСОНАЛ -->
+<div class="slide-frame">
+<section class="slide" id="s12">
+  <div class="slide-head">
+    <div class="eyebrow">Резерв персонала и пики нагрузки</div>
+    <h2 class="slide-title">89% визитов — в окне 7:00–10:00: подмена нужна на 3 часа, не на день</h2>
+    <p class="slide-sub">Вариант «подменная + выездная медсестра в одном найме» дешевле двух отдельных решений.</p>
+  </div>
+  <div class="slide-body">
+    <div class="row">
+      <div class="card" style="flex:1.3;">
+        <div class="card-title" style="margin-bottom:4px;">В какой час приходит сколько визитов — % от всех визитов за день</div>
+        <div id="chartHours"><svg viewBox="0 0 1100 260" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" ><line x1="56" y1="224.0" x2="1084" y2="224.0" class="grid-line"/><rect x="93.7" y="193.4" width="95.9" height="30.6" rx="4" fill="var(--chart-1)"/><text x="141.7" y="185.4" text-anchor="middle" class="bar-label">6%</text><text x="141.7" y="250" text-anchor="middle" class="axis-label">6ч</text><rect x="265.0" y="20.0" width="95.9" height="204.0" rx="4" fill="var(--chart-1)"/><text x="313.0" y="12.0" text-anchor="middle" class="bar-label">38%</text><text x="313.0" y="250" text-anchor="middle" class="axis-label">7ч</text><rect x="436.4" y="44.2" width="95.9" height="179.8" rx="4" fill="var(--chart-1)"/><text x="484.3" y="36.2" text-anchor="middle" class="bar-label">34%</text><text x="484.3" y="250" text-anchor="middle" class="axis-label">8ч</text><rect x="607.7" y="129.0" width="95.9" height="95.0" rx="4" fill="var(--chart-1)"/><text x="655.7" y="121.0" text-anchor="middle" class="bar-label">18%</text><text x="655.7" y="250" text-anchor="middle" class="axis-label">9ч</text><rect x="779.0" y="200.9" width="95.9" height="23.1" rx="4" fill="var(--chart-1)"/><text x="827.0" y="192.9" text-anchor="middle" class="bar-label">4%</text><text x="827.0" y="250" text-anchor="middle" class="axis-label">10ч</text><rect x="950.4" y="220.2" width="95.9" height="3.8" rx="4" fill="var(--border-strong)"/><text x="998.3" y="212.2" text-anchor="middle" class="bar-label">1%</text><text x="998.3" y="250" text-anchor="middle" class="axis-label">11-12ч</text></svg></div>
+      </div>
+      <div class="card" style="flex:1;">
+        <div class="card-title" style="margin-bottom:6px;">Варианты резерва (от дешёвого)</div>
+        <ol class="ranked">
+          <li class="gi"><span class="num">1</span><span class="txt">Отпуск — на непиковые месяцы (бесплатно)</span></li>
+          <li class="gi"><span class="num">2</span><span class="txt">Подменная по вызову, оплата за выход</span></li>
+          <li class="gi"><span class="num">3</span><span class="txt">Медсестра из ЦРБ по совместительству</span></li>
+          <li class="gi"><span class="num">4</span><span class="txt">Вторая ставка под выездной забор — финансируется самой услугой</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <div class="slide-foot">Один незаменимый человек — риск, реализовавшийся в мае (отпуск совпал с 2-недельным провалом продаж). Финансирование — из сценария 3 (слайд 11).</div>
+</section>
+</div>
+
+<!-- 13. ТОЧКИ РОСТА (ИТОГ) -->
+<div class="slide-frame">
+<section class="slide" id="s6">
+  <div class="slide-head">
+    <div class="eyebrow">Итог · точки роста по приоритету</div>
+    <h2 class="slide-title">11 точек роста — собрано всё, что разобрали по пути</h2>
+    <p class="slide-sub">Собрано по трём вопросам: насколько мы уверены в цифрах, какой эффект и насколько легко внедрить. Детали — на слайдах, указанных у каждого пункта.</p>
+  </div>
+  <div class="slide-body" style="flex-direction:row; gap:16px;">
+    <ol class="ranked" style="flex:1;">
+      <li class="gi"><span class="num">1</span><span class="txt"><b>Стабилизировать поток</b> до уровня апреля–июля + закрыть риск «один незаменимый человек» <span class="muted">→ слайды 11, 12, 16</span></span></li>
+      <li class="gi"><span class="num">2</span><span class="txt"><b>Поднять цены</b> на флагманские позиции, где отставание от Гемотеста 20–28% <span class="muted">→ слайд 6, 10</span></span></li>
+      <li class="gi"><span class="num">3</span><span class="txt"><b>Пересмотреть цену</b> на 6 позиций из топ-30 с маржой ниже средней <span class="muted">→ слайд 10</span></span></li>
+      <li class="gi"><span class="num">4</span><span class="txt"><b>Сменить то, чем вы привлекаете клиентов</b> — «конфиденциальность» → «без очереди/быстро» <span class="muted">→ слайд 7</span></span></li>
+      <li class="gi"><span class="num">5</span><span class="txt"><b>Скрипт администратору</b> на предложение пакета анализов вместо одного анализа, цель — 62% визитов вместо 47% <span class="muted">→ слайд 8, 11, 12</span></span></li>
+      <li class="gi"><span class="num">6</span><span class="txt"><b>Расти за счёт людей 30–59 лет</b>, а не пенсионеров — они тратят за визит больше всех (≈2 450–2 490₽ против 1 741₽ у 60+) <span class="muted">→ слайд 9</span></span></li>
+    </ol>
+    <ol class="ranked" style="flex:1;" start="7">
+      <li class="gi"><span class="num">7</span><span class="txt"><b>Напоминания</b> о повторной сдаче цикличных анализов (ТТГ, HbA1c, Ферритин) <span class="muted">→ слайд 9</span></span></li>
+      <li class="gi"><span class="num">8</span><span class="txt"><b>Корпоративный сегмент</b> — профосмотры для местных работодателей, нужно 13 визитов/мес для цели +50 646 ₽ <span class="muted">*спрос не проверен → слайды 11, 13, 14, 15</span></span></li>
+      <li class="gi"><span class="num">9</span><span class="txt"><b>Выездной забор крови на дом</b> — конкурент уже предлагает, спрос вероятен <span class="muted">→ слайд 16</span></span></li>
+      <li class="gi"><span class="num">10</span><span class="txt"><b>Усилить видимость</b> в отзывах и на картах — у «Мои Анализы» отзывов не найдено</span></li>
+      <li class="gi"><span class="num">11</span><span class="txt"><b>Сгладить график налоговых платежей</b> — рывками добивают в минус даже хорошие месяцы <span class="muted">→ слайд 4</span></span></li>
+    </ol>
+  </div>
+  <div class="slide-foot">Источники по рынку: team-b.ru, biorise.ru — продвижение и экономика лабораторий анализов.</div>
+</section>
+</div>
+
+<!-- 14. ПЛАН ДЕЙСТВИЙ -->
+<div class="slide-frame">
+<section class="slide" id="s13">
+  <div class="slide-head">
+    <div class="eyebrow">Итог</div>
+    <h2 class="slide-title">Что сделать в первую очередь</h2>
+    <p class="slide-sub">Разница между «как сейчас» и «как могло бы быть» — ≈114 000 ₽ в месяц (≈1 370 000 ₽/год), тем же составом команды.</p>
+  </div>
+  <div class="slide-body">
+    <ol class="ranked">
+      <li class="gi"><span class="num">1</span><span class="txt">Зафиксировать подменную медсестру на утреннее окно (6:30–10:00) — закрыть риск простоя</span></li>
+      <li class="gi"><span class="num">2</span><span class="txt">Поднять цены по правилу слайда 10 — начать с топ-позиций, где отставание от рынка 20%+</span></li>
+      <li class="gi"><span class="num">3</span><span class="txt">Внедрить скрипт администратора на предложение пакета анализов — цель 62% визитов вместо 47%</span></li>
+      <li class="gi"><span class="num">4</span><span class="txt">Сменить, чем вы привлекаете клиентов — «без очереди» вместо «конфиденциальность»</span></li>
+      <li class="gi"><span class="num">5</span><span class="txt">Обсудить с бухгалтером график налоговых платежей — убрать рывки, которые топят кассу</span></li>
+    </ol>
+    <div class="card" style="--status:var(--info);" class="card kpi">
+      <div class="kpi-label">Честно не включено в расчёт</div>
+      <p style="font-size:14px; line-height:1.5; margin:4px 0 0; color:var(--muted-foreground);">Август–сентябрь 2026 — нет данных о продажах в выгрузке. Итоговая цифра +50 646 ₽/мес почти наполовину держится на корпоративном сегменте (13 визитов/мес) — это предположение, спрос у местных работодателей не проверен.</p>
+    </div>
+  </div>
+  <div class="slide-foot">Команда Роста · аудит подготовлен 02.10.2026</div>
+</section>
+</div>
+
+<!-- Приложение 1/9 -->
+<div class="slide-frame">
+<section class="slide" id="sA1">
+  <div class="slide-head">
+    <div class="eyebrow">Приложение · полный список услуг (1/9)</div>
+    <h2 class="slide-title">Топ по спросу, маржа выше средней — 69 услуг, правило «0% — держать»</h2>
+    <p class="slide-sub">Формат: «название — сколько раз заказали за 9 мес, маржа в % от цены». Отсортировано по количеству заказов, от самых частых к редким.</p>
+  </div>
+  <div class="slide-body"><ul class="applist" style="columns:4; column-gap:18px; font-size:10.5px; line-height:1.25; height:405px;"><li>ПРОФИЛЬ Клинический (общий) анализ крови (CBC, 5-Diff) с микроскопией мазка крови при выявлении патологических изменений + СОЭ <span class="muted">— 406 шт, 58%</span></li><li>Т4 свободный <span class="muted">— 185 шт, 64%</span></li><li>Глюкоза <span class="muted">— 184 шт, 63%</span></li><li>АЛТ (аланинаминотрансфераза) <span class="muted">— 145 шт, 71%</span></li><li>АСТ (аспартатаминотрансфераза) <span class="muted">— 142 шт, 71%</span></li><li>Липидный профиль <span class="muted">— 140 шт, 69%</span></li><li>Гликозилированный гемоглобин (HBA1c) <span class="muted">— 127 шт, 56%</span></li><li>Т3 свободный <span class="muted">— 116 шт, 59%</span></li><li>Креатинин <span class="muted">— 110 шт, 62%</span></li><li>Общий белок в крови <span class="muted">— 95 шт, 72%</span></li><li>Холестерин общий <span class="muted">— 81 шт, 72%</span></li><li>25-OH Витамин D общий (25-гидроксикальциферол) <span class="muted">— 79 шт, 62%</span></li><li>Билирубин общий <span class="muted">— 73 шт, 72%</span></li><li>Витамин B12 в сыворотке <span class="muted">— 68 шт, 69%</span></li><li>Мочевина <span class="muted">— 61 шт, 72%</span></li><li>С-реактивный белок (высокочувствительный) <span class="muted">— 58 шт, 72%</span></li><li>Простатический специфический антиген (ПСА) общий <span class="muted">— 55 шт, 55%</span></li><li>Щелочная фосфатаза <span class="muted">— 50 шт, 62%</span></li><li>Мочевая кислота <span class="muted">— 46 шт, 69%</span></li><li>Кальций общий (Ca) <span class="muted">— 40 шт, 72%</span></li><li>Гомоцистеин <span class="muted">— 40 шт, 67%</span></li><li>Коагулограмма <span class="muted">— 40 шт, 55%</span></li><li>ГГТП (гамма-глутамилтранспептидаза) <span class="muted">— 37 шт, 73%</span></li><li>ПРОФИЛЬ Железосвязывающая способность сыворотки (ОЖСС) <span class="muted">— 36 шт, 56%</span></li><li>Исследование уровня Калия (K+) в крови <span class="muted">— 35 шт, 57%</span></li><li>Реакция микропреципитации с нетрепонемным антигеном (экспресс-тест на сифилис, антикардиолипиновый тест, RPR) <span class="muted">— 35 шт, 59%</span></li><li>Трансферрин <span class="muted">— 34 шт, 70%</span></li><li>С-реактивный белок (СРБ) <span class="muted">— 33 шт, 72%</span></li><li>Инсулин <span class="muted">— 32 шт, 57%</span></li><li>Паратиреоидный гормон (паратгормон) <span class="muted">— 32 шт, 63%</span></li><li>Кальций ионизированный  (Ca++) <span class="muted">— 31 шт, 82%</span></li><li>Магний <span class="muted">— 30 шт, 66%</span></li><li>ПРОФИЛЬ "7 биохимических показателей" <span class="muted">— 28 шт, 79%</span></li><li>Фолиевая кислота (фолаты) <span class="muted">— 28 шт, 69%</span></li><li>Определение уровня Цинка (Zn) колориметрическим методом в крови <span class="muted">— 27 шт, 74%</span></li><li>Железо сывороточное <span class="muted">— 24 шт, 68%</span></li><li>Общий анализ кала (Копрограмма) <span class="muted">— 24 шт, 81%</span></li><li>HBsAg (поверхностный антиген «s» вируса гепатита B, «австралийский» антиген), качественное исследование <span class="muted">— 23 шт, 64%</span></li><li>Ревматоидный фактор <span class="muted">— 20 шт, 59%</span></li><li>Кальцитонин <span class="muted">— 19 шт, 61%</span></li><li>Калий, Натрий, Хлор (К+, Na+, Cl-) <span class="muted">— 19 шт, 77%</span></li><li>Исследование уровня Натрия (Na+) в крови <span class="muted">— 18 шт, 57%</span></li><li>Лютеинизирующий гормон (ЛГ) <span class="muted">— 17 шт, 57%</span></li><li>Липопротеины высокой плотности (ЛПВП, HDL) <span class="muted">— 16 шт, 65%</span></li><li>Профиль Обследование печени, базовый <span class="muted">— 16 шт, 79%</span></li><li>Фолликулостимулирующий гормон (ФСГ) <span class="muted">— 16 шт, 55%</span></li><li>Хорионический гонадотропин человека (ХГЧ, бета-ХГЧ, Human Chorionic Gonadotropin) <span class="muted">— 15 шт, 57%</span></li><li>Альбумин (абс) <span class="muted">— 15 шт, 74%</span></li><li>Альфа-амилаза панкреатическая <span class="muted">— 14 шт, 70%</span></li><li>Скорость клубочковой фильтрации (СКФ), расчет по формуле CKD-EPI – креатинин (с 18 лет) <span class="muted">— 14 шт, 68%</span></li><li>Суммарные антитела к Treponema pallidum (ИФА) <span class="muted">— 13 шт, 61%</span></li><li>ПРОФИЛЬ Клинический (общий) анализ крови (CBC, 5-Diff) с обязательной «ручной» микроскопией мазка крови + СОЭ <span class="muted">— 12 шт, 73%</span></li><li>Билирубин прямой (конъюгированный) <span class="muted">— 11 шт, 73%</span></li><li>Альфа-амилаза <span class="muted">— 11 шт, 66%</span></li><li>Определение уровня Меди (Cu) колориметрическим методом в крови <span class="muted">— 10 шт, 72%</span></li><li>Липаза <span class="muted">— 9 шт, 56%</span></li><li>Ат к Ascaris IgG (аскарида) <span class="muted">— 9 шт, 74%</span></li><li>Макропролактин <span class="muted">— 8 шт, 55%</span></li><li>Креатинфосфокиназа <span class="muted">— 8 шт, 63%</span></li><li>Фосфор (Р) <span class="muted">— 8 шт, 67%</span></li><li>Исследование кала на яйца гельминтов, простейшие и энтеробиоз <span class="muted">— 8 шт, 71%</span></li><li>Посев (моча) на флору с определением чувствительности к антибиотикам <span class="muted">— 8 шт, 56%</span></li><li>ПРОФИЛЬ Клинический (общий) анализ капиллярной крови (CBC, 5-Diff) с микроскопией мазка крови при выявлении патологических изменений + СОЭ <span class="muted">— 7 шт, 68%</span></li><li>Ат к Trichinella IgG (трихинелла) <span class="muted">— 7 шт, 70%</span></li><li>Раково-эмбриональный антиген (РЭА) <span class="muted">— 7 шт, 56%</span></li><li>ПРОФИЛЬ Клинический (общий) анализ крови (CBC, 5-Diff) с обязательной «ручной» микроскопией мазка крови + СОЭ - капиллярная кровь <span class="muted">— 7 шт, 71%</span></li><li>Ат к лямблии суммарные (Giadia lamblia) <span class="muted">— 7 шт, 64%</span></li><li>Ат к Opisthorchis IgG (описторхи) <span class="muted">— 6 шт, 77%</span></li><li>Ат к Toxocara canis IgG (возбудитель токсокароза) <span class="muted">— 6 шт, 69%</span></li></ul></div>
+  <div class="slide-foot">Источник: выгрузка Ситисофт, та же методика, что на слайде 10 (Ценообразование). Код услуги и точная выручка по каждой позиции — в приложенном xlsx-файле.</div>
+</section>
+</div>
+
+<!-- Приложение 2/9 -->
+<div class="slide-frame">
+<section class="slide" id="sA2">
+  <div class="slide-head">
+    <div class="eyebrow">Приложение · полный список услуг (2/9)</div>
+    <h2 class="slide-title">Топ по спросу, маржа ниже средней — 31 услуг, правило «+12%»</h2>
+    <p class="slide-sub">Формат: «название — сколько раз заказали за 9 мес, маржа в % от цены». Отсортировано по количеству заказов, от самых частых к редким.</p>
+  </div>
+  <div class="slide-body"><ul class="applist" style="columns:3; column-gap:18px; font-size:11.5px; line-height:1.25; height:405px;"><li>ТТГ чувствительный (тиреотропный гормон) <span class="muted">— 281 шт, 52%</span></li><li>Ферритин <span class="muted">— 186 шт, 51%</span></li><li>Общий анализ мочи <span class="muted">— 148 шт, 28%</span></li><li>Ат к тиреопероксидазе (анти-ТПО) <span class="muted">— 73 шт, 33%</span></li><li>Пролактин <span class="muted">— 48 шт, 50%</span></li><li>Билирубин и его фракции (общий, прямой, непрямой) <span class="muted">— 35 шт, 54%</span></li><li>Инфекции для госпитализации - скрининг: ВИЧ-Комбо (Ат к ВИЧ1, 2+АГ); Ат к Тrер. pallidum (сум.); Гепатит В (HBsAg); Гепатит С (Анти-НСV, сум.); Реакция с нетрепонемным АГ (RPR) <span class="muted">— 31 шт, 47%</span></li><li>Липопротеины низкой плотности (ЛПНП,LDL-direct) <span class="muted">— 29 шт, 54%</span></li><li>Тестостерон <span class="muted">— 28 шт, 54%</span></li><li>Посев кала на дисбактериоз <span class="muted">— 25 шт, 47%</span></li><li>Суммарные антитела к вирусу гепатита C (anti-HCV-total) <span class="muted">— 23 шт, 46%</span></li><li>ВИЧ-Комбо (HIV Ag/Ab Combo): антитела к вирусу иммунодефицита человека 1, 2 типов + антиген p24 <span class="muted">— 22 шт, 37%</span></li><li>Протромбин (по Квику) + МНО <span class="muted">— 21 шт, 48%</span></li><li>Кортизол <span class="muted">— 21 шт, 36%</span></li><li>Группа крови + резус фактор(RhD) <span class="muted">— 18 шт, 42%</span></li><li>Эстрадиол Е2 <span class="muted">— 17 шт, 50%</span></li><li>Антитела класса G (IgG) к хеликобактер пилори (Helicobacter pylori), количественное исследование <span class="muted">— 16 шт, 46%</span></li><li>ПРОФИЛЬ Индекс HOMA-IR <span class="muted">— 16 шт, 52%</span></li><li>Кортизол в слюне (утренняя порция) <span class="muted">— 15 шт, 54%</span></li><li>Прогестерон <span class="muted">— 13 шт, 37%</span></li><li>Д-Димер <span class="muted">— 13 шт, 40%</span></li><li>Иммуноглобулин Е (IgE) <span class="muted">— 12 шт, 46%</span></li><li>Лактат (молочная кислота) <span class="muted">— 9 шт, 51%</span></li><li>С-пептид <span class="muted">— 9 шт, 42%</span></li><li>Аг Helicobacter pylori в кале <span class="muted">— 9 шт, 46%</span></li><li>Тестостерон свободный <span class="muted">— 8 шт, 43%</span></li><li>АЧТВ <span class="muted">— 8 шт, 43%</span></li><li>Селен (Se) в крови (масспектрометрия) по методу доктора Скального <span class="muted">— 7 шт, 20%</span></li><li>Ат к тиреоглобулину (анти-ТГ) <span class="muted">— 7 шт, 38%</span></li><li>Анализ кала на скрытую кровь <span class="muted">— 7 шт, 27%</span></li><li>CA 19-9 <span class="muted">— 7 шт, 54%</span></li></ul></div>
+  <div class="slide-foot">Источник: выгрузка Ситисофт, та же методика, что на слайде 10 (Ценообразование). Код услуги и точная выручка по каждой позиции — в приложенном xlsx-файле.</div>
+</section>
+</div>
+
+<!-- Приложение 3/9 -->
+<div class="slide-frame">
+<section class="slide" id="sA3">
+  <div class="slide-head">
+    <div class="eyebrow">Приложение · полный список услуг (3/9)</div>
+    <h2 class="slide-title">Средние по спросу, маржа выше средней — 21 услуг, правило «0% — держать»</h2>
+    <p class="slide-sub">Формат: «название — сколько раз заказали за 9 мес, маржа в % от цены». Отсортировано по количеству заказов, от самых частых к редким.</p>
+  </div>
+  <div class="slide-body"><ul class="applist" style="columns:2; column-gap:18px; font-size:12.5px; line-height:1.25; height:405px;"><li>Глюкоза - капиллярная кровь <span class="muted">— 6 шт, 65%</span></li><li>Исследование мазка со слизистой носа (риноцитограмма), одна локализация <span class="muted">— 6 шт, 84%</span></li><li>Стандартная антибиотикограмма выделенного микроорганизма <span class="muted">— 6 шт, 75%</span></li><li>Фруктозамин <span class="muted">— 6 шт, 72%</span></li><li>Триглицериды <span class="muted">— 6 шт, 66%</span></li><li>Тиреоглобулин <span class="muted">— 6 шт, 55%</span></li><li>Профиль Биохимический анализ крови, базовый <span class="muted">— 5 шт, 74%</span></li><li>Исследование на энтеробиоз <span class="muted">— 4 шт, 70%</span></li><li>Ат к Echinococcus IgG (эхинококк) <span class="muted">— 4 шт, 77%</span></li><li>Профиль биохимический Функция печени <span class="muted">— 4 шт, 65%</span></li><li>HBsAg (поверхностный антиген «s» вируса гепатита B, «австралийский» антиген) методом ИФА, качественное исследование <span class="muted">— 3 шт, 60%</span></li><li>Общий анализ крови (CBC/Diff - 5 фракций лейкоцитов) <span class="muted">— 3 шт, 70%</span></li><li>ПРОФИЛЬ «Основные биохимические показатели крови» <span class="muted">— 3 шт, 77%</span></li><li>Липопротеин (a), Lp(a) <span class="muted">— 3 шт, 75%</span></li><li>Исследование кала на простейшие и яйца гельминтов (микроскопия) <span class="muted">— 3 шт, 66%</span></li><li>HBsAg (антиген "s" вируса гепатита B) подтверждающий тест ИФА <span class="muted">— 2 шт, 55%</span></li><li>CA 125 <span class="muted">— 2 шт, 56%</span></li><li>Профиль «Ежегодное обследование» <span class="muted">— 2 шт, 63%</span></li><li>Микроальбумин в суточной моче <span class="muted">— 2 шт, 55%</span></li><li>СОЭ (по Вестергрен) <span class="muted">— 2 шт, 65%</span></li><li>Stop-паразит <span class="muted">— 2 шт, 65%</span></li></ul></div>
+  <div class="slide-foot">Источник: выгрузка Ситисофт, та же методика, что на слайде 10 (Ценообразование). Код услуги и точная выручка по каждой позиции — в приложенном xlsx-файле.</div>
+</section>
+</div>
+
+<!-- Приложение 4/9 -->
+<div class="slide-frame">
+<section class="slide" id="sA4">
+  <div class="slide-head">
+    <div class="eyebrow">Приложение · полный список услуг (4/9)</div>
+    <h2 class="slide-title">Средние по спросу, маржа ниже средней — 54 услуг, правило «+15%»</h2>
+    <p class="slide-sub">Формат: «название — сколько раз заказали за 9 мес, маржа в % от цены». Отсортировано по количеству заказов, от самых частых к редким.</p>
+  </div>
+  <div class="slide-body"><ul class="applist" style="columns:4; column-gap:18px; font-size:10.5px; line-height:1.25; height:405px;"><li>Фибриноген <span class="muted">— 6 шт, 50%</span></li><li>Суммарные антитела к вирусу гепатита С (ИФА) <span class="muted">— 6 шт, 39%</span></li><li>Антимюллеров гормон (АМГ) <span class="muted">— 6 шт, 49%</span></li><li>Ретикулоциты <span class="muted">— 5 шт, 42%</span></li><li>Глобулин, связывающий половые гормоны (SHBG) <span class="muted">— 5 шт, 37%</span></li><li>Панкреатическая эластаза I в кале <span class="muted">— 5 шт, 25%</span></li><li>17 - OH - прогестерон <span class="muted">— 5 шт, 49%</span></li><li>Кальпротектин в кале, количественное исследование <span class="muted">— 5 шт, 3%</span></li><li>Выявление РНК вируса гепатита С (HСV),кровь <span class="muted">— 5 шт, 41%</span></li><li>Подсчёт количества тромбоцитов по методу Фонио (микроскопия окрашенного мазка) <span class="muted">— 4 шт, 49%</span></li><li>Антистрептолизин О (АСЛ-О) <span class="muted">— 4 шт, 52%</span></li><li>Катионный протеин эозинофилов (ECP) — Immulite 2000 Xpi <span class="muted">— 4 шт, 41%</span></li><li>Ат к рецепторам ТТГ <span class="muted">— 4 шт, 28%</span></li><li>Анализ кала на скрытую кровь (колоректальные кровотечения), количественный иммунохимический метод FOB Gold <span class="muted">— 4 шт, 33%</span></li><li>Витамин B9 <span class="muted">— 4 шт, 50%</span></li><li>Антитела класса G (IgG) к циклическим цитруллинированным пептидам (anti-ССP) <span class="muted">— 4 шт, 38%</span></li><li>d1 Клещ домашней пыли /House dust mite /Dermatophagoides pterоnyssinus <span class="muted">— 4 шт, 34%</span></li><li>NT-проBNP (N-терминальный мозговой натрийуретический пропептид) <span class="muted">— 4 шт, 48%</span></li><li>Ат к Treponema pallidum (IgG+IgM) (возбудитель сифилиса) <span class="muted">— 4 шт, 51%</span></li><li>Ат к Chlamydia trachomatis (хламидия трахоматис) IgG <span class="muted">— 4 шт, 50%</span></li><li>Антитела класса M (IgM) к цитомегаловирусу (Cytomegalovirus), полуколич. <span class="muted">— 4 шт, 37%</span></li><li>ПРОФИЛЬ «Мужское здоровье – онкоскрининг (ПСА общий, ПСА свободный, соотношение ПСА свободного к ПСА общему)» <span class="muted">— 4 шт, 45%</span></li><li>Паразиты - расширенный профиль (комплексное исследование) <span class="muted">— 4 шт, 42%</span></li><li>Антитела класса G (IgG) к цитомегаловирусу (Cytomegalovirus), полуколич. <span class="muted">— 4 шт, 49%</span></li><li>ПРОФИЛЬ «Диагностика щитовидной железы» <span class="muted">— 3 шт, 50%</span></li><li>Коагулограмма расширенная <span class="muted">— 3 шт, 54%</span></li><li>Ат к капсидному белку вируса Эпштейна-Барр IgM (EBV VCAIgM) <span class="muted">— 3 шт, 19%</span></li><li>Ат к капсидному белку вируса Эпштейна-Барр IgG (EBV VCAIgG) <span class="muted">— 3 шт, 15%</span></li><li>ПРОФИЛЬ Обследование щитовидной железы <span class="muted">— 3 шт, 46%</span></li><li>Антитела класса M (IgM) к вирусу простого герпеса 1 и 2 типов (Herpes simplex virus types 1, 2), полуколич. <span class="muted">— 3 шт, 20%</span></li><li>CA 15-3 <span class="muted">— 3 шт, 43%</span></li><li>HE-4 <span class="muted">— 3 шт, 31%</span></li><li>Профиль Щитовидная железа - скрининг <span class="muted">— 3 шт, 50%</span></li><li>Адренокортикотропный гормон (АКТГ) (лед!) <span class="muted">— 3 шт, 39%</span></li><li>Ат к Trichomonas vaginalis IgG (трихомонады) <span class="muted">— 3 шт, 51%</span></li><li>Витамин А (ретинол) <span class="muted">— 3 шт, 35%</span></li><li>Ат к париетальным (обкладочным) клеткам желудка <span class="muted">— 3 шт, 50%</span></li><li>Антитела класса G (IgG) к вирусу простого герпеса 1 типа (Herpes simplex virus 1), полуколич. <span class="muted">— 2 шт, 9%</span></li><li>Ат к Mycoplasma hominis (микоплазма хоминис) IgG <span class="muted">— 2 шт, 50%</span></li><li>Лептин <span class="muted">— 2 шт, 49%</span></li><li>Ат к Ureaplasma urealyticum IgG (уреаплазма уреалитикум) <span class="muted">— 2 шт, 52%</span></li><li>Антитела к цитоплазме нейтрофилов класса IgG (АНЦА) методом нРИФ <span class="muted">— 2 шт, 49%</span></li><li>Определение гетерофильных антител (диагностика инфекционного мононуклеоза) <span class="muted">— 2 шт, 6%</span></li><li>Тропонин I (высокочувствительный) <span class="muted">— 2 шт, 36%</span></li><li>Альфафетопротеин (АФП) <span class="muted">— 2 шт, 43%</span></li><li>Антитела класса G (IgG) к вирусу простого герпеса 2 типа (Herpes simplex virus 2), полуколич. <span class="muted">— 2 шт, 4%</span></li><li>Возбудители клещевых инфекций (ДНК/РНК), 2 инфекции: вирус клещевого энцефалита (TBEV), боррелиоз (Borrelia burgdorferi sl), кровь <span class="muted">— 2 шт, 36%</span></li><li>Кальпротектин в кале, качественное исследование <span class="muted">— 2 шт, 42%</span></li><li>Выявление ДНК цитомегаловируса (CMV),кровь <span class="muted">— 2 шт, 38%</span></li><li>Диагностика синдрома Жильбера (определение количества (TA)-повторов в гене UGT1A1) <span class="muted">— 2 шт, 52%</span></li><li>Волчаночный антикоагулянт <span class="muted">— 2 шт, 52%</span></li><li>Хеликобактер пилори, ДНК H.pylori, кач. (кал) <span class="muted">— 2 шт, 16%</span></li><li>Витамин D3 (25-OH D3) <span class="muted">— 2 шт, 40%</span></li><li>Расширенное генотипирование HLA-B27 <span class="muted">— 2 шт, 36%</span></li></ul></div>
+  <div class="slide-foot">Источник: выгрузка Ситисофт, та же методика, что на слайде 10 (Ценообразование). Код услуги и точная выручка по каждой позиции — в приложенном xlsx-файле.</div>
+</section>
+</div>
+
+<!-- Приложение 5/9 -->
+<div class="slide-frame">
+<section class="slide" id="sA5">
+  <div class="slide-head">
+    <div class="eyebrow">Приложение · полный список услуг (5/9)</div>
+    <h2 class="slide-title">Средние по спросу, маржа убыточные — 5 услуг, правило «+30%»</h2>
+    <p class="slide-sub">Формат: «название — сколько раз заказали за 9 мес, маржа в % от цены». Отсортировано по количеству заказов, от самых частых к редким.</p>
+  </div>
+  <div class="slide-body"><ul class="applist" style="columns:1; column-gap:18px; font-size:13px; line-height:1.25; height:405px;"><li>Антинуклеарные Ат (ANA-скрининг, полуколич.) <span class="muted">— 3 шт, -3%</span></li><li>Ат к Borrelia IgG (болезнь Лайма, боррелиоз) <span class="muted">— 2 шт, -19%</span></li><li>Антитела класса M (IgM) к хеликобактер пилори (Helicobacter pylori), количественное исследование <span class="muted">— 2 шт, -4%</span></li><li>ВИЧ-Комбо (HIV Ag/Ab Combo): антитела к вирусу иммунодефицита человека 1, 2 типов + антиген p24, методом ИФА <span class="muted">— 2 шт, 0%</span></li><li>Респираторная панель PROTIA Allerqy-Q, IgE <span class="muted">— 2 шт, -10%</span></li></ul></div>
+  <div class="slide-foot">Источник: выгрузка Ситисофт, та же методика, что на слайде 10 (Ценообразование). Код услуги и точная выручка по каждой позиции — в приложенном xlsx-файле.</div>
+</section>
+</div>
+
+<!-- Приложение 6/9 -->
+<div class="slide-frame">
+<section class="slide" id="sA6">
+  <div class="slide-head">
+    <div class="eyebrow">Приложение · полный список услуг (6/9)</div>
+    <h2 class="slide-title">Редкие по спросу, маржа выше средней — 41 услуг, правило «0% — держать»</h2>
+    <p class="slide-sub">Формат: «название — сколько раз заказали за 9 мес, маржа в % от цены». Отсортировано по количеству заказов, от самых частых к редким.</p>
+  </div>
+  <div class="slide-body"><ul class="applist" style="columns:3; column-gap:18px; font-size:11px; line-height:1.25; height:405px;"><li>Тромбиновое время <span class="muted">— 2 шт, 59%</span></li><li>Ат к Candida albicans IgG <span class="muted">— 2 шт, 61%</span></li><li>Ат к Giardia lamblia IgM (лямблии) <span class="muted">— 2 шт, 55%</span></li><li>Фенотипирование эритроцитов (определение антигенов C, c, E, e, K) <span class="muted">— 1 шт, 58%</span></li><li>ЛДГ (лактатдегидрогеназа) <span class="muted">— 1 шт, 69%</span></li><li>С-концевые телопептиды коллагена (Beta-Cross laps) <span class="muted">— 1 шт, 66%</span></li><li>Остеопороз <span class="muted">— 1 шт, 59%</span></li><li>ПРОФИЛЬ «Биохимический общетерапевтический анализ крови» <span class="muted">— 1 шт, 76%</span></li><li>ПРОФИЛЬ «Антитела классов G (IgG) и M (IgM) к бета-2-гликопротеину, количественное исследование» <span class="muted">— 1 шт, 61%</span></li><li>ПРОФИЛЬ Диагностика антифосфолипидного синдрома (АФС): антинуклеарный фактор (АНФ) на HEp-2 клеточной линии + антитела IgM, IgG к кардиолипину <span class="muted">— 1 шт, 64%</span></li><li>Ат к вирусу кори IgG (Measles IgG) <span class="muted">— 1 шт, 72%</span></li><li>Ат к цитруллинированному виментину (анти-MCV) <span class="muted">— 1 шт, 60%</span></li><li>Антитела к ацетилхолиновому рецептору (АХР) <span class="muted">— 1 шт, 56%</span></li><li>Ренин (прямое определение) <span class="muted">— 1 шт, 60%</span></li><li>Дегидроэпиандростерон-сульфат (ДГЭА-С) <span class="muted">— 1 шт, 61%</span></li><li>РНК вируса гепатита C количественно (ультрачувств) <span class="muted">— 1 шт, 66%</span></li><li>Андрофлор-Скрин: исследование микрофлоры урогенитального тракта мужчин в разовой порции мочи <span class="muted">— 1 шт, 56%</span></li><li>Аполипопротеин В <span class="muted">— 1 шт, 72%</span></li><li>Протеин C <span class="muted">— 1 шт, 55%</span></li><li>Чувствительность к бактериофагам <span class="muted">— 1 шт, 67%</span></li><li>Электрофорез гемоглобина <span class="muted">— 1 шт, 56%</span></li><li>Посев кала на патогенные кишечные палочки (E.Coli, возбудителя диарогенного эшерихиоза) с определением чувствительности к антибиотикам <span class="muted">— 1 шт, 78%</span></li><li>Кардиогенетика. Тромбофилия. Определение полиморфизмов, ассоциированных с риском развития тромбофилии (8 полиморфизмов) <span class="muted">— 1 шт, 58%</span></li><li>Химический анализ конкремента (спектроскопия) <span class="muted">— 1 шт, 56%</span></li><li>Анализ мочи по Нечипоренко (подсчет форменных элементов) <span class="muted">— 1 шт, 68%</span></li><li>Цитологическое исследование мочи <span class="muted">— 1 шт, 73%</span></li><li>Исследование кала на кишечные паразиты методом концентрирования ПАРАСЕП <span class="muted">— 1 шт, 60%</span></li><li>Исследование уровня Хлора (Cl-) в крови <span class="muted">— 1 шт, 67%</span></li><li>Билирубин прямой (конъюгированный) - капиллярная кровь <span class="muted">— 1 шт, 63%</span></li><li>Билирубин общий - капиллярная кровь <span class="muted">— 1 шт, 63%</span></li><li>Анализ полиморфизмов в генах F2 и F5 (факторы свертывающей системы) <span class="muted">— 1 шт, 62%</span></li><li>ПРОФИЛЬ Функция почек (скрининг) <span class="muted">— 1 шт, 62%</span></li><li>Микроальбумин в моче (разовая порция) <span class="muted">— 1 шт, 69%</span></li><li>Прокальцитонин <span class="muted">— 1 шт, 57%</span></li><li>Церулоплазмин <span class="muted">— 1 шт, 55%</span></li><li>Калий, Натрий, Хлориды (К, Na, Cl) в моче (разовая порция) <span class="muted">— 1 шт, 63%</span></li><li>ПРОФИЛЬ Расширенное лабораторное обследование поджелудочной железы <span class="muted">— 1 шт, 60%</span></li><li>Альдостерон-рениновое соотношение (АРС) <span class="muted">— 1 шт, 57%</span></li><li>Профиль Мужская диагностика <span class="muted">— 1 шт, 61%</span></li><li>Коэффициент насыщения трансферрина железом (включает определение железа и ЛЖСС) <span class="muted">— 1 шт, 75%</span></li><li>Общий анализ крови (CBC/Diff - 5 фракций лейкоцитов) - капиллярная кровь <span class="muted">— 1 шт, 63%</span></li></ul></div>
+  <div class="slide-foot">Источник: выгрузка Ситисофт, та же методика, что на слайде 10 (Ценообразование). Код услуги и точная выручка по каждой позиции — в приложенном xlsx-файле.</div>
+</section>
+</div>
+
+<!-- Приложение 7/9 -->
+<div class="slide-frame">
+<section class="slide" id="sA7">
+  <div class="slide-head">
+    <div class="eyebrow">Приложение · полный список услуг (7/9)</div>
+    <h2 class="slide-title">Редкие по спросу, маржа ниже средней — 70 услуг, правило «+20%» (1/2)</h2>
+    <p class="slide-sub">Формат: «название — сколько раз заказали за 9 мес, маржа в % от цены». Отсортировано по количеству заказов, от самых частых к редким.</p>
+  </div>
+  <div class="slide-body"><ul class="applist" style="columns:3; column-gap:18px; font-size:11px; line-height:1.25; height:405px;"><li>Антитромбин III <span class="muted">— 2 шт, 12%</span></li><li>c82 Лидокаин & ксилокаин /Lidocaine & Xylocaine IgE, Dr.Fooke <span class="muted">— 2 шт, 32%</span></li><li>d2 Клещ домашней пыли /House dust mite /Dermatophagoides farinae <span class="muted">— 2 шт, 10%</span></li><li>Антитела к фактору Кастла - внутреннему фактору (АВФ) <span class="muted">— 2 шт, 53%</span></li><li>Андростендион <span class="muted">— 2 шт, 44%</span></li><li>Раковый антиген СА-62 <span class="muted">— 1 шт, 41%</span></li><li>Витамины B9 (фолиевая кислота) и B12 <span class="muted">— 1 шт, 39%</span></li><li>Посев материала (разовая порция мочи) на флору с определением чувствительности к антибиотикам + предварительный результат (первичный просмотр чашек Петри после инкубации) <span class="muted">— 1 шт, 48%</span></li><li>Ат к вирусу краснухи IgG (Rubella IgG) <span class="muted">— 1 шт, 3%</span></li><li>Нейронспецифическая енолаза (NSE) <span class="muted">— 1 шт, 53%</span></li><li>Остеокальцин <span class="muted">— 1 шт, 54%</span></li><li>Тропонин T <span class="muted">— 1 шт, 47%</span></li><li>ПРОФИЛЬ «Антитела классов G (IgG) и M (IgM) к кардиолипину, количественное исследование» <span class="muted">— 1 шт, 11%</span></li><li>Ат к Chlamydia trachomatis (хламидия трахоматис) IgA <span class="muted">— 1 шт, 42%</span></li><li>Ат к Treponema pallidum (РПГА, суммарные) (возбудитель сифилиса) <span class="muted">— 1 шт, 22%</span></li><li>Ат к вирусу краснухи IgM (Rubella IgM) <span class="muted">— 1 шт, 15%</span></li><li>Ат к кардиолипину IgG <span class="muted">— 1 шт, 11%</span></li><li>Антитела к митохондриям (АМА-М2) <span class="muted">— 1 шт, 51%</span></li><li>Антинуклеарный фактор (АНФ) на HEp-2 клеточной линии (РнИФ) <span class="muted">— 1 шт, 34%</span></li><li>Эстриол свободный (Е3) <span class="muted">— 1 шт, 21%</span></li><li>Определение уровня витамина B7 (биотин, витамин H) в крови <span class="muted">— 1 шт, 27%</span></li><li>e1 Кошка, перхоть /Cat dander <span class="muted">— 1 шт, 7%</span></li><li>e5 Собака, перхоть /Dog dander <span class="muted">— 1 шт, 7%</span></li><li>f2 Молоко коровье /Milk <span class="muted">— 1 шт, 6%</span></li><li>Антитела к асиалогликопротеиновому рецептору (anti-ASGPR) IgG <span class="muted">— 1 шт, 32%</span></li><li>Антитела класса G (IgG) к протеиназе-3 (анти-PR-3) <span class="muted">— 1 шт, 33%</span></li><li>Определение концентрации IgG4 подкласса иммуноглобулинов <span class="muted">— 1 шт, 20%</span></li><li>Инсулиноподобный фактор роста I (ИПФР-I; Соматомедин С) <span class="muted">— 1 шт, 41%</span></li><li>Ат к Toxoplasma gondii IgG (возбудитель токсоплазмоза) <span class="muted">— 1 шт, 5%</span></li><li>Антитела класса A (IgA) к грибам рода кандида (Candida albicans), полуколич. <span class="muted">— 1 шт, 50%</span></li><li>Тропонин I <span class="muted">— 1 шт, 51%</span></li><li>Кортизол в слюне (вечерняя порция) <span class="muted">— 1 шт, 54%</span></li><li>Антитела класса M (IgM) к возбудителю респираторного хламидиоза (Chlamydia pneumoniae), кач. <span class="muted">— 1 шт, 45%</span></li><li>Антитела класса G (IgG) к возбудителю респираторного микоплазмоза (Mycoplasma pneumoniae), полуколич. <span class="muted">— 1 шт, 20%</span></li><li>Ат к белку теплового шока Chlamydia trachomatis IgG (anti-cHSP60-IgG) <span class="muted">— 1 шт, 41%</span></li></ul></div>
+  <div class="slide-foot">Источник: выгрузка Ситисофт, та же методика, что на слайде 10 (Ценообразование). Код услуги и точная выручка по каждой позиции — в приложенном xlsx-файле.</div>
+</section>
+</div>
+
+<!-- Приложение 8/9 -->
+<div class="slide-frame">
+<section class="slide" id="sA8">
+  <div class="slide-head">
+    <div class="eyebrow">Приложение · полный список услуг (8/9)</div>
+    <h2 class="slide-title">Редкие по спросу, маржа ниже средней — 70 услуг, правило «+20%» (2/2)</h2>
+    <p class="slide-sub">Формат: «название — сколько раз заказали за 9 мес, маржа в % от цены». Отсортировано по количеству заказов, от самых частых к редким.</p>
+  </div>
+  <div class="slide-body"><ul class="applist" style="columns:3; column-gap:18px; font-size:11px; line-height:1.25; height:405px;"><li>Антитела класса G (IgG) к возбудителю респираторного хламидиоза (Chlamydia pneumoniae), кач. <span class="muted">— 1 шт, 36%</span></li><li>Определение полиморфизмов, ассоциированных с развитием гемохроматоза в крови (3 полиморфизма: HFE845 G>A (C282Y); HFE187 C>G (H63D); HFE193 A>T (S65C)) <span class="muted">— 1 шт, 42%</span></li><li>HLA-B27 типирование <span class="muted">— 1 шт, 51%</span></li><li>Выявление ДНК вируса герпеса человека 6 типа (HHV 6),кровь <span class="muted">— 1 шт, 11%</span></li><li>Генотипирование вируса гепатита С (HCV) (генотипы 1а, 1b, 2, 3, 4),кровь <span class="muted">— 1 шт, 44%</span></li><li>m3 Aspergillus fumigatus - плесневый грибок, инфекционный возбудитель <span class="muted">— 1 шт, 6%</span></li><li>IgE к аллергену t3 Береза бородавчатая/White birch/Betula verrucosa <span class="muted">— 1 шт, 40%</span></li><li>IgE к аллергену m2 Плесневый грибок/Cladosporium herbarum <span class="muted">— 1 шт, 45%</span></li><li>IgE к аллергену gm1 Смесь луговых трав (g3-g4-g5-g6-g8) ежа сборная, овсяница луговая, плевел, тимофеевка луговая, мятлик луговой <span class="muted">— 1 шт, 39%</span></li><li>c68 Артикаин & Ультракаин /Articaine IgE, Dr.Fooke <span class="muted">— 1 шт, 35%</span></li><li>Орехи, микст fx1 <span class="muted">— 1 шт, 32%</span></li><li>m1 Penicillium chrysogenum (P. notatum) - плесневый грибок <span class="muted">— 1 шт, 25%</span></li><li>m2 Cladosporium herbarum - плесневый грибок <span class="muted">— 1 шт, 51%</span></li><li>Антитела класса G (IgG) к миелопероксидазе <span class="muted">— 1 шт, 36%</span></li><li>Дигидротестостерон <span class="muted">— 1 шт, 50%</span></li><li>Ингибин В <span class="muted">— 1 шт, 6%</span></li><li>Общий Т4 <span class="muted">— 1 шт, 45%</span></li><li>ПРОФИЛЬ Белковые фракции (электрофорез) <span class="muted">— 1 шт, 17%</span></li><li>Протеин S <span class="muted">— 1 шт, 32%</span></li><li>Генетика метаболизма лактозы. Определение полиморфизмов, ассоциированных с нарушениями обмена лактозы (MCM6 (-13910 T>C)) <span class="muted">— 1 шт, 46%</span></li><li>Посев кала на патогенную и условно-патогенную флору, комплексное исследование с определением чувствительности к антибиотикам и антимикотикам <span class="muted">— 1 шт, 52%</span></li><li>Экспресс посев мочи без определения чувствительности к антибиотикам <span class="muted">— 1 шт, 53%</span></li><li>Генетическая диагностика альфа-талассемии (мутации в гене HBA) <span class="muted">— 1 шт, 45%</span></li><li>Диагностика бета-талассемий и гемоглобинопатий (генотипирование НВВ) <span class="muted">— 1 шт, 20%</span></li><li>Дегидроэпиандростерон (ДГЭА) неконъюгированный в крови (метод ВЭЖХ, ГХ-МС) <span class="muted">— 1 шт, 18%</span></li><li>Цинк (Zn) в крови (масспектрометрия) по методу доктора Скального <span class="muted">— 1 шт, 2%</span></li><li>Активность альфа-1-антитрипсина в кале <span class="muted">— 1 шт, 4%</span></li><li>Анализ кариотипа с фотографией хромосом (1 пациент) <span class="muted">— 1 шт, 24%</span></li><li>Выявление ДНК возбудителей гельминтозов (аскаридоз, энтеробиоз, описторхоз, тениоз, дифиллоботриоз) в кале, качественное исследование <span class="muted">— 1 шт, 7%</span></li><li>Тромбориск при беременности: F2, FV, FGB, MTHFR, PAI-I (SERPINE1), ITGA2 (GPIA), ITGB3 (GPIIIa) (7), определение Гомоцистеина, Протеин S, Протеин С, Антитромбин III <span class="muted">— 1 шт, 46%</span></li><li>Индексы инсулинорезистентности (CARO, HOMA) <span class="muted">— 1 шт, 42%</span></li><li>Катехоламины - 4 параметра в комплексе (адреналин, норадреналин, дофамин, серотонин), кровь <span class="muted">— 1 шт, 30%</span></li><li>ПРОФИЛЬ Клинический (общий) анализ крови (CBC, 5-Diff) с микроскопией мазка крови при выявлении патологических изменений + СОЭ + ретикулоциты <span class="muted">— 1 шт, 28%</span></li><li>Панель аллергенов "Астма/Ринит - взрослые" (специфические IgE к аллергенам) <span class="muted">— 1 шт, 11%</span></li><li>ПРОФИЛЬ Коагулограмма расширенный состав <span class="muted">— 1 шт, 35%</span></li></ul></div>
+  <div class="slide-foot">Источник: выгрузка Ситисофт, та же методика, что на слайде 10 (Ценообразование). Код услуги и точная выручка по каждой позиции — в приложенном xlsx-файле.</div>
+</section>
+</div>
+
+<!-- Приложение 9/9 -->
+<div class="slide-frame">
+<section class="slide" id="sA9">
+  <div class="slide-head">
+    <div class="eyebrow">Приложение · полный список услуг (9/9)</div>
+    <h2 class="slide-title">Редкие по спросу, маржа убыточные — 9 услуг, правило «+50% или только под заказ»</h2>
+    <p class="slide-sub">Формат: «название — сколько раз заказали за 9 мес, маржа в % от цены». Отсортировано по количеству заказов, от самых частых к редким.</p>
+  </div>
+  <div class="slide-body"><ul class="applist" style="columns:1; column-gap:18px; font-size:13px; line-height:1.25; height:405px;"><li>Хромогранин А (маркер нейроэндокринных опухолей) в крови <span class="muted">— 1 шт, -11%</span></li><li>Определение антител к Treponema pallidum, RPR-тест (антикардиолипиновый тест), титр <span class="muted">— 1 шт, -7%</span></li><li>Антитела класса M (IgM) к возбудителю респираторного микоплазмоза (Mycoplasma pneumoniae), полуколич. <span class="muted">— 1 шт, -4%</span></li><li>Креатинфосфокиназа MB-фракция <span class="muted">— 1 шт, -2%</span></li><li>Эритропоэтин <span class="muted">— 1 шт, -7%</span></li><li>Выявление ДНК вируса Эпштейна-Барр (EBV),кровь <span class="muted">— 1 шт, -6%</span></li><li>Панель аллергенов «Смешанная №1 (RIDA-screen)» исследование уровня специфических антител класса E (IgE) к аллергенам, ассоциированным с развитием данного заболевания в крови <span class="muted">— 1 шт, -8%</span></li><li>Фактор Виллебранда <span class="muted">— 1 шт, -7%</span></li><li>Гепсидин-25 (биоактивный) в крови <span class="muted">— 1 шт, -5%</span></li></ul></div>
+  <div class="slide-foot">Источник: выгрузка Ситисофт, та же методика, что на слайде 10 (Ценообразование). Код услуги и точная выручка по каждой позиции — в приложенном xlsx-файле.</div>
+</section>
+</div>
+
+</div>
+
+<script>
+const fmt = n => Math.round(n).toLocaleString('ru-RU');
+const fmtSigned = n => (n>=0?'+':'−') + Math.abs(Math.round(n)).toLocaleString('ru-RU');
+
+function svg(w,h,content){ return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">${content}</svg>`; }
+
+/* ---- vertical bar chart with baseline-anchored bars (supports negative values) ---- */
+function vbarChart(el, data, opts={}){
+  const w = opts.w||1100, h = opts.h||300;
+  const padL=56, padR=16, padT=20, padB=36;
+  const plotW = w-padL-padR, plotH = h-padT-padB;
+  const vals = data.map(d=>d.v);
+  const max = Math.max(0, ...vals), min = Math.min(0, ...vals);
+  const range = (max-min)||1;
+  const y0 = padT + plotH * (max/range);
+  const bw = plotW/data.length*0.56;
+  const gap = plotW/data.length;
+  let out = `<line x1="${padL}" y1="${y0}" x2="${w-padR}" y2="${y0}" class="grid-line"/>`;
+  data.forEach((d,i)=>{
+    const cx = padL + gap*i + gap/2;
+    const barH = Math.abs(d.v)/range*plotH;
+    const y = d.v>=0 ? y0-barH : y0;
+    const color = d.color || (d.v>=0 ? 'var(--excellent)' : 'var(--poor)');
+    out += `<rect x="${cx-bw/2}" y="${y}" width="${bw}" height="${Math.max(barH,1.5)}" rx="4" fill="${color}"/>`;
+    const labelY = d.v>=0 ? y-8 : y+barH+16;
+    const suffix = opts.suffix || '';
+    const sign = d.v<0 ? '−' : (opts.showPlus?'+':'');
+    out += `<text x="${cx}" y="${labelY}" text-anchor="middle" class="bar-label">${sign}${fmt(Math.abs(d.v))}${suffix}</text>`;
+    out += `<text x="${cx}" y="${h-10}" text-anchor="middle" class="axis-label">${d.label}</text>`;
+  });
+  el.innerHTML = svg(w,h,out);
+}
+
+/* ---- horizontal bar chart (grouped pairs supported) ---- */
+function hbarGroupChart(el, data, opts={}){
+  // data: [{label, a, b, aLabel, bLabel}]
+  const w = opts.w||1100, h = opts.h|| (data.length*58+20);
+  const padL = opts.padL||150, padR=70, rowH = (h-20)/data.length;
+  const max = Math.max(...data.flatMap(d=>[d.a,d.b]));
+  const plotW = w-padL-padR;
+  let out='';
+  data.forEach((d,i)=>{
+    const y = 20 + i*rowH;
+    const bh = rowH*0.3;
+    out += `<text x="${padL-12}" y="${y+rowH/2+4}" text-anchor="end" class="axis-label" font-weight="600">${d.label}</text>`;
+    const wa = d.a/max*plotW;
+    out += `<rect x="${padL}" y="${y+4}" width="${wa}" height="${bh}" rx="3" fill="var(--chart-1)"/>`;
+    out += `<text x="${padL+wa+8}" y="${y+4+bh/1.4}" class="bar-label" font-size="12">${d.aLabel||fmt(d.a)}</text>`;
+    const wb = d.b/max*plotW;
+    out += `<rect x="${padL}" y="${y+6+bh}" width="${wb}" height="${bh}" rx="3" fill="var(--chart-5)"/>`;
+    out += `<text x="${padL+wb+8}" y="${y+6+bh+bh/1.4}" class="bar-label" font-size="12">${d.bLabel||fmt(d.b)}</text>`;
+  });
+  el.innerHTML = svg(w,h,out);
+}
+
+/* ---- line + area with min annotation ---- */
+function lineAreaChart(el, data, opts={}){
+  const w = opts.w||1100, h = opts.h||300;
+  const padL=72, padR=24, padT=24, padB=36;
+  const plotW=w-padL-padR, plotH=h-padT-padB;
+  const vals = data.map(d=>d.v);
+  const max = Math.max(0,...vals), min = Math.min(...vals);
+  const range = (max-min)||1;
+  const x = i => padL + plotW*(i/(data.length-1));
+  const y = v => padT + plotH*(1-(v-min)/range);
+  const y0 = y(0);
+  let pts = data.map((d,i)=>`${x(i)},${y(d.v)}`).join(' ');
+  let areaPts = `${x(0)},${y0} ${pts} ${x(data.length-1)},${y0}`;
+  let out = `<line x1="${padL}" y1="${y0}" x2="${w-padR}" y2="${y0}" class="grid-line"/>`;
+  out += `<polygon points="${areaPts}" fill="var(--poor)" opacity="0.08"/>`;
+  out += `<polyline points="${pts}" fill="none" stroke="var(--poor)" stroke-width="2.5"/>`;
+  let minIdx = vals.indexOf(Math.min(...vals));
+  data.forEach((d,i)=>{
+    out += `<circle cx="${x(i)}" cy="${y(d.v)}" r="${i===minIdx?5:3}" fill="${i===minIdx?'var(--poor)':'var(--card)'}" stroke="var(--poor)" stroke-width="2"/>`;
+    out += `<text x="${x(i)}" y="${h-10}" text-anchor="middle" class="axis-label">${d.label}</text>`;
+    if(i===minIdx){
+      out += `<text x="${x(i)}" y="${y(d.v)-14}" text-anchor="middle" class="bar-label" fill="var(--poor)">${fmt(d.v)} ₽</text>`;
+    }
+  });
+  out += `<text x="${padL-10}" y="${y0+4}" text-anchor="end" class="axis-label">0</text>`;
+  el.innerHTML = svg(w,h,out);
+}
+
+/* ---- 100% stacked horizontal bar ---- */
+function stackedBar(el, data, opts={}){
+  const w=opts.w||1100, h=opts.h||90;
+  const colors = ['var(--chart-1)','var(--chart-2)','var(--chart-3)','var(--chart-4)'];
+  let x=10; const total = data.reduce((s,d)=>s+d.v,0); const plotW=w-20;
+  let out='';
+  data.forEach((d,i)=>{
+    const bw = d.v/total*plotW;
+    out += `<rect x="${x}" y="20" width="${bw}" height="36" fill="${colors[i%colors.length]}" rx="${i===0?6:0}"/>`;
+    out += `<text x="${x+bw/2}" y="72" text-anchor="middle" class="axis-label" font-weight="600">${d.label}</text>`;
+    out += `<text x="${x+bw/2}" y="42" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">${d.v}%</text>`;
+    x += bw;
+  });
+  el.innerHTML = svg(w,h,out);
+}
+
+/* ===== data ===== */
+/* chartPnl/chartDds заменены на таблицы в разметке — JS-рендер больше не нужен */
+
+const scenarios = {
+  0:{label:'Сценарий 0: факт', value:-63392, sub:'в среднем за месяц, без неполного мая'},
+  1:{label:'Сценарий 1: + стабилизация потока', value:-18576, sub:'среднее апрель/июнь/июль'},
+  2:{label:'Сценарий 2: + ценообразование', value:-2147, sub:'правило из слайда 10'},
+  3:{label:'Сценарий 3: + допродажа пакетов анализов до 62%', value:26869, sub:'рост доли визитов с пакетом анализов на 15 п.п.'},
+  4:{label:'Сценарий 4: + корпоративный сегмент*', value:50646, sub:'плюс 13 визитов/мес от работодателей — спрос не проверен'},
+};
+function renderScn(idx){
+  const bars = [0,1,2,3,4].map(i=>({label:'Сц.'+i+(i===4?'*':''), v:scenarios[i].value, color: i==idx?'var(--primary)':(scenarios[i].value>=0?'var(--excellent)':'var(--poor)')}));
+  vbarChart(document.getElementById('chartScn'), bars, {h:260, suffix:' ₽', showPlus:true});
+  document.getElementById('scnLabel').textContent = scenarios[idx].label.replace('Сценарий '+idx+': ','Сценарий '+idx+' · ');
+  const v = scenarios[idx].value;
+  document.getElementById('scnValue').textContent = fmtSigned(v) + ' ₽';
+  document.getElementById('scnValue').style.color = v>=0 ? 'var(--excellent-text)' : 'var(--poor-text)';
+  document.querySelectorAll('.scn-btn').forEach(b=>b.classList.toggle('active', b.dataset.s===String(idx)));
+}
+document.getElementById('scnToggle').addEventListener('click', e=>{
+  const b = e.target.closest('.scn-btn'); if(!b) return;
+  renderScn(Number(b.dataset.s));
+});
+renderScn(4);
+
+/* ===== калькулятор потенциала ===== */
+const FIXED_COSTS = 244135; // труд + прочий overhead, факт сценария 1
+const MARGIN_NO_PROFILE = 754, MARGIN_PROFILE = 1829; // измеренная маржа на визит
+const PRICING_FULL_EFFECT_AT_180 = 16429; // реалистичный эффект §11, масштабирован на поток сценария 1
+const BASE_VISITS = 180;
+
+function calc(){
+  const visits = +slVisits.value, profile = +slProfile.value/100, pricing = +slPricing.value/100, corp = +slCorp.value;
+  document.getElementById('vVisits').textContent = visits;
+  document.getElementById('vProfile').textContent = Math.round(profile*100)+'%';
+  document.getElementById('vPricing').textContent = Math.round(pricing*100)+'%';
+  document.getElementById('vCorp').textContent = corp;
+
+  const avgMargin = profile*MARGIN_PROFILE + (1-profile)*MARGIN_NO_PROFILE;
+  const organicMargin = visits*avgMargin;
+  const pricingEffect = PRICING_FULL_EFFECT_AT_180 * pricing * (visits/BASE_VISITS);
+  const corpMargin = corp*MARGIN_PROFILE;
+  const totalMargin = organicMargin + pricingEffect + corpMargin;
+  const pnl = totalMargin - FIXED_COSTS;
+  const avgCheck = profile*3095 + (1-profile)*1367;
+  const revenue = visits*avgCheck + corp*3095;
+
+  const pnlEl = document.getElementById('calcPnl');
+  pnlEl.textContent = fmtSigned(pnl) + ' ₽';
+  const card = document.getElementById('calcCard');
+  if(pnl>=100000){ card.style.setProperty('--status','var(--excellent)'); pnlEl.style.color='var(--excellent-text)'; }
+  else if(pnl>=0){ card.style.setProperty('--status','var(--good)'); pnlEl.style.color='var(--good-text)'; }
+  else { card.style.setProperty('--status','var(--poor)'); pnlEl.style.color='var(--poor-text)'; }
+  document.getElementById('calcRev').textContent = `выручка ≈ ${fmt(revenue)} ₽/мес`;
+}
+['slVisits','slProfile','slPricing','slCorp'].forEach(id=>document.getElementById(id).addEventListener('input', calc));
+calc();
+
+/* ===== пресеты сценариев для калькулятора ===== */
+const calcPresets = {
+  0:{visits:134, profile:47, pricing:0,   corp:0},
+  1:{visits:180, profile:47, pricing:0,   corp:0},
+  2:{visits:180, profile:47, pricing:100, corp:0},
+  3:{visits:180, profile:62, pricing:100, corp:0},
+  4:{visits:180, profile:62, pricing:100, corp:13},
+};
+function applyPreset(idx){
+  const p = calcPresets[idx];
+  slVisits.value = p.visits; slProfile.value = p.profile; slPricing.value = p.pricing; slCorp.value = p.corp;
+  calc();
+  document.querySelectorAll('#calcPresets .scn-btn').forEach(b=>b.classList.toggle('active', b.dataset.cs===String(idx)));
+}
+document.getElementById('calcPresets').addEventListener('click', e=>{
+  const b = e.target.closest('.scn-btn'); if(!b) return;
+  applyPreset(Number(b.dataset.cs));
+});
+
+const priceRows = [
+  ['Топ (1-100)','Выше средней (&gt;54%)','69','1 226 579','0% — держать'],
+  ['Топ (1-100)','Ниже средней','31','539 346','+12%'],
+  ['Средние (101-180)','Выше средней','21','67 705','0% — держать'],
+  ['Средние (101-180)','Ниже средней','54','230 604','+15%'],
+  ['Средние (101-180)','Убыточные','5','16 226','+30%'],
+  ['Редкие (181+)','Выше средней','41','73 648','0% — держать'],
+  ['Редкие (181+)','Ниже средней','70','136 807','+20%'],
+  ['Редкие (181+)','Убыточные','9','20 165','+50% или только под заказ'],
+];
+document.getElementById('priceMatrix').innerHTML = `
+  <tr><th>Частота</th><th>Маржа</th><th class="num">Услуг</th><th class="num">Выручка, ₽</th><th>Правило</th></tr>
+  ${priceRows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td class="num">${r[2]}</td><td class="num">${r[3]}</td><td><b>${r[4]}</b></td></tr>`).join('')}
+`;
+
+stackedBar(document.getElementById('chartTypes'), [
+  {label:'Рутинные тесты', v:63.2},{label:'Профили/скрининги', v:21.2},
+  {label:'Инфекции/иммунология', v:8.3},{label:'Манипуляции', v:7.3},
+]);
+
+hbarGroupChart(document.getElementById('chartCompetitors'), [
+  {label:'ТТГ', a:229, b:320, aLabel:'229 ₽', bLabel:'320 ₽'},
+  {label:'Т4 свободный', a:335, b:430, aLabel:'335 ₽', bLabel:'430 ₽'},
+  {label:'Общий анализ крови', a:432, b:520, aLabel:'432 ₽', bLabel:'520 ₽'},
+  {label:'Холестерин общий', a:165, b:230, aLabel:'165 ₽', bLabel:'230 ₽'},
+  {label:'Общий анализ мочи', a:259, b:290, aLabel:'259 ₽', bLabel:'290 ₽'},
+], {h:280});
+
+vbarChart(document.getElementById('chartAge'), [
+  {label:'до 30', v:16.1, color:'var(--chart-1)'},
+  {label:'30–44', v:23.6, color:'var(--chart-1)'},
+  {label:'45–59', v:24.8, color:'var(--chart-1)'},
+  {label:'60+', v:34.4, color:'var(--chart-5)'},
+], {h:220});
+
+vbarChart(document.getElementById('chartHours'), [
+  {label:'6ч', v:5.7, color:'var(--chart-1)'},{label:'7ч', v:38.0, color:'var(--chart-1)'},
+  {label:'8ч', v:33.5, color:'var(--chart-1)'},{label:'9ч', v:17.7, color:'var(--chart-1)'},
+  {label:'10ч', v:4.3, color:'var(--chart-1)'},{label:'11-12ч', v:0.7, color:'var(--border-strong)'},
+], {h:260});
+
+/* legend note for competitor chart */
+document.getElementById('chartCompetitors').insertAdjacentHTML('beforeend',
+  `<div style="display:flex; gap:16px; font-size:13px; color:var(--muted-foreground); margin-top:6px;">
+    <span><span style="display:inline-block;width:10px;height:10px;background:var(--chart-1);border-radius:2px;margin-right:4px;"></span>Фархад (факт)</span>
+    <span><span style="display:inline-block;width:10px;height:10px;background:var(--chart-5);border-radius:2px;margin-right:4px;"></span>Гемотест</span>
+  </div>`);
+
+/* ===== автомасштаб под окно ===== */
+function fitScale(){
+  const marginX = 16, marginY = 12; // минимальные поля вокруг слайда
+  const availW = window.innerWidth - marginX*2;
+  const availH = window.innerHeight - marginY*2;
+  const s = Math.min(availW/1280, availH/720, 1);
+  document.documentElement.style.setProperty('--scale', Math.max(s, 0.25));
+}
+window.addEventListener('resize', fitScale);
+fitScale();
+
+/* ===== nav ===== */
+const frames = Array.from(document.querySelectorAll('.slide-frame'));
+let cur = 0;
+function go(i){
+  cur = Math.max(0, Math.min(frames.length-1, i));
+  frames[cur].scrollIntoView({behavior:'smooth', block:'start'});
+  document.getElementById('curNo').textContent = cur+1;
+}
+document.getElementById('prevBtn').addEventListener('click', ()=>go(cur-1));
+document.getElementById('nextBtn').addEventListener('click', ()=>go(cur+1));
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight'||e.key===' ') { go(cur+1); e.preventDefault(); }
+  if(e.key==='ArrowLeft') { go(cur-1); e.preventDefault(); }
+});
+const io = new IntersectionObserver(entries=>{
+  entries.forEach(en=>{ if(en.isIntersecting){ const idx = frames.indexOf(en.target); if(idx>-1){ cur=idx; document.getElementById('curNo').textContent = cur+1; } } });
+}, {threshold:0.6});
+frames.forEach(s=>io.observe(s));
+</script>
+</body>
+</html>
