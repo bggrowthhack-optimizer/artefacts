@@ -597,7 +597,7 @@ tr.total-row td { font-weight: 700; }
   <div class="content">
     <div class="col-split" style="margin-bottom:10px;">
       <div class="col" style="flex:1;">
-        <div class="col-head" style="color:var(--muted-foreground);font-size:14px;">Какие салоны считаем</div>
+        <div class="col-head" style="color:var(--muted-foreground);font-size:14px;">Какие салоны считаем: <b id="fmCntSel" style="color:var(--primary);">4 из 12</b></div>
         <div class="card" style="flex:1;padding:10px 16px;display:flex;flex-direction:column;justify-content:center;">
           <div style="display:flex;gap:6px;margin-bottom:14px;">
             <button class="fmSalonFilter" data-set="elk" style="flex:1;font-size:13px;padding:8px 3px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;">Вариант Эльликон</button>
@@ -805,6 +805,8 @@ tr.total-row td { font-weight: 700; }
   function calc(){
     var d=sums();
     var money=document.getElementById('fmMoney'), math=document.getElementById('fmMath');
+    var cntEl=document.getElementById('fmCntSel');
+    if(cntEl) cntEl.textContent=d.cnt+' из '+FM.length;
     if(!d.cnt){money.textContent='—';document.getElementById('fmMoneyMonth').textContent='—';math.textContent='Выберите хотя бы один салон';document.getElementById('fmLensTicket').textContent='';document.getElementById('fmTotalTicket').textContent='';return;}
     var gV=d.GV/d.V, gN=d.GN/(d.O-d.V), pCur=d.V/d.O, convCur=d.O/d.POD, frR=d.FO/d.O, tCur=d.FF/d.FO;
     var lV=d.LV/d.V, lN=d.LN/(d.O-d.V);
