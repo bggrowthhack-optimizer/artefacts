@@ -606,6 +606,7 @@ tr.total-row td { font-weight: 700; }
       <div class="col" style="flex:1;">
         <div class="col-head" style="color:var(--muted-foreground);font-size:14px;">Куда хотим прийти</div>
         <div class="card" style="flex:1;padding:10px 18px;display:flex;flex-direction:column;justify-content:center;">
+          <div style="font-size:12px;color:var(--muted-foreground);margin-bottom:4px;">Сценарий: <b id="fmScenarioName" style="color:var(--primary);">Октябрь 25</b></div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:9px;">
             <button class="fmPreset" data-mode="now" style="font-size:12px;padding:5px 3px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;">Сейчас</button>
             <button class="fmPreset" data-p="46.9" data-t="6899" style="font-size:12px;padding:5px 3px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;">Половина пути</button>
@@ -844,6 +845,8 @@ tr.total-row td { font-weight: 700; }
       b.style.color = (b===btn) ? '#fff' : 'var(--foreground)';
       b.style.borderColor = (b===btn) ? '#2B62EF' : 'var(--border)';
     });
+    var nameEl=document.getElementById('fmScenarioName');
+    if(nameEl) nameEl.textContent = btn ? btn.textContent : 'свой вариант';
   }
   function unmarkPresets(){ markPreset(null); }
   box.addEventListener('change', function(){
@@ -897,8 +900,8 @@ tr.total-row td { font-weight: 700; }
   });
   var defBtn=document.querySelector('.fmSalonFilter[data-set="our"]');
   if(defBtn){ defBtn.style.background='#2B62EF'; defBtn.style.color='#fff'; defBtn.style.borderColor='#2B62EF'; }
-  markPreset(document.querySelector('.fmPreset[data-mode="now"]'));
-  calc();
+  var startBtn=document.querySelector('.fmPreset[data-p="53.1"]');
+  if(startBtn){ startBtn.click(); } else { markPreset(document.querySelector('.fmPreset[data-mode="now"]')); calc(); }
 })();
 
 (function(){
