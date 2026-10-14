@@ -654,7 +654,7 @@ tr.total-row td { font-weight: 700; }
 <!-- 10. ПЛАН ПИЛОТА -->
 <div class="slide-frame">
 <section class="slide">
-  <h1 class="slide-title">Три месяца и 386 тысяч — дальше команда ведёт цикл сама</h1>
+  <h1 class="slide-title">Три месяца — и дальше команда ведёт цикл сама</h1>
   <div class="divider"></div>
   <div class="content">
 
@@ -735,6 +735,7 @@ tr.total-row td { font-weight: 700; }
         <div style="flex:0 0 auto;text-align:right;border-left:1px solid var(--border);padding-left:22px;">
           <div style="font-size:11px;color:var(--muted-foreground);">Итого за пилот</div>
           <div style="font-size:26px;font-weight:700;color:var(--excellent-text);line-height:1.15;" id="pTotal">386 тыс ₽</div>
+          <div style="font-size:11px;color:var(--muted-foreground);margin-top:1px;" id="pTotalMonth">129 тыс ₽ в месяц</div>
         </div>
       </div>
       <div style="border-top:1px solid var(--border);margin-top:9px;padding-top:8px;font-size:12.5px;line-height:1.4;color:var(--muted-foreground);">
@@ -763,6 +764,7 @@ tr.total-row td { font-weight: 700; }
         c1.textContent=nf(cost1/1000)+' тыс ₽'; c1s.textContent='30 000 ₽ × '+n+' × 3 мес';
         c3.textContent=nf(cost3/1000)+' тыс ₽'; c3s.textContent=b+' × 16 000 ₽ разово';
         total.textContent=nf((cost1+cost2+cost3)/1000)+' тыс ₽';
+        document.getElementById('pTotalMonth').textContent=nf((cost1+cost2+cost3)/3/1000)+' тыс ₽ в месяц';
       }
       br.addEventListener('input', upd);
       bg.addEventListener('input', upd);
