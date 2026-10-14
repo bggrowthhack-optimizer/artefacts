@@ -849,16 +849,7 @@ tr.total-row td { font-weight: 700; }
     if(nameEl) nameEl.textContent = btn ? btn.textContent : 'свой вариант';
   }
   function unmarkPresets(){ markPreset(null); }
-  box.addEventListener('change', function(){
-    var d=sums();
-    if(d.cnt){
-      document.getElementById('fmConv').value=Math.round(d.O/d.POD*1000);
-      document.getElementById('fmP').value=Math.round(d.V/d.O*1000);
-      document.getElementById('fmT').value=Math.round(d.FF/d.FO);
-    }
-    markPreset(document.querySelector('.fmPreset[data-mode="now"]'));
-    calc();
-  });
+  box.addEventListener('change', function(){ applyTargetPreset(); });
   ['fmConv','fmP','fmT'].forEach(function(id){document.getElementById(id).addEventListener('input', function(){ unmarkPresets(); calc(); });});
   document.querySelectorAll('.fmPreset').forEach(function(btn){
     btn.addEventListener('click', function(){
@@ -888,20 +879,23 @@ tr.total-row td { font-weight: 700; }
         b.style.color = (b===btn) ? '#fff' : 'var(--foreground)';
         b.style.borderColor = (b===btn) ? '#2B62EF' : 'var(--border)';
       });
-      var d=sums();
-      if(d.cnt){
-        document.getElementById('fmConv').value=Math.round(d.O/d.POD*1000);
-        document.getElementById('fmP').value=Math.round(d.V/d.O*1000);
-        document.getElementById('fmT').value=Math.round(d.FF/d.FO);
-      }
-      markPreset(document.querySelector('.fmPreset[data-mode="now"]'));
-      calc();
+      applyTargetPreset();
     });
   });
   var defBtn=document.querySelector('.fmSalonFilter[data-set="our"]');
   if(defBtn){ defBtn.style.background='#2B62EF'; defBtn.style.color='#fff'; defBtn.style.borderColor='#2B62EF'; }
-  var startBtn=document.querySelector('.fmPreset[data-p="53.1"]');
-  if(startBtn){ startBtn.click(); } else { markPreset(document.querySelector('.fmPreset[data-mode="now"]')); calc(); }
+  function applyTargetPreset(){
+    var btn=document.querySelector('.fmPreset[data-p="53.1"]');
+    if(btn){ btn.click(); return; }
+    var d=sums();
+    if(d.cnt){
+      document.getElementById('fmConv').value=Math.round(d.O/d.POD*1000);
+      document.getElementById('fmP').value=Math.round(d.V/d.O*1000);
+      document.getElementById('fmT').value=Math.round(d.FF/d.FO);
+    }
+    calc();
+  }
+  applyTargetPreset();
 })();
 
 (function(){
