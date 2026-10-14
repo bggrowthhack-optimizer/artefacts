@@ -203,6 +203,11 @@ tr.total-row td { font-weight: 700; }
 .hintQ{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--border);color:var(--muted-foreground);font-size:11px;font-weight:700;cursor:default;margin-left:6px;}
 .actRow{display:flex;align-items:flex-start;gap:10px;}
 .actRow+.actRow{margin-top:6px;}
+.planRow{display:flex;gap:18px;align-items:center;padding:11px 18px;margin-bottom:10px;}
+.planTag{flex:0 0 104px;text-align:center;}
+.planTagNum{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--primary);background:#EDF1FE;border-radius:5px;padding:4px 0;}
+.planTagSub{font-size:12px;color:var(--muted-foreground);margin-top:4px;}
+.planBody{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:3px 22px;font-size:13.5px;line-height:1.45;}
 .actTag{flex:0 0 56px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--primary);background:#EDF1FE;border-radius:5px;padding:3px 0;text-align:center;line-height:1.3;}
 .actTxt{flex:1;}
 .hintPop{display:none;position:absolute;top:22px;left:0;width:300px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.5;font-weight:400;color:var(--foreground);box-shadow:0 6px 20px rgba(0,0,0,.12);z-index:10;}
@@ -641,84 +646,88 @@ tr.total-row td { font-weight: 700; }
   <h1 class="slide-title">Три месяца: запускаем, закрепляем, передаём</h1>
   <div class="divider"></div>
   <div class="content">
-    <div class="col-split" style="margin-bottom:14px;">
-      <div class="col">
-        <div class="col-head" style="color:var(--muted-foreground);font-size:15px;">Месяц 1 — ведём мы</div>
-        <div class="card" style="flex:1;padding:16px 20px;display:flex;flex-direction:column;justify-content:flex-start;">
-          <div style="font-size:15px;line-height:1.8;">
-            • Настраиваем Оптимайзер и бейджи<br>
-            • Каждый день: РОП смотрит продажи сотрудников<br>
-            • Раз в неделю: встреча КД и РОПа — цифры, записи звонков, задачи<br>
-            • Учим команду работать в Оптимайзере
-          </div>
-        </div>
+
+    <div class="card planRow">
+      <div class="planTag">
+        <div class="planTagNum">Месяц 1</div>
+        <div class="planTagSub">ведём мы</div>
       </div>
-      <div class="col">
-        <div class="col-head" style="color:var(--muted-foreground);font-size:15px;">Месяц 2 — проверяем</div>
-        <div class="card" style="flex:1;padding:16px 20px;display:flex;flex-direction:column;justify-content:flex-start;">
-          <div style="font-size:15px;line-height:1.8;">
-            • Руководитель сам готовит еженедельную встречу<br>
-            • Мы смотрим и даём обратную связь<br>
-            • Разбираем закрытия без явной причины<br>
-            • 4 случая потери по ВТЛ — поимённо<br>
-            • На неделе 6: письменная оценка
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="col-head" style="color:var(--muted-foreground);font-size:15px;">Месяц 3 — передаём</div>
-        <div class="card" style="flex:1;padding:16px 20px;display:flex;flex-direction:column;justify-content:flex-start;">
-          <div style="font-size:15px;line-height:1.8;">
-            • Выходим из операционки<br>
-            • Итоговый срез год к году<br>
-            • Чек-лист готовности команды<br>
-            • Итоговая встреча<br>
-            • Дальше — самостоятельно
-          </div>
-        </div>
+      <div class="planBody">
+        <div>• Настраиваем интеграцию с ИТИГРИС, подключаем аудиобейджи</div>
+        <div>• Каждый день РОП смотрит в Оптимайзере сигналы по продавцам</div>
+        <div>• Раз в неделю КД и РОП раскладывают план продаж на цифры</div>
+        <div>• Планёрки проводим с аудиозаписью, задачи и итоги фиксируем</div>
+        <div>• Слушаем записи: как продавец объясняет клиенту сложную линзу</div>
+        <div>• Учим команду работать в Оптимайзере и помогаем на практике</div>
       </div>
     </div>
-    <div class="card" style="padding:14px 24px;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:14px;">
-        <div>
-          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;">
-            <div style="font-size:30px;font-weight:700;color:var(--primary);line-height:1;" id="pBranchesVal">4</div>
-            <div style="font-size:14px;color:var(--muted-foreground);">салонов в пилоте</div>
-          </div>
-          <input id="pBranches" type="range" min="1" max="12" step="1" value="4">
+
+    <div class="card planRow">
+      <div class="planTag">
+        <div class="planTagNum">Месяц 2</div>
+        <div class="planTagSub">проверяем</div>
+      </div>
+      <div class="planBody">
+        <div>• Еженедельную встречу готовит и ведёт ваш руководитель</div>
+        <div>• Мы смотрим со стороны и даём обратную связь по разбору</div>
+        <div>• Разбираем заказы, закрытые без попытки предложить ВТЛ</div>
+        <div>• Четыре случая потери ВТЛ-заказа — поимённо, с записями</div>
+        <div>• Неделя 6: письменная промежуточная оценка по пилоту</div>
+        <div>• Недели 7–8: расширяем охват на остальные смены</div>
+      </div>
+    </div>
+
+    <div class="card planRow">
+      <div class="planTag">
+        <div class="planTagNum">Месяц 3</div>
+        <div class="planTagSub">передаём</div>
+      </div>
+      <div class="planBody">
+        <div>• Выходим из операционки — цикл команда ведёт сама</div>
+        <div>• Неделя 11: пред-встреча и чек-лист готовности команды</div>
+        <div>• Итоговый срез год к году по салонам пилота</div>
+        <div>• Неделя 12: итоговая встреча и формат работы дальше</div>
+        <div>• Передаём регламент еженедельного цикла в работу</div>
+        <div>• Решаем, расширять ли на остальные салоны сети</div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:11px 20px;">
+      <div style="display:flex;align-items:center;gap:28px;margin-bottom:9px;">
+        <div style="flex:1;display:flex;align-items:baseline;gap:9px;">
+          <div style="font-size:26px;font-weight:700;color:var(--primary);line-height:1;" id="pBranchesVal">4</div>
+          <div style="font-size:13px;color:var(--muted-foreground);white-space:nowrap;">салона в пилоте</div>
+          <input id="pBranches" type="range" min="1" max="12" step="1" value="4" style="flex:1;margin:0 0 0 6px;">
         </div>
-        <div>
-          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;">
-            <div style="font-size:30px;font-weight:700;color:var(--primary);line-height:1;" id="pBadgesVal">1</div>
-            <div style="font-size:14px;color:var(--muted-foreground);">аудиобейджей <span style="white-space:nowrap;">(не более 1 на салон)</span></div>
-          </div>
-          <input id="pBadges" type="range" min="0" max="12" step="1" value="1">
+        <div style="flex:1;display:flex;align-items:baseline;gap:9px;">
+          <div style="font-size:26px;font-weight:700;color:var(--primary);line-height:1;" id="pBadgesVal">1</div>
+          <div style="font-size:13px;color:var(--muted-foreground);white-space:nowrap;">аудиобейдж</div>
+          <input id="pBadges" type="range" min="0" max="12" step="1" value="1" style="flex:1;margin:0 0 0 6px;">
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:12px;">
-        <div>
-          <div style="font-size:12px;color:var(--muted-foreground);margin-bottom:2px;">Сопровождение ОВС</div>
-          <div style="font-size:20px;font-weight:700;color:var(--primary);" id="pCost1">360 тыс ₽</div>
+      <div style="border-top:1px solid var(--border);padding-top:9px;display:flex;align-items:flex-end;gap:22px;">
+        <div style="flex:1;">
+          <div style="font-size:11px;color:var(--muted-foreground);">Сопровождение ОВС</div>
+          <div style="font-size:18px;font-weight:700;color:var(--primary);line-height:1.2;" id="pCost1">360 тыс ₽</div>
           <div style="font-size:11px;color:var(--muted-foreground);" id="pCost1sub">30 000 ₽ × 4 × 3 мес</div>
         </div>
-        <div>
-          <div style="font-size:12px;color:var(--muted-foreground);margin-bottom:2px;">Дататрансфер ИТИГРИС</div>
-          <div style="font-size:20px;font-weight:700;color:var(--primary);">10 тыс ₽</div>
+        <div style="flex:1;">
+          <div style="font-size:11px;color:var(--muted-foreground);">Дататрансфер ИТИГРИС</div>
+          <div style="font-size:18px;font-weight:700;color:var(--primary);line-height:1.2;">10 тыс ₽</div>
           <div style="font-size:11px;color:var(--muted-foreground);">один раз</div>
         </div>
-        <div>
-          <div style="font-size:12px;color:var(--muted-foreground);margin-bottom:2px;">Аудиобейджи</div>
-          <div style="font-size:20px;font-weight:700;color:var(--primary);" id="pCost3">16 тыс ₽</div>
+        <div style="flex:1;">
+          <div style="font-size:11px;color:var(--muted-foreground);">Аудиобейджи</div>
+          <div style="font-size:18px;font-weight:700;color:var(--primary);line-height:1.2;" id="pCost3">16 тыс ₽</div>
           <div style="font-size:11px;color:var(--muted-foreground);" id="pCost3sub">1 × 16 000 ₽ разово</div>
         </div>
+        <div style="flex:0 0 auto;text-align:right;border-left:1px solid var(--border);padding-left:22px;">
+          <div style="font-size:11px;color:var(--muted-foreground);">Итого за пилот</div>
+          <div style="font-size:26px;font-weight:700;color:var(--excellent-text);line-height:1.15;" id="pTotal">386 тыс ₽</div>
+        </div>
       </div>
-      <div style="border-top:1px solid var(--border);padding-top:8px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:baseline;">
-        <div style="font-size:15px;color:var(--primary);">Итого за пилот</div>
-        <div style="font-size:24px;font-weight:700;color:var(--excellent-text);" id="pTotal">386 тыс ₽</div>
-      </div>
-      <div style="border-top:1px solid var(--border);padding-top:10px;font-size:13px;line-height:1.45;">
-        <div style="margin-bottom:3px;"><b>Замеряем год к году</b>, а не месяц к месяцу — иначе сезонный спад покажет минус при работающем внедрении.</div>
-        <div>От вас нужно два решения: согласовать пилот и назначить того, кто ведёт еженедельные встречи все три месяца.</div>
+      <div style="border-top:1px solid var(--border);margin-top:9px;padding-top:8px;font-size:12.5px;line-height:1.4;color:var(--muted-foreground);">
+        <b style="color:var(--foreground);">Замеряем год к году</b>, а не месяц к месяцу — иначе сезонный спад покажет минус при работающем внедрении. <b style="color:var(--foreground);">От вас два решения:</b> согласовать пилот и назначить того, кто ведёт еженедельные встречи все три месяца.
       </div>
     </div>
     <script>
@@ -729,12 +738,15 @@ tr.total-row td { font-weight: 700; }
       var c3=document.getElementById('pCost3'), c3s=document.getElementById('pCost3sub');
       var total=document.getElementById('pTotal');
       function nf(x){return Math.round(x).toLocaleString('ru-RU');}
+      function plural(n,a,b,c){var m=n%100;if(m>=11&&m<=14)return c;var k=n%10;if(k===1)return a;if(k>=2&&k<=4)return b;return c;}
       function upd(){
         var n=+br.value;
         if(+bg.max!==n){ bg.max=n; }
         if(+bg.value>n) bg.value=n;
         var b=+bg.value;
         brVal.textContent=n; bgVal.textContent=b;
+        brVal.nextElementSibling.textContent=plural(n,'салон в пилоте','салона в пилоте','салонов в пилоте');
+        bgVal.nextElementSibling.textContent=plural(b,'аудиобейдж','аудиобейджа','аудиобейджей');
         var cost1=30000*n*3, cost2=10000, cost3=b*16000;
         c1.textContent=nf(cost1/1000)+' тыс ₽'; c1s.textContent='30 000 ₽ × '+n+' × 3 мес';
         c3.textContent=nf(cost3/1000)+' тыс ₽'; c3s.textContent=b+' × 16 000 ₽ разово';
@@ -746,7 +758,7 @@ tr.total-row td { font-weight: 700; }
     })();
     </script>
   </div>
-  <div class="footnote">Сопровождение ОВС · 4 салона пилота · 3 месяца внедрения, далее сопровождение</div>
+  <div class="footnote">Сопровождение ОВС · 3 месяца внедрения, далее сопровождение · бейджи закупаются у партнёра напрямую</div>
 </section>
 </div>
 
