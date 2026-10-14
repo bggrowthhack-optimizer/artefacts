@@ -328,7 +328,7 @@ tr.total-row td { font-weight: 700; }
           <tr><td>Средний чек заказа</td><td>20 634 ₽</td><td>18 448 ₽</td><td class="status-bad">−10,6%</td></tr>
           <tr><td>Валовая прибыль по сети</td><td>67,1 млн</td><td>72,3 млн</td><td class="status-good">+7,9%</td></tr>
           <tr><td>Заказы со сложными линзами (ВТЛ)</td><td>2 001</td><td>1 886</td><td class="status-bad">−5,7%</td></tr>
-          <tr class="total"><td>Доля ВТЛ в заказах</td><td>42,9%</td><td>34,3%</td><td class="status-bad">−8,6 п.п.</td></tr>
+          <tr class="total"><td>Доля ВТЛ во всех заказах</td><td>42,9%</td><td>34,3%</td><td class="status-bad">−8,6 п.п.</td></tr>
         </tbody>
       </table>
     </div>
@@ -393,6 +393,7 @@ tr.total-row td { font-weight: 700; }
         <span class="kpi-label" style="font-size:16px;font-weight:400;color:var(--foreground);">Результат: валовая прибыль по 11 филиалам</span>
         <span style="font-size:24px;font-weight:700;margin-left:10px;">+1,7%</span>
         <span style="font-size:16px;font-weight:500;color:var(--muted-foreground);"> · 64,5 → 65,6 млн</span>
+        <div style="font-size:13px;color:var(--muted-foreground);margin-top:5px;">На прошлом слайде 67,1 → 72,3 млн по 12 действующим. Разница — Зима: 2,6 млн в 2025 за четыре месяца работы и 6,7 млн в 2026 за девять. Рост дал новый салон, а не работа прежних.</div>
       </div>
       <div style="border-top:1px solid var(--border);padding-top:18px;display:flex;">
         <div style="flex:1;text-align:center;">
@@ -410,7 +411,7 @@ tr.total-row td { font-weight: 700; }
         <div style="flex:1;text-align:center;">
           <div class="kpi-label" style="font-size:16px;font-weight:400;color:var(--foreground);">На линзах стали меньше зарабатывать</div>
           <div style="font-size:21px;font-weight:700;margin-top:4px;color:var(--poor-text);">−4,8 млн</div>
-          <div class="kpi-compare" style="color:var(--muted-foreground);margin-top:2px;">доля ВТЛ: 51,5% → 39,8%</div>
+          <div class="kpi-compare" style="color:var(--muted-foreground);margin-top:2px;">доля ВТЛ по своему рецепту: 51,5% → 39,8%</div>
         </div>
         <div style="width:1px;background:var(--border);"></div>
         <div style="flex:1;text-align:center;">
@@ -579,7 +580,7 @@ tr.total-row td { font-weight: 700; }
         </thead>
         <tbody>
           <tr><td style="padding:14px 18px;font-size:22px;">Конверсия подбор → заказ</td><td style="padding:14px 18px;font-size:22px;text-align:right;white-space:nowrap;">91%</td><td style="padding:14px 18px;font-size:22px;text-align:right;white-space:nowrap;color:var(--muted-foreground);">88%</td><td class="status-good" style="padding:14px 18px;font-size:22px;text-align:right;white-space:nowrap;font-weight:700;">91%</td></tr>
-          <tr><td style="padding:14px 18px;font-size:22px;">Доля ВТЛ в заказах</td><td style="padding:14px 18px;font-size:22px;text-align:right;white-space:nowrap;">41%</td><td style="padding:14px 18px;font-size:22px;text-align:right;white-space:nowrap;color:var(--muted-foreground);">53%</td><td class="status-good" style="padding:14px 18px;font-size:22px;text-align:right;white-space:nowrap;font-weight:700;">53%</td></tr>
+          <tr><td style="padding:14px 18px;font-size:22px;">Доля ВТЛ по своему рецепту</td><td style="padding:14px 18px;font-size:22px;text-align:right;white-space:nowrap;">41%</td><td style="padding:14px 18px;font-size:22px;text-align:right;white-space:nowrap;color:var(--muted-foreground);">53%</td><td class="status-good" style="padding:14px 18px;font-size:22px;text-align:right;white-space:nowrap;font-weight:700;">53%</td></tr>
           <tr><td style="padding:14px 18px;font-size:22px;">Средний чек на оправу</td><td style="padding:14px 18px;font-size:22px;text-align:right;white-space:nowrap;">6 400 ₽</td><td style="padding:14px 18px;font-size:22px;text-align:right;white-space:nowrap;color:var(--muted-foreground);">6 900 ₽</td><td class="status-good" style="padding:14px 18px;font-size:22px;text-align:right;white-space:nowrap;font-weight:700;">7 400 ₽</td></tr>
         </tbody>
       </table>
@@ -628,7 +629,7 @@ tr.total-row td { font-weight: 700; }
           </div>
           <div class="fmRow"><div class="fmLbl">Конверсия подбор → заказ<span id="fmCurConv"></span></div><div class="fmVal" id="fmValConv">90,7%</div></div>
           <input id="fmConv" type="range" min="700" max="1000" step="1" value="907">
-          <div class="fmRow" style="margin-top:7px;"><div class="fmLbl">Доля ВТЛ в заказах<span id="fmCurP"></span></div><div class="fmVal" id="fmValP">51,5%</div></div>
+          <div class="fmRow" style="margin-top:7px;"><div class="fmLbl">Доля ВТЛ по своему рецепту<span id="fmCurP"></span></div><div class="fmVal" id="fmValP">51,5%</div></div>
           <input id="fmP" type="range" min="300" max="700" step="1" value="515">
           <div style="font-size:12px;color:var(--muted-foreground);margin-top:1px;">Чек линз при этой доле: <b id="fmLensTicket" style="color:var(--foreground);"></b></div>
           <div class="fmRow" style="margin-top:7px;"><div class="fmLbl">Средний чек на оправу<span id="fmCurT"></span></div><div class="fmVal" id="fmValT">6 978 ₽</div></div>
