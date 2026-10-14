@@ -203,6 +203,10 @@ tr.total-row td { font-weight: 700; }
 .hintQ{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--border);color:var(--muted-foreground);font-size:11px;font-weight:700;cursor:default;margin-left:6px;}
 .actRow{display:flex;align-items:flex-start;gap:10px;}
 .actRow+.actRow{margin-top:6px;}
+.auditStep{display:flex;align-items:center;gap:16px;padding:10px 18px;margin-bottom:8px;}
+.auditNum{flex:0 0 26px;height:26px;border-radius:50%;background:#EDF1FE;color:var(--primary);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.auditQ{flex:0 0 252px;font-size:15px;font-weight:600;}
+.auditM{flex:1;font-size:13.5px;line-height:1.4;color:var(--muted-foreground);}
 .planRow{display:flex;gap:18px;align-items:center;padding:11px 18px;margin-bottom:10px;}
 .planTag{flex:0 0 104px;text-align:center;}
 .planTagNum{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--primary);background:#EDF1FE;border-radius:5px;padding:4px 0;}
@@ -248,51 +252,55 @@ tr.total-row td { font-weight: 700; }
 <!-- ПЛАН АНАЛИЗА -->
 <div class="slide-frame">
 <section class="slide">
-  <div class="kicker">Как мы считали</div>
-  <h1 class="slide-title">Два источника, один калиброванный счёт, семь отклонённых версий</h1>
+  <div class="kicker">Порядок разбора</div>
+  <h1 class="slide-title">Сначала договоримся, как считаем — выводы после</h1>
   <div class="divider"></div>
   <div class="content">
-    <div class="col-split" style="margin-bottom:14px;">
-      <div class="col">
-        <div class="col-head" style="color:var(--muted-foreground);font-size:15px;">Что взяли за основу</div>
-        <div class="card" style="flex:1;padding:16px 20px;display:flex;flex-direction:column;gap:14px;justify-content:center;">
-          <div>
-            <div style="font-size:15px;font-weight:600;margin-bottom:3px;">ИТИГРИС — выгрузка продаж</div>
-            <div style="font-size:13px;line-height:1.5;color:var(--muted-foreground);">Единственный источник денег: выручка, заказы, чек, линзы. 177 825 строк, 92 683 заказа, с января 2025.</div>
-          </div>
-          <div>
-            <div style="font-size:15px;font-weight:600;margin-bottom:3px;">Ежедневные отчёты филиалов</div>
-            <div style="font-size:13px;line-height:1.5;color:var(--muted-foreground);">Подборы, рекомендации ВТЛ, свой/чужой рецепт — то, чего в ИТИГРИС нет. 11 933 отчёта.</div>
-          </div>
-          <div style="border-top:1px solid var(--border);padding-top:10px;">
-            <div style="font-size:15px;font-weight:600;margin-bottom:3px;">Единицу счёта откалибровали</div>
-            <div style="font-size:13px;line-height:1.5;color:var(--muted-foreground);">Подобрали определение заказа так, чтобы совпасть с цифрами, которые сами подаёте в отчётах — сошлось в 96% пар «филиал × месяц».</div>
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="col-head" style="color:var(--muted-foreground);font-size:15px;">Что проверили и отклонили</div>
-        <div class="card" style="flex:1;padding:16px 20px;display:flex;flex-direction:column;justify-content:center;">
-          <table class="table-compact" style="font-size:13px;">
-            <tbody>
-              <tr><td style="padding:7px 10px;">Сотрудники занижают отчётность</td><td class="status-good" style="padding:7px 10px;text-align:right;white-space:nowrap;">нет</td></tr>
-              <tr><td style="padding:7px 10px;">Падение из-за роста доли чужих рецептов</td><td class="status-good" style="padding:7px 10px;text-align:right;white-space:nowrap;">нет</td></tr>
-              <tr><td style="padding:7px 10px;">Технологичные линзы пропали у поставщиков</td><td class="status-good" style="padding:7px 10px;text-align:right;white-space:nowrap;">нет</td></tr>
-              <tr><td style="padding:7px 10px;">Упали из-за падения потока клиентов</td><td class="status-good" style="padding:7px 10px;text-align:right;white-space:nowrap;">нет</td></tr>
-              <tr><td style="padding:7px 10px;">Покупатель обеднел</td><td class="status-good" style="padding:7px 10px;text-align:right;white-space:nowrap;">нет</td></tr>
-              <tr><td style="padding:7px 10px;">Быстрые приёмы размыли качество</td><td class="status-good" style="padding:7px 10px;text-align:right;white-space:nowrap;">нет</td></tr>
-            </tbody>
-          </table>
-          <div style="font-size:13px;line-height:1.5;color:var(--primary);margin-top:10px;padding:0 10px;">Остаётся одно: изменилось поведение в зале на заказах по своему рецепту.</div>
-        </div>
-      </div>
+
+    <div class="card auditStep">
+      <div class="auditNum">1</div>
+      <div class="auditQ">Что считаем заказом</div>
+      <div class="auditM">Определение подобрали так, чтобы сойтись с вашей же отчётностью — совпало в 96% пар «филиал × месяц»</div>
     </div>
-    <div class="card" style="padding:14px 24px;">
-      <div style="font-size:17px;font-weight:400;margin-bottom:6px;color:var(--primary);">Дальше идём по порядку</div>
-      <div style="font-size:15px;line-height:1.5;">Периметр сравнения → из чего сложился год → проверка версий → когда и почему сломалось → деньги → план пилота. Каждый следующий слайд — ответ на вопрос, который сам напрашивается из предыдущего.</div>
+
+    <div class="card auditStep">
+      <div class="auditNum">2</div>
+      <div class="auditQ">Какие салоны сравниваем</div>
+      <div class="auditM">Только те, что отработали оба периода целиком — 11 из 15. Открытые и закрытые в сравнение не берём</div>
     </div>
+
+    <div class="card auditStep">
+      <div class="auditNum">3</div>
+      <div class="auditQ">Откуда берём цифры</div>
+      <div class="auditM">Деньги — только из ИТИГРИС, это транзакции. Подборы и рекомендации — из ваших ежедневных отчётов</div>
+    </div>
+
+    <div class="card auditStep">
+      <div class="auditNum">4</div>
+      <div class="auditQ">Из чего сложился год</div>
+      <div class="auditM">Раскладываем результат на части: что принесло деньги, что забрало, и сколько осталось в итоге</div>
+    </div>
+
+    <div class="card auditStep">
+      <div class="auditNum">5</div>
+      <div class="auditQ">Почему так вышло</div>
+      <div class="auditM">Проверяем семь других объяснений — рынок, поставщики, поток, отчётность — и смотрим, что выдержало проверку</div>
+    </div>
+
+    <div class="card auditStep">
+      <div class="auditNum">6</div>
+      <div class="auditQ">Сколько это стоит и что делать</div>
+      <div class="auditM">Считаем деньги на вашей модели и собираем план пилота — только после того, как причина подтвердилась</div>
+    </div>
+
+    <div class="card" style="padding:12px 20px;display:flex;align-items:center;gap:16px;">
+      <div style="flex:0 0 auto;font-size:15px;font-weight:600;color:var(--primary);">Если с каким-то шагом не согласны — скажите сейчас</div>
+      <div style="width:1px;align-self:stretch;background:var(--border);"></div>
+      <div style="flex:1;font-size:13.5px;line-height:1.4;color:var(--muted-foreground);">Всё, что будет дальше, опирается на эти шесть пунктов. Спорить о выводе, согласившись с дорогой к нему, будет поздно — поэтому сверяемся здесь.</div>
+    </div>
+
   </div>
-  <div class="footnote">Источник: ИТИГРИС · ежедневные отчёты филиалов · методика откалибрована и сверена на 211 парах филиал×месяц</div>
+  <div class="footnote">Источник: ИТИГРИС, выгрузка продаж · ежедневные отчёты филиалов · январь–сентябрь 2025 и 2026</div>
 </section>
 </div>
 
