@@ -203,6 +203,12 @@ tr.total-row td { font-weight: 700; }
 .hintQ{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--border);color:var(--muted-foreground);font-size:11px;font-weight:700;cursor:default;margin-left:6px;}
 .actRow{display:flex;align-items:flex-start;gap:10px;}
 .actRow+.actRow{margin-top:6px;}
+.stepRow{display:flex;align-items:stretch;gap:6px;margin-bottom:18px;}
+.stepCard{flex:1;padding:16px 10px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;}
+.stepNum{width:30px;height:30px;border-radius:50%;background:#EDF1FE;color:var(--primary);font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.stepLab{font-size:15px;font-weight:600;line-height:1.25;}
+.stepSub{font-size:12.5px;line-height:1.3;color:var(--muted-foreground);}
+.stepArrow{flex:0 0 auto;align-self:center;color:var(--border-strong);font-size:18px;}
 .auditStep{display:flex;align-items:center;gap:16px;padding:10px 18px;margin-bottom:8px;}
 .auditNum{flex:0 0 26px;height:26px;border-radius:50%;background:#EDF1FE;color:var(--primary);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;}
 .auditQ{flex:0 0 252px;font-size:15px;font-weight:600;}
@@ -256,51 +262,51 @@ tr.total-row td { font-weight: 700; }
   <div class="divider"></div>
   <div class="content">
 
-    <div class="card auditStep">
-      <div class="auditNum">1</div>
-      <div class="auditQ">Как прошёл год</div>
-      <div class="auditM">Смотрим всю сеть: заказы, чек, валовую за девять месяцев против прошлого года</div>
-    </div>
-
-    <div class="card auditStep">
-      <div class="auditNum">2</div>
-      <div class="auditQ">Делаем сравнение честным</div>
-      <div class="auditM">Оставляем 11 салонов, которые работали оба года. Новые и закрытые сравнение портят</div>
-    </div>
-
-    <div class="card auditStep">
-      <div class="auditNum">3</div>
-      <div class="auditQ">Раскладываем год на части</div>
-      <div class="auditM">Считаем отдельной суммой, сколько каждая причина принесла и сколько забрала</div>
-    </div>
-
-    <div class="card auditStep">
-      <div class="auditNum">4</div>
-      <div class="auditQ">Находим, что именно просело</div>
-      <div class="auditM">Смотрим, какие линзы и какие клиенты просели сильнее</div>
-    </div>
-
-    <div class="card auditStep">
-      <div class="auditNum">5</div>
-      <div class="auditQ">Проверяем другие объяснения</div>
-      <div class="auditM">Рынок, поток клиентов, поставщики, цены. И отдельно — когда это началось</div>
-    </div>
-
-    <div class="card auditStep">
-      <div class="auditNum">6</div>
-      <div class="auditQ">Считаем деньги и план</div>
-      <div class="auditM">Ставим цель, считаем прибыль на ваших цифрах, собираем план. В конце, не раньше</div>
-    </div>
-
-    <div class="card" style="padding:11px 20px;">
-      <div style="display:flex;align-items:center;gap:16px;margin-bottom:8px;">
-        <div style="flex:0 0 auto;font-size:15px;font-weight:600;color:var(--primary);">Если с каким-то шагом не согласны — скажите сейчас</div>
-        <div style="width:1px;align-self:stretch;background:var(--border);"></div>
-        <div style="flex:1;font-size:13.5px;line-height:1.4;color:var(--muted-foreground);">Дальше всё строится на этих шагах. Проще поспорить сейчас, чем о выводе в конце.</div>
+    <div class="stepRow">
+      <div class="card stepCard">
+        <div class="stepNum">1</div>
+        <div class="stepLab">Как прошёл год</div>
+        <div class="stepSub">вся сеть, девять месяцев</div>
       </div>
-      <div style="border-top:1px solid var(--border);padding-top:8px;font-size:12.5px;line-height:1.4;color:var(--muted-foreground);">
-        <b style="color:var(--foreground);">На чём всё считается:</b> деньги берём только из ИТИГРИС, подборы и рекомендации — из ваших ежедневных отчётов. Что считать заказом, подобрали под вашу отчётность — совпало в 96% случаев по филиалам и месяцам.
+      <div class="stepArrow">→</div>
+      <div class="card stepCard">
+        <div class="stepNum">2</div>
+        <div class="stepLab">Сравниваем честно</div>
+        <div class="stepSub">11 салонов из 15</div>
       </div>
+      <div class="stepArrow">→</div>
+      <div class="card stepCard">
+        <div class="stepNum">3</div>
+        <div class="stepLab">Раскладываем год</div>
+        <div class="stepSub">что принесло, что забрало</div>
+      </div>
+      <div class="stepArrow">→</div>
+      <div class="card stepCard">
+        <div class="stepNum">4</div>
+        <div class="stepLab">Ищем, что просело</div>
+        <div class="stepSub">какие линзы, какие клиенты</div>
+      </div>
+      <div class="stepArrow">→</div>
+      <div class="card stepCard">
+        <div class="stepNum">5</div>
+        <div class="stepLab">Проверяем версии</div>
+        <div class="stepSub">рынок, поток, цены</div>
+      </div>
+      <div class="stepArrow">→</div>
+      <div class="card stepCard">
+        <div class="stepNum">6</div>
+        <div class="stepLab">Деньги и план</div>
+        <div class="stepSub">на ваших цифрах</div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:20px 24px;text-align:center;">
+      <div style="font-size:26px;font-weight:700;color:var(--primary);line-height:1.25;">Если с каким-то шагом не согласны — скажите сейчас</div>
+      <div style="font-size:16px;color:var(--muted-foreground);margin-top:8px;">Дальше всё строится на этом порядке. Проще поспорить здесь, чем о выводе в конце.</div>
+    </div>
+
+    <div class="card" style="padding:14px 24px;font-size:14px;line-height:1.5;">
+      <b>На чём считаем.</b> Деньги берём только из ИТИГРИС. Подборы и рекомендации — из ваших ежедневных отчётов. Что считать заказом, подобрали под вашу отчётность: совпало в 96% случаев по филиалам и месяцам.
     </div>
 
   </div>
