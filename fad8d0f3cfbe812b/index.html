@@ -680,13 +680,19 @@ tr.total-row td { font-weight: 700; }
       </div>
     </div>
     <div class="card" style="padding:14px 24px;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:12px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:14px;">
         <div>
-          <div class="fmRow"><div class="fmLbl">Салонов в пилоте</div><div class="fmVal" id="pBranchesVal">4</div></div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;">
+            <div style="font-size:30px;font-weight:700;color:var(--primary);line-height:1;" id="pBranchesVal">4</div>
+            <div style="font-size:14px;color:var(--muted-foreground);">салонов в пилоте</div>
+          </div>
           <input id="pBranches" type="range" min="1" max="12" step="1" value="4">
         </div>
         <div>
-          <div class="fmRow"><div class="fmLbl">Аудиобейджей <span>не более 1 на салон</span></div><div class="fmVal" id="pBadgesVal">1</div></div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;">
+            <div style="font-size:30px;font-weight:700;color:var(--primary);line-height:1;" id="pBadgesVal">1</div>
+            <div style="font-size:14px;color:var(--muted-foreground);">аудиобейджей <span style="white-space:nowrap;">(не более 1 на салон)</span></div>
+          </div>
           <input id="pBadges" type="range" min="0" max="12" step="1" value="1">
         </div>
       </div>
