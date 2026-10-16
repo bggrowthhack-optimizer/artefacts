@@ -579,7 +579,32 @@ tr.total-row td { font-weight: 700; }
   <div class="content">
     <div class="col-split" style="margin-bottom:10px;">
       <div class="col" style="flex:1;">
-        <div class="col-head" style="color:var(--muted-foreground);font-size:14px;">Какие салоны считаем: <b id="fmCntSel" style="color:var(--primary);">4 из 12</b></div>
+        <div class="col-head" style="color:var(--muted-foreground);font-size:14px;">Какие салоны считаем — доля ВТЛ по своему рецепту: <b id="fmCntSel" style="color:var(--primary);">4 из 12</b><span class="hintWrap"><span class="hintQ">?</span><span class="hintPop" style="width:430px;color:var(--foreground);font-weight:400;">
+          <div style="font-weight:600;margin-bottom:5px;">Почему по своему рецепту</div>
+          <div style="margin-bottom:9px;color:var(--muted-foreground);line-height:1.45;">На чужой рецепт продавец почти не влияет — диагностики вашего врача там не было. В модель берём только то, на что внедрение может подействовать.</div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <tr style="color:var(--muted-foreground);font-size:11px;text-transform:uppercase;letter-spacing:.03em;">
+              <th style="text-align:left;padding:0 0 4px;font-weight:600;">Филиал</th>
+              <th style="text-align:right;padding:0 0 4px;font-weight:600;">Общий</th>
+              <th style="text-align:right;padding:0 0 4px;font-weight:600;">Свой</th>
+              <th style="text-align:right;padding:0 0 4px;font-weight:600;">Чужой</th>
+            </tr>
+            <tr><td style="padding:2px 0;">Оптиссимо</td><td style="padding:2px 0;text-align:right;">43,6%</td><td style="padding:2px 0;text-align:right;">52,0%</td><td style="padding:2px 0;text-align:right;color:var(--muted-foreground);">18,0%</td></tr>
+            <tr><td style="padding:2px 0;">Ленина</td><td style="padding:2px 0;text-align:right;">42,5%</td><td style="padding:2px 0;text-align:right;">49,3%</td><td style="padding:2px 0;text-align:right;color:var(--muted-foreground);">21,5%</td></tr>
+            <tr><td style="padding:2px 0;">Зима</td><td style="padding:2px 0;text-align:right;">40,5%</td><td style="padding:2px 0;text-align:right;">48,1%</td><td style="padding:2px 0;text-align:right;color:var(--muted-foreground);">18,5%</td></tr>
+            <tr><td style="padding:2px 0;">Из. город</td><td style="padding:2px 0;text-align:right;">36,7%</td><td style="padding:2px 0;text-align:right;">43,5%</td><td style="padding:2px 0;text-align:right;color:var(--muted-foreground);">19,6%</td></tr>
+            <tr style="font-weight:600;"><td style="padding:2px 0;">Шевченко</td><td style="padding:2px 0;text-align:right;">35,0%</td><td style="padding:2px 0;text-align:right;">40,7%</td><td style="padding:2px 0;text-align:right;color:var(--muted-foreground);">18,2%</td></tr>
+            <tr style="font-weight:600;"><td style="padding:2px 0;">Манеж</td><td style="padding:2px 0;text-align:right;">34,1%</td><td style="padding:2px 0;text-align:right;">41,1%</td><td style="padding:2px 0;text-align:right;color:var(--muted-foreground);">11,9%</td></tr>
+            <tr><td style="padding:2px 0;">Зеленые горки</td><td style="padding:2px 0;text-align:right;">31,2%</td><td style="padding:2px 0;text-align:right;">37,9%</td><td style="padding:2px 0;text-align:right;color:var(--muted-foreground);">12,8%</td></tr>
+            <tr><td style="padding:2px 0;">Смайл Сити</td><td style="padding:2px 0;text-align:right;">30,8%</td><td style="padding:2px 0;text-align:right;">35,3%</td><td style="padding:2px 0;text-align:right;color:var(--muted-foreground);">17,5%</td></tr>
+            <tr><td style="padding:2px 0;">БУМ</td><td style="padding:2px 0;text-align:right;">27,7%</td><td style="padding:2px 0;text-align:right;">35,5%</td><td style="padding:2px 0;text-align:right;color:var(--muted-foreground);">5,7%</td></tr>
+            <tr style="font-weight:600;"><td style="padding:2px 0;">Северск Мармелайт</td><td style="padding:2px 0;text-align:right;">26,4%</td><td style="padding:2px 0;text-align:right;">29,4%</td><td style="padding:2px 0;text-align:right;color:var(--muted-foreground);">13,5%</td></tr>
+            <tr><td style="padding:2px 0;">1905</td><td style="padding:2px 0;text-align:right;">26,2%</td><td style="padding:2px 0;text-align:right;">33,1%</td><td style="padding:2px 0;text-align:right;color:var(--muted-foreground);">6,9%</td></tr>
+            <tr style="font-weight:600;"><td style="padding:2px 0;">Мира</td><td style="padding:2px 0;text-align:right;">25,1%</td><td style="padding:2px 0;text-align:right;">29,8%</td><td style="padding:2px 0;text-align:right;color:var(--muted-foreground);">11,4%</td></tr>
+            <tr style="border-top:1px solid var(--border);font-weight:700;"><td style="padding:4px 0 0;">По сети</td><td style="padding:4px 0 0;text-align:right;">34,3%</td><td style="padding:4px 0 0;text-align:right;">40,6%</td><td style="padding:4px 0 0;text-align:right;color:var(--muted-foreground);">15,7%</td></tr>
+          </table>
+          <div style="margin-top:8px;color:var(--muted-foreground);line-height:1.4;">Январь–сентябрь 2026. Жирным — салоны пилота.</div>
+        </span></span></div>
         <div class="card" style="flex:1;padding:10px 16px;display:flex;flex-direction:column;justify-content:center;">
           <div style="display:flex;gap:6px;margin-bottom:14px;">
             <button class="fmSalonFilter" data-set="elk" style="flex:1;font-size:13px;padding:8px 3px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;">Вариант Эльликон</button>
