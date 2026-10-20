@@ -664,8 +664,8 @@ tr.total-row td { font-weight: 700; }
       <div class="col" style="flex:1;">
         <div class="col-head" style="color:var(--muted-foreground);font-size:14px;">Куда хотим прийти</div>
         <div class="card" style="flex:1;padding:10px 18px;display:flex;flex-direction:column;justify-content:center;">
-          <div style="font-size:12px;color:var(--muted-foreground);margin-bottom:4px;">Сценарий: <b id="fmScenarioName" style="color:var(--primary);">Ступень −20%</b></div>
-          <div style="display:flex;gap:4px;margin-bottom:7px;"><button class="fmPreset" data-mode="now" data-name="Сейчас — без изменений" style="flex:1;font-size:11.5px;padding:5px 1px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;white-space:nowrap;">Сейчас</button><button class="fmPreset" data-p="40.6" data-t="7418" data-name="Ступень −50% · оправа 7 418 ₽" style="flex:1;font-size:11.5px;padding:5px 1px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;white-space:nowrap;">−50%</button><button class="fmPreset" data-p="44" data-t="7418" data-name="Ступень −40% · ВТЛ 44%" style="flex:1;font-size:11.5px;padding:5px 1px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;white-space:nowrap;">−40%</button><button class="fmPreset" data-p="48" data-t="7418" data-name="Ступень −30% · ВТЛ 48%" style="flex:1;font-size:11.5px;padding:5px 1px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;white-space:nowrap;">−30%</button><button class="fmPreset" data-p="52" data-t="7418" data-name="Ступень −20% · ВТЛ 52%, ваш октябрь" style="flex:1;font-size:11.5px;padding:5px 1px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;white-space:nowrap;">−20%</button><button class="fmPreset" data-p="56" data-t="7418" data-name="Ступень −10% · ВТЛ 56%" style="flex:1;font-size:11.5px;padding:5px 1px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;white-space:nowrap;">−10%</button><button class="fmPreset" data-p="60" data-t="7418" data-name="Полная цена · ВТЛ 60%" style="flex:1;font-size:11.5px;padding:5px 1px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;white-space:nowrap;">Полная</button></div>
+          <div style="font-size:12px;color:var(--muted-foreground);margin-bottom:4px;">Сценарий: <b id="fmScenarioName" style="color:var(--primary);">Ступень 3</b></div>
+          <div style="display:flex;gap:4px;margin-bottom:7px;"><button class="fmPreset" data-mode="now" data-name="Сейчас — без Оптимайзера" style="flex:1;font-size:11.5px;padding:5px 1px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;white-space:nowrap;">Сейчас</button><button class="fmPreset" data-p="44" data-t="6600" data-name="Ступень 1 · ВТЛ 44% и оправа 6 600 ₽" style="flex:1;font-size:11.5px;padding:5px 1px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;white-space:nowrap;">Ступень 1</button><button class="fmPreset" data-p="48" data-t="6900" data-name="Ступень 2 · ВТЛ 48% и оправа 6 900 ₽" style="flex:1;font-size:11.5px;padding:5px 1px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;white-space:nowrap;">Ступень 2</button><button class="fmPreset" data-p="52" data-t="7200" data-name="Ступень 3 · ВТЛ 52% и оправа 7 200 ₽, ваш октябрь" style="flex:1;font-size:11.5px;padding:5px 1px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;white-space:nowrap;">Ступень 3</button><button class="fmPreset" data-p="56" data-t="7400" data-name="Ступень 4 · ВТЛ 56% и оправа 7 400 ₽" style="flex:1;font-size:11.5px;padding:5px 1px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;white-space:nowrap;">Ступень 4</button><button class="fmPreset" data-p="60" data-t="7400" data-name="Полная цена · ВТЛ 60% и оправа 7 400 ₽" style="flex:1;font-size:11.5px;padding:5px 1px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;white-space:nowrap;">Полная</button></div>
           <div class="fmRow"><div class="fmLbl">Конверсия подбор → заказ<span id="fmCurConv"></span></div><div class="fmVal" id="fmValConv">90,7%</div></div>
           <input id="fmConv" type="range" min="700" max="1000" step="0.1" value="907">
           <div style="font-size:12px;color:var(--muted-foreground);margin-top:1px;">В договоре пол 90%. В ноль уходим ниже <b id="fmBE" style="color:var(--foreground);"></b></div>
@@ -708,37 +708,35 @@ tr.total-row td { font-weight: 700; }
 
 <div class="slide-frame">
 <section class="slide">
-  <h1 class="slide-title">Обновлённое предложение: все 12 салонов за половину цены</h1>
+  <h1 class="slide-title">Цена падает только за показатели, достигнутые за месяц</h1>
   <div class="divider"></div>
   <div class="content">
-    <div class="col-split" style="flex:0 0 auto;gap:14px;margin-bottom:12px;">
-      <div class="card" style="flex:1;padding:13px 20px;">
-        <div style="font-size:13px;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:.04em;font-weight:700;margin-bottom:7px;">Что меняется</div>
-        <div style="font-size:15px;line-height:1.5;">Было — пилот на четырёх салонах по 30 000 ₽. Стало — <b>все 12 салонов по 15 000 ₽</b>. Руководители видят всех своих сотрудников, коммерческий директор — сеть целиком.</div>
-      </div>
-      <div class="card" style="flex:1;padding:13px 20px;">
-        <div style="font-size:13px;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:.04em;font-weight:700;margin-bottom:7px;">Что это даёт с первого месяца</div>
-        <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-size:15px;line-height:1.5;"><span>Платите <b>180 тыс</b>, только на чеке оправы возвращается <b>411 тыс</b>.</span><span style="font-size:19px;font-weight:700;color:var(--excellent-text);white-space:nowrap;">Остаётся 231 тыс в месяц</span></div>
-      </div>
-    </div>
     <div class="card" style="flex:1;padding:10px 18px;display:flex;flex-direction:column;justify-content:center;margin-bottom:12px;">
       <table class="table-compact" style="table-layout:fixed;width:100%;">
-        <colgroup><col style="width:36%;"><col style="width:12%;"><col style="width:16%;"><col style="width:18%;"><col style="width:18%;"></colgroup>
+        <colgroup><col style="width:25%;"><col style="width:13%;"><col style="width:16%;"><col style="width:12%;"><col style="width:16%;"><col style="width:18%;"></colgroup>
         <thead><tr style="font-size:13px;color:var(--muted-foreground);">
-          <th style="text-align:left;padding:0 14px 4px;font-weight:400;">Что достигнуто</th>
-          <th style="text-align:right;padding:0 14px 4px;font-weight:400;">Скидка</th>
-          <th style="text-align:right;padding:0 14px 4px;font-weight:400;">Оптимайзер</th>
-          <th style="text-align:right;padding:0 14px 4px;font-weight:400;">Прирост</th>
-          <th style="text-align:right;padding:0 14px 4px;font-weight:400;">Остаётся вам</th>
+          <th style="text-align:left;padding:0 14px 5px;font-weight:400;">Достигнуто за месяц</th>
+          <th style="text-align:right;padding:0 14px 5px;font-weight:400;">Доля ВТЛ</th>
+          <th style="text-align:right;padding:0 14px 5px;font-weight:400;">Чек оправы</th>
+          <th style="text-align:right;padding:0 14px 5px;font-weight:400;">Скидка</th>
+          <th style="text-align:right;padding:0 14px 5px;font-weight:400;">Оптимайзер</th>
+          <th style="text-align:right;padding:0 14px 5px;font-weight:400;">Остаётся вам</th>
         </tr></thead>
-        <tbody><tr style="background:var(--excellent-bg);"><td style="padding:7px 14px;font-size:16px;">Чек оправы 7 400 ₽, доля ВТЛ без изменений</td><td style="padding:7px 14px;font-size:16px;text-align:right;color:var(--muted-foreground);">−50%</td><td style="padding:7px 14px;font-size:16px;text-align:right;white-space:nowrap;">180 тыс</td><td style="padding:7px 14px;font-size:16px;text-align:right;white-space:nowrap;">+411 тыс</td><td class="status-good" style="padding:7px 14px;font-size:17px;text-align:right;white-space:nowrap;font-weight:700;">+231 тыс</td></tr><tr><td style="padding:7px 14px;font-size:16px;">и доля ВТЛ 44%</td><td style="padding:7px 14px;font-size:16px;text-align:right;color:var(--muted-foreground);">−40%</td><td style="padding:7px 14px;font-size:16px;text-align:right;white-space:nowrap;">216 тыс</td><td style="padding:7px 14px;font-size:16px;text-align:right;white-space:nowrap;">+637 тыс</td><td class="status-good" style="padding:7px 14px;font-size:17px;text-align:right;white-space:nowrap;font-weight:700;">+421 тыс</td></tr><tr><td style="padding:7px 14px;font-size:16px;">и доля ВТЛ 48%</td><td style="padding:7px 14px;font-size:16px;text-align:right;color:var(--muted-foreground);">−30%</td><td style="padding:7px 14px;font-size:16px;text-align:right;white-space:nowrap;">252 тыс</td><td style="padding:7px 14px;font-size:16px;text-align:right;white-space:nowrap;">+902 тыс</td><td class="status-good" style="padding:7px 14px;font-size:17px;text-align:right;white-space:nowrap;font-weight:700;">+650 тыс</td></tr><tr><td style="padding:7px 14px;font-size:16px;">и доля ВТЛ 52% — ваш октябрь</td><td style="padding:7px 14px;font-size:16px;text-align:right;color:var(--muted-foreground);">−20%</td><td style="padding:7px 14px;font-size:16px;text-align:right;white-space:nowrap;">288 тыс</td><td style="padding:7px 14px;font-size:16px;text-align:right;white-space:nowrap;">+1 168 тыс</td><td class="status-good" style="padding:7px 14px;font-size:17px;text-align:right;white-space:nowrap;font-weight:700;">+880 тыс</td></tr><tr><td style="padding:7px 14px;font-size:16px;">и доля ВТЛ 56%</td><td style="padding:7px 14px;font-size:16px;text-align:right;color:var(--muted-foreground);">−10%</td><td style="padding:7px 14px;font-size:16px;text-align:right;white-space:nowrap;">324 тыс</td><td style="padding:7px 14px;font-size:16px;text-align:right;white-space:nowrap;">+1 433 тыс</td><td class="status-good" style="padding:7px 14px;font-size:17px;text-align:right;white-space:nowrap;font-weight:700;">+1 109 тыс</td></tr><tr><td style="padding:7px 14px;font-size:16px;">и доля ВТЛ 60%</td><td style="padding:7px 14px;font-size:16px;text-align:right;color:var(--muted-foreground);">полная</td><td style="padding:7px 14px;font-size:16px;text-align:right;white-space:nowrap;">360 тыс</td><td style="padding:7px 14px;font-size:16px;text-align:right;white-space:nowrap;">+1 699 тыс</td><td class="status-good" style="padding:7px 14px;font-size:17px;text-align:right;white-space:nowrap;font-weight:700;">+1 339 тыс</td></tr></tbody>
+        <tbody><tr style="background:var(--muted);"><td style="padding:9px 14px;font-size:15px;color:var(--muted-foreground);">Сейчас — без Оптимайзера</td><td style="padding:9px 14px;font-size:17px;text-align:right;font-weight:600;color:var(--muted-foreground);">40,6%</td><td style="padding:9px 14px;font-size:17px;text-align:right;font-weight:600;white-space:nowrap;color:var(--muted-foreground);">6 379 ₽</td><td style="padding:9px 14px;font-size:15px;text-align:right;color:var(--muted-foreground);">—</td><td style="padding:9px 14px;font-size:15px;text-align:right;white-space:nowrap;color:var(--muted-foreground);">—</td><td class="status-bad" style="padding:9px 14px;font-size:18px;text-align:right;white-space:nowrap;font-weight:700;">—</td></tr><tr><td style="padding:9px 14px;font-size:15px;">Ступень 1</td><td style="padding:9px 14px;font-size:17px;text-align:right;font-weight:600;">44%</td><td style="padding:9px 14px;font-size:17px;text-align:right;font-weight:600;white-space:nowrap;">6 600 ₽</td><td style="padding:9px 14px;font-size:15px;text-align:right;color:var(--muted-foreground);">−40%</td><td style="padding:9px 14px;font-size:15px;text-align:right;white-space:nowrap;">216 тыс</td><td class="status-good" style="padding:9px 14px;font-size:18px;text-align:right;white-space:nowrap;font-weight:700;">+97 тыс</td></tr><tr><td style="padding:9px 14px;font-size:15px;">Ступень 2</td><td style="padding:9px 14px;font-size:17px;text-align:right;font-weight:600;">48%</td><td style="padding:9px 14px;font-size:17px;text-align:right;font-weight:600;white-space:nowrap;">6 900 ₽</td><td style="padding:9px 14px;font-size:15px;text-align:right;color:var(--muted-foreground);">−30%</td><td style="padding:9px 14px;font-size:15px;text-align:right;white-space:nowrap;">252 тыс</td><td class="status-good" style="padding:9px 14px;font-size:18px;text-align:right;white-space:nowrap;font-weight:700;">+445 тыс</td></tr><tr style="background:var(--excellent-bg);"><td style="padding:9px 14px;font-size:15px;">Ступень 3 — ваш октябрь</td><td style="padding:9px 14px;font-size:17px;text-align:right;font-weight:600;">52%</td><td style="padding:9px 14px;font-size:17px;text-align:right;font-weight:600;white-space:nowrap;">7 200 ₽</td><td style="padding:9px 14px;font-size:15px;text-align:right;color:var(--muted-foreground);">−20%</td><td style="padding:9px 14px;font-size:15px;text-align:right;white-space:nowrap;">288 тыс</td><td class="status-good" style="padding:9px 14px;font-size:18px;text-align:right;white-space:nowrap;font-weight:700;">+793 тыс</td></tr><tr><td style="padding:9px 14px;font-size:15px;">Ступень 4</td><td style="padding:9px 14px;font-size:17px;text-align:right;font-weight:600;">56%</td><td style="padding:9px 14px;font-size:17px;text-align:right;font-weight:600;white-space:nowrap;">7 400 ₽</td><td style="padding:9px 14px;font-size:15px;text-align:right;color:var(--muted-foreground);">−10%</td><td style="padding:9px 14px;font-size:15px;text-align:right;white-space:nowrap;">324 тыс</td><td class="status-good" style="padding:9px 14px;font-size:18px;text-align:right;white-space:nowrap;font-weight:700;">+1 102 тыс</td></tr><tr><td style="padding:9px 14px;font-size:15px;">Полная цена</td><td style="padding:9px 14px;font-size:17px;text-align:right;font-weight:600;">60%</td><td style="padding:9px 14px;font-size:17px;text-align:right;font-weight:600;white-space:nowrap;">7 400 ₽</td><td style="padding:9px 14px;font-size:15px;text-align:right;color:var(--muted-foreground);">—</td><td style="padding:9px 14px;font-size:15px;text-align:right;white-space:nowrap;">360 тыс</td><td class="status-good" style="padding:9px 14px;font-size:18px;text-align:right;white-space:nowrap;font-weight:700;">+1 332 тыс</td></tr></tbody>
       </table>
     </div>
-    <div class="card" style="flex:0 0 auto;padding:12px 20px;">
-      <div style="font-size:15px;line-height:1.5;"><b>Скидка меняется, когда среднемесячная связка показателей доходит до ступени:</b> доля ВТЛ вышла на уровень, и конверсия при этом не опускалась ниже 90%. Если конверсия ниже — ступень не засчитывается, цена остаётся прежней. Просело после зачёта — скидка возвращается.</div>
+    <div class="col-split" style="flex:0 0 auto;gap:14px;">
+      <div class="card" style="flex:1;padding:12px 20px;">
+        <div style="font-size:16px;font-weight:600;margin-bottom:4px;">Что меняется в предложении</div>
+        <div style="font-size:14px;line-height:1.45;">Было — пилот на четырёх салонах по 30 000 ₽. Стало — все 12 по 15 000 ₽ на старте. Руководители видят всех своих сотрудников, коммерческий директор — сеть целиком.</div>
+      </div>
+      <div class="card" style="flex:1;padding:12px 20px;">
+        <div style="font-size:16px;font-weight:600;margin-bottom:4px;">Цена на старте — 180 тыс в месяц, половина обычной</div>
+        <div style="font-size:14px;line-height:1.45;">Держится, пока не взята первая ступень. Чтобы её отбить, нужен <b>один дополнительный заказ со сложной линзой на салон в месяц</b> — один из тридцати восьми. Ступень засчитывается, когда обе метрики достигнуты в среднем за месяц и конверсия не опускалась ниже 90%.</div>
+      </div>
     </div>
   </div>
-  <div class="footnote">Расчёт на ваших цифрах · 12 действующих салонов · прирост при нынешней конверсии</div>
+  <div class="footnote">Расчёт на ваших цифрах · 12 действующих салонов · прирост при нынешней конверсии · замер по сети за месяц</div>
 </section>
 </div>
 
@@ -922,21 +920,29 @@ tr.total-row td { font-weight: 700; }
     var moneyMonth=document.getElementById('fmMoneyMonth');
     moneyMonth.textContent=(tot>=0?'+':'−')+nf(Math.abs(tot)*1e6/12/1000)+' тыс ₽';
     moneyMonth.style.color = tot>=0 ? 'var(--excellent-text)' : 'var(--poor-text)';
-    // ступень лестницы: засчитывается только если конверсия не ниже 90%
-    var LAD=[[0.60,0],[0.56,10],[0.52,20],[0.48,30],[0.44,40]], disc=50, counted=(convT>=0.8995);
-    if(counted){ for(var si=0;si<LAD.length;si++){ if(pT>=LAD[si][0]-1e-9){ disc=LAD[si][1]; break; } } }
-    var perSalon=30000*(1-disc/100), payMonth=perSalon*d.cnt;
+    // ступень засчитывается по паре метрик и только при конверсии не ниже 90%
+    var LAD=[[0.60,7400,0],[0.56,7400,10],[0.52,7200,20],[0.48,6900,30],[0.44,6600,40]];
+    var disc=50, counted=(convT>=0.8995);
+    if(counted){ for(var si=0;si<LAD.length;si++){ if(pT>=LAD[si][0]-1e-9 && tT>=LAD[si][1]-0.5){ disc=LAD[si][2]; break; } } }
+    var isNow=(Math.abs(pT-pCur)<0.0015 && Math.abs(tT-tCur)<1.5);
+    var perSalon=30000*(1-disc/100), payMonth=isNow?0:perSalon*d.cnt;
     var stepEl=document.getElementById('fmStep');
-    if(stepEl) stepEl.innerHTML = counted
-      ? 'Ступень: <b style="color:var(--foreground);">'+(disc?'скидка −'+disc+'%':'полная цена')+'</b>, Оптимайзер '+nf(perSalon)+' ₽ за салон'
-      : '<b style="color:var(--poor-text);">Конверсия ниже 90% — ступень не засчитана</b>, остаётся половина цены';
-    document.getElementById('fmPay').textContent=nf(payMonth/1000)+' тыс ₽';
-    document.getElementById('fmPaySub').textContent=(disc?'скидка −'+disc+'%':'полная цена')+' · '+d.cnt+' '+plural(d.cnt,'салон','салона','салонов');
+    if(stepEl) stepEl.innerHTML = isNow
+      ? '<b style="color:var(--foreground);">Точка отсчёта</b> — Оптимайзер ещё не подключён'
+      : (counted
+        ? 'Ступень: <b style="color:var(--foreground);">'+(disc?'скидка −'+disc+'%':'полная цена')+'</b>, Оптимайзер '+nf(perSalon)+' ₽ за салон'
+        : '<b style="color:var(--poor-text);">Конверсия ниже 90% — ступень не засчитана</b>, остаётся половина цены');
+    document.getElementById('fmPay').textContent = isNow ? '—' : nf(payMonth/1000)+' тыс ₽';
+    document.getElementById('fmPaySub').textContent = isNow ? 'без Оптимайзера'
+      : (disc?'скидка −'+disc+'%':'полная цена')+' · '+d.cnt+' '+plural(d.cnt,'салон','салона','салонов');
     var netMonth=tot*1e6/12-payMonth;
     var netEl=document.getElementById('fmNet'), netYearEl=document.getElementById('fmNetYear');
-    netEl.textContent=(netMonth>=0?'+':'−')+nf(Math.abs(netMonth)/1000)+' тыс ₽';
-    netEl.style.color = netMonth>=0 ? 'var(--excellent-text)' : 'var(--poor-text)';
-    netYearEl.textContent=(netMonth>=0?'+':'−')+f2(Math.abs(netMonth)*12/1e6)+' млн ₽';
+    if(isNow){ netEl.textContent='—'; netEl.style.color='var(--muted-foreground)'; netYearEl.textContent='—'; }
+    else {
+      netEl.textContent=(netMonth>=0?'+':'−')+nf(Math.abs(netMonth)/1000)+' тыс ₽';
+      netEl.style.color = netMonth>=0 ? 'var(--excellent-text)' : 'var(--poor-text)';
+      netYearEl.textContent=(netMonth>=0?'+':'−')+f2(Math.abs(netMonth)*12/1e6)+' млн ₽';
+    }
     var need9=Math.round(O1*pT-d.V);
     var needMonth=Math.ceil(need9*12/9/12/d.cnt);
     var totalMonth=Math.round(d.O/9/d.cnt);
