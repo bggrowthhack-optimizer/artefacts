@@ -280,23 +280,42 @@ tr.total-row td { font-weight: 700; }
   <h1 class="slide-title">Доля ВТЛ в своих заказах низкая</h1>
   <div class="divider"></div>
   <div class="content">
-    <div style="margin-bottom:10px;">
-      <div class="kpi-label" style="font-size:14px;">Теряем каждый месяц</div>
-      <div class="kpi-value" style="color:var(--poor-text);font-size:34px;">-756 тыс в мес</div>
+    <div class="card" style="padding:20px 28px;display:flex;align-items:center;gap:30px;margin-bottom:18px;">
+      <div style="flex:0 0 auto;">
+        <div class="kpi-label" style="font-size:13px;margin-bottom:4px;">Теряем каждый месяц</div>
+        <div class="kpi-value" style="color:var(--poor-text);font-size:42px;white-space:nowrap;">-756 тыс в мес</div>
+      </div>
+      <div style="flex:1;border-left:1px solid var(--border);padding-left:28px;display:flex;flex-direction:column;gap:9px;">
+    <div style="display:flex;align-items:flex-start;gap:12px;">
+      <div style="flex:0 0 102px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--primary);background:#EDF1FE;border-radius:5px;padding:5px 0;text-align:center;line-height:1.3;">Врач</div>
+      <div style="flex:1;font-size:16px;line-height:1.4;padding-top:3px;">назвал ВТЛ, но не связал его с проблемой клиента</div>
     </div>
-    <div class="card" style="padding:11px 22px;">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;color:var(--muted-foreground);">Причина</div>
-<div style="text-indent:1.3em;font-size:15px;line-height:1.38;">Врач назвал ВТЛ, но не связал его с проблемой клиента.</div><div style="text-indent:1.3em;font-size:15px;margin-top:4px;line-height:1.38;">Консультант услышал «дорого» и сразу предложил простую линзу.</div>    </div>
-<div style="text-align:center;color:var(--muted-foreground);font-size:14px;margin:2px 0;">↓</div>    <div class="card" style="padding:11px 22px;">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;color:var(--primary);">Что даёт Оптимайзер</div>
-<div style="text-indent:1.3em;font-size:15px;line-height:1.38;">Каждый день анализирует приёмы и продажи, видит, у какого врача или консультанта просела доля ВТЛ и почему.</div><div style="text-indent:1.3em;font-size:15px;margin-top:4px;line-height:1.38;">Передаёт сигнал и задачу — разобрать случай, либо фиксирует, что РОП сигнал проигнорировал.</div>    </div>
-<div style="text-align:center;color:var(--muted-foreground);font-size:14px;margin:2px 0;">↓</div>    <div class="card" style="padding:11px 22px;">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;color:#7A3DD1;">Что делает РОП</div>
-<div style="text-indent:1.3em;font-size:15px;line-height:1.38;">Разбирает сигналы по плану Оптимайзера: с врачом — как давалась рекомендация ВТЛ, с консультантом — как отрабатывалось возражение «дорого».</div><div style="text-indent:1.3em;font-size:15px;margin-top:4px;line-height:1.38;">Договаривается, что будет делать дальше, ставит контрольную точку и проверяет.</div>    </div>
-<div style="text-align:center;color:var(--muted-foreground);font-size:14px;margin:2px 0;">↓</div>    <div class="card" style="padding:11px 22px;background:var(--excellent-bg);border-color:#CFEBD9;">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;color:var(--excellent-text);">Что получает компания</div>
-<div style="text-indent:1.3em;font-size:15px;line-height:1.38;font-weight:600;">Каждый РОП каждый день видит информацию о том, кто опустил ВТЛ и почему, и не может не отработать — это +756 тыс/мес, если сигнал не остаётся без ответа.</div>    </div>
-
+    <div style="display:flex;align-items:flex-start;gap:12px;">
+      <div style="flex:0 0 102px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--primary);background:#EDF1FE;border-radius:5px;padding:5px 0;text-align:center;line-height:1.3;">Консультант</div>
+      <div style="flex:1;font-size:16px;line-height:1.4;padding-top:3px;">услышал «дорого» — сразу предложил простую линзу</div>
+    </div>
+      </div>
+    </div>
+    <div class="col-split" style="gap:0;align-items:stretch;">
+      <div class="card" style="flex:1;padding:24px 20px;text-align:center;">
+        <div style="width:34px;height:34px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;margin:0 auto 10px;">1</div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--primary);margin-bottom:9px;">Что даёт Оптимайзер</div>
+        <div style="font-size:18px;font-weight:600;line-height:1.3;">Видит сигнал по каждому приёму и продавцу — каждый день</div>
+        <div style="font-size:13px;color:var(--muted-foreground);margin-top:9px;line-height:1.4;">Передаёт задачу разобрать случай или фиксирует, что РОП его проигнорировал</div>
+      </div>
+<div style="display:flex;align-items:center;justify-content:center;flex:0 0 30px;color:var(--muted-foreground);font-size:20px;">→</div>      <div class="card" style="flex:1;padding:24px 20px;text-align:center;">
+        <div style="width:34px;height:34px;border-radius:50%;background:#7A3DD1;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;margin:0 auto 10px;">2</div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#7A3DD1;margin-bottom:9px;">Что делает РОП</div>
+        <div style="font-size:18px;font-weight:600;line-height:1.3;">Разбирает приём с врачом и консультантом</div>
+        <div style="font-size:13px;color:var(--muted-foreground);margin-top:9px;line-height:1.4;">Договаривается, что будет делать дальше, ставит контрольную точку</div>
+      </div>
+<div style="display:flex;align-items:center;justify-content:center;flex:0 0 30px;color:var(--muted-foreground);font-size:20px;">→</div>      <div class="card" style="flex:1;padding:24px 20px;text-align:center;background:var(--excellent-bg);border-color:#CFEBD9;">
+        <div style="width:34px;height:34px;border-radius:50%;background:var(--excellent-text);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;margin:0 auto 10px;">3</div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--excellent-text);margin-bottom:9px;">Что получает компания</div>
+        <div class="kpi-value" style="color:var(--excellent-text);font-size:36px;line-height:1.1;">+756 тыс/мес</div>
+        <div style="font-size:13px;color:var(--muted-foreground);margin-top:9px;line-height:1.4;">Ни один сигнал не остаётся без ответа</div>
+      </div>
+    </div>
   </div>
   <div class="footnote">Причины — база знаний Оптимайзера · сигналы и контроль — алгоритм Оптимайзера · деньги — ИТИГРИС, янв–сен 2026</div>
 </section>
@@ -307,23 +326,38 @@ tr.total-row td { font-weight: 700; }
   <h1 class="slide-title">Чек оправы низкий</h1>
   <div class="divider"></div>
   <div class="content">
-    <div style="margin-bottom:10px;">
-      <div class="kpi-label" style="font-size:14px;">Теряем каждый месяц</div>
-      <div class="kpi-value" style="color:var(--poor-text);font-size:34px;">-411 тыс в мес</div>
+    <div class="card" style="padding:20px 28px;display:flex;align-items:center;gap:30px;margin-bottom:18px;">
+      <div style="flex:0 0 auto;">
+        <div class="kpi-label" style="font-size:13px;margin-bottom:4px;">Теряем каждый месяц</div>
+        <div class="kpi-value" style="color:var(--poor-text);font-size:42px;white-space:nowrap;">-411 тыс в мес</div>
+      </div>
+      <div style="flex:1;border-left:1px solid var(--border);padding-left:28px;display:flex;flex-direction:column;gap:9px;">
+    <div style="display:flex;align-items:flex-start;gap:12px;">
+      <div style="flex:0 0 102px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--primary);background:#EDF1FE;border-radius:5px;padding:5px 0;text-align:center;line-height:1.3;">Консультант</div>
+      <div style="flex:1;font-size:16px;line-height:1.4;padding-top:3px;">не выяснил образ жизни и стиль — сразу дал скидку на «дорого»</div>
     </div>
-    <div class="card" style="padding:11px 22px;">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;color:var(--muted-foreground);">Причина</div>
-<div style="text-indent:1.3em;font-size:15px;line-height:1.38;">Консультант не выяснил образ жизни и стиль клиента, предложил первую попавшуюся оправу.</div><div style="text-indent:1.3em;font-size:15px;margin-top:4px;line-height:1.38;">Не отработал возражение по цене и сразу дал скидку.</div>    </div>
-<div style="text-align:center;color:var(--muted-foreground);font-size:14px;margin:2px 0;">↓</div>    <div class="card" style="padding:11px 22px;">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;color:var(--primary);">Что даёт Оптимайзер</div>
-<div style="text-indent:1.3em;font-size:15px;line-height:1.38;">Каждый день анализирует чек и скидку каждого продавца, видит, у кого они ниже обычного уровня и почему.</div><div style="text-indent:1.3em;font-size:15px;margin-top:4px;line-height:1.38;">Передаёт сигнал и задачу — разобрать случай, либо фиксирует, что РОП сигнал проигнорировал.</div>    </div>
-<div style="text-align:center;color:var(--muted-foreground);font-size:14px;margin:2px 0;">↓</div>    <div class="card" style="padding:11px 22px;">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;color:#7A3DD1;">Что делает РОП</div>
-<div style="text-indent:1.3em;font-size:15px;line-height:1.38;">Разбирает сигнал по плану Оптимайзера: с консультантом по записи — где не спросил про образ жизни, где сразу дал скидку.</div><div style="text-indent:1.3em;font-size:15px;margin-top:4px;line-height:1.38;">Договаривается, что будет делать дальше, ставит контрольную точку и проверяет.</div>    </div>
-<div style="text-align:center;color:var(--muted-foreground);font-size:14px;margin:2px 0;">↓</div>    <div class="card" style="padding:11px 22px;background:var(--excellent-bg);border-color:#CFEBD9;">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;color:var(--excellent-text);">Что получает компания</div>
-<div style="text-indent:1.3em;font-size:15px;line-height:1.38;font-weight:600;">Каждый РОП каждый день видит, у кого чек оправы просел и почему, и не может не отработать — это +411 тыс/мес, если сигнал не остаётся без ответа.</div>    </div>
-
+      </div>
+    </div>
+    <div class="col-split" style="gap:0;align-items:stretch;">
+      <div class="card" style="flex:1;padding:24px 20px;text-align:center;">
+        <div style="width:34px;height:34px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;margin:0 auto 10px;">1</div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--primary);margin-bottom:9px;">Что даёт Оптимайзер</div>
+        <div style="font-size:18px;font-weight:600;line-height:1.3;">Видит чек и скидку каждого продавца — каждый день</div>
+        <div style="font-size:13px;color:var(--muted-foreground);margin-top:9px;line-height:1.4;">Передаёт задачу разобрать случай или фиксирует, что РОП его проигнорировал</div>
+      </div>
+<div style="display:flex;align-items:center;justify-content:center;flex:0 0 30px;color:var(--muted-foreground);font-size:20px;">→</div>      <div class="card" style="flex:1;padding:24px 20px;text-align:center;">
+        <div style="width:34px;height:34px;border-radius:50%;background:#7A3DD1;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;margin:0 auto 10px;">2</div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#7A3DD1;margin-bottom:9px;">Что делает РОП</div>
+        <div style="font-size:18px;font-weight:600;line-height:1.3;">Разбирает продажу с консультантом</div>
+        <div style="font-size:13px;color:var(--muted-foreground);margin-top:9px;line-height:1.4;">Договаривается, что будет делать дальше, ставит контрольную точку</div>
+      </div>
+<div style="display:flex;align-items:center;justify-content:center;flex:0 0 30px;color:var(--muted-foreground);font-size:20px;">→</div>      <div class="card" style="flex:1;padding:24px 20px;text-align:center;background:var(--excellent-bg);border-color:#CFEBD9;">
+        <div style="width:34px;height:34px;border-radius:50%;background:var(--excellent-text);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;margin:0 auto 10px;">3</div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--excellent-text);margin-bottom:9px;">Что получает компания</div>
+        <div class="kpi-value" style="color:var(--excellent-text);font-size:36px;line-height:1.1;">+411 тыс/мес</div>
+        <div style="font-size:13px;color:var(--muted-foreground);margin-top:9px;line-height:1.4;">Ни один сигнал не остаётся без ответа</div>
+      </div>
+    </div>
   </div>
   <div class="footnote">Причины — база знаний Оптимайзера · сигналы и контроль — алгоритм Оптимайзера · деньги — ИТИГРИС, янв–сен 2026</div>
 </section>
@@ -334,23 +368,42 @@ tr.total-row td { font-weight: 700; }
   <h1 class="slide-title">Конверсия может уйти ниже 90%</h1>
   <div class="divider"></div>
   <div class="content">
-    <div style="margin-bottom:10px;">
-      <div class="kpi-label" style="font-size:14px;">Конверсия сейчас</div>
-      <div class="kpi-value" style="color:var(--excellent-text);font-size:34px;">91%</div>
+    <div class="card" style="padding:20px 28px;display:flex;align-items:center;gap:30px;margin-bottom:18px;">
+      <div style="flex:0 0 auto;">
+        <div class="kpi-label" style="font-size:13px;margin-bottom:4px;">Конверсия сейчас</div>
+        <div class="kpi-value" style="color:var(--excellent-text);font-size:42px;white-space:nowrap;">91%</div>
+      </div>
+      <div style="flex:1;border-left:1px solid var(--border);padding-left:28px;display:flex;flex-direction:column;gap:9px;">
+    <div style="display:flex;align-items:flex-start;gap:12px;">
+      <div style="flex:0 0 102px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--primary);background:#EDF1FE;border-radius:5px;padding:5px 0;text-align:center;line-height:1.3;">Врач</div>
+      <div style="flex:1;font-size:16px;line-height:1.4;padding-top:3px;">не подсветил риски ухода без заказа</div>
     </div>
-    <div class="card" style="padding:11px 22px;">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;color:var(--muted-foreground);">Причина</div>
-<div style="text-indent:1.3em;font-size:15px;line-height:1.38;">Врач не подсветил риски, если клиент уйдёт без заказа.</div><div style="text-indent:1.3em;font-size:15px;margin-top:4px;line-height:1.38;">Консультант не отработал возражение и упустил клиента.</div>    </div>
-<div style="text-align:center;color:var(--muted-foreground);font-size:14px;margin:2px 0;">↓</div>    <div class="card" style="padding:11px 22px;">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;color:var(--primary);">Что даёт Оптимайзер</div>
-<div style="text-indent:1.3em;font-size:15px;line-height:1.38;">Каждый день анализирует уходы без заказа, видит, у какого врача или консультанта клиент ушёл и почему.</div><div style="text-indent:1.3em;font-size:15px;margin-top:4px;line-height:1.38;">Передаёт сигнал и задачу — разобрать случай, либо фиксирует, что РОП сигнал проигнорировал.</div>    </div>
-<div style="text-align:center;color:var(--muted-foreground);font-size:14px;margin:2px 0;">↓</div>    <div class="card" style="padding:11px 22px;">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;color:#7A3DD1;">Что делает РОП</div>
-<div style="text-indent:1.3em;font-size:15px;line-height:1.38;">Разбирает сигнал по плану Оптимайзера: с врачом — назвал ли риски отказа, с консультантом — как отрабатывалось возражение.</div><div style="text-indent:1.3em;font-size:15px;margin-top:4px;line-height:1.38;">Договаривается, что будет делать дальше, ставит контрольную точку и проверяет.</div>    </div>
-<div style="text-align:center;color:var(--muted-foreground);font-size:14px;margin:2px 0;">↓</div>    <div class="card" style="padding:11px 22px;background:var(--excellent-bg);border-color:#CFEBD9;">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;color:var(--excellent-text);">Что получает компания</div>
-<div style="text-indent:1.3em;font-size:15px;line-height:1.38;font-weight:600;">Каждый РОП каждый день видит риск, что конверсия уйдёт ниже 90%, и не может пройти мимо — рост чека не съедает заказы.</div>    </div>
-
+    <div style="display:flex;align-items:flex-start;gap:12px;">
+      <div style="flex:0 0 102px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--primary);background:#EDF1FE;border-radius:5px;padding:5px 0;text-align:center;line-height:1.3;">Консультант</div>
+      <div style="flex:1;font-size:16px;line-height:1.4;padding-top:3px;">не отработал возражение, упустил клиента</div>
+    </div>
+      </div>
+    </div>
+    <div class="col-split" style="gap:0;align-items:stretch;">
+      <div class="card" style="flex:1;padding:24px 20px;text-align:center;">
+        <div style="width:34px;height:34px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;margin:0 auto 10px;">1</div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--primary);margin-bottom:9px;">Что даёт Оптимайзер</div>
+        <div style="font-size:18px;font-weight:600;line-height:1.3;">Видит каждый уход без заказа — каждый день</div>
+        <div style="font-size:13px;color:var(--muted-foreground);margin-top:9px;line-height:1.4;">Передаёт задачу разобрать случай или фиксирует, что РОП его проигнорировал</div>
+      </div>
+<div style="display:flex;align-items:center;justify-content:center;flex:0 0 30px;color:var(--muted-foreground);font-size:20px;">→</div>      <div class="card" style="flex:1;padding:24px 20px;text-align:center;">
+        <div style="width:34px;height:34px;border-radius:50%;background:#7A3DD1;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;margin:0 auto 10px;">2</div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#7A3DD1;margin-bottom:9px;">Что делает РОП</div>
+        <div style="font-size:18px;font-weight:600;line-height:1.3;">Разбирает уход с врачом и консультантом</div>
+        <div style="font-size:13px;color:var(--muted-foreground);margin-top:9px;line-height:1.4;">Договаривается, что будет делать дальше, ставит контрольную точку</div>
+      </div>
+<div style="display:flex;align-items:center;justify-content:center;flex:0 0 30px;color:var(--muted-foreground);font-size:20px;">→</div>      <div class="card" style="flex:1;padding:24px 20px;text-align:center;background:var(--excellent-bg);border-color:#CFEBD9;">
+        <div style="width:34px;height:34px;border-radius:50%;background:var(--excellent-text);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;margin:0 auto 10px;">3</div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--excellent-text);margin-bottom:9px;">Что получает компания</div>
+        <div class="kpi-value" style="color:var(--excellent-text);font-size:36px;line-height:1.1;">Выше 90%</div>
+        <div style="font-size:13px;color:var(--muted-foreground);margin-top:9px;line-height:1.4;">Рост чека не съедает заказы</div>
+      </div>
+    </div>
   </div>
   <div class="footnote">Порог ступеней предложения — 90% · сигналы и контроль — алгоритм Оптимайзера · ИТИГРИС, янв–сен 2026</div>
 </section>
