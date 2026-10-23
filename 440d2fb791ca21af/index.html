@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Мотивация оптометриста — пример</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --font-display: 'Lora', Georgia, 'Noto Serif', serif;
+    --font-body: 'IBM Plex Sans', -apple-system, 'Segoe UI', sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+    --bg: oklch(0.970 0.014 70);
+    --fg: oklch(0.205 0.020 60);
+    --fg-muted: oklch(0.460 0.022 60);
+    --card: oklch(0.995 0.008 70);
+    --border: oklch(0.875 0.018 65);
+    --border-strong: oklch(0.78 0.022 62);
+    --accent: oklch(0.600 0.150 55);
+    --accent-strong: oklch(0.465 0.150 53);
+    --accent-soft: oklch(0.930 0.045 58);
+    --good: oklch(0.540 0.145 150);
+    --good-soft: oklch(0.930 0.050 150);
+    --bad: oklch(0.550 0.175 25);
+    --bad-soft: oklch(0.935 0.050 25);
+    --track: oklch(0.885 0.022 65);
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.05);
+    --shadow-lg: 0 10px 28px -10px rgb(0 0 0 / 0.14), 0 2px 6px -2px rgb(0 0 0 / 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: oklch(0.175 0.016 60);
+      --fg: oklch(0.945 0.012 60);
+      --fg-muted: oklch(0.680 0.018 60);
+      --card: oklch(0.225 0.018 60);
+      --border: oklch(0.335 0.020 60);
+      --border-strong: oklch(0.42 0.022 60);
+      --accent: oklch(0.720 0.140 58);
+      --accent-strong: oklch(0.820 0.130 58);
+      --accent-soft: oklch(0.300 0.070 58);
+      --good: oklch(0.680 0.150 150);
+      --good-soft: oklch(0.280 0.080 150);
+      --bad: oklch(0.660 0.170 25);
+      --bad-soft: oklch(0.300 0.090 25);
+      --track: oklch(0.340 0.020 60);
+      --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+      --shadow-lg: 0 10px 28px -10px rgb(0 0 0 / 0.55), 0 2px 6px -2px rgb(0 0 0 / 0.4);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: oklch(0.175 0.016 60);
+    --fg: oklch(0.945 0.012 60);
+    --fg-muted: oklch(0.680 0.018 60);
+    --card: oklch(0.225 0.018 60);
+    --border: oklch(0.335 0.020 60);
+    --border-strong: oklch(0.42 0.022 60);
+    --accent: oklch(0.720 0.140 58);
+    --accent-strong: oklch(0.820 0.130 58);
+    --accent-soft: oklch(0.300 0.070 58);
+    --good: oklch(0.680 0.150 150);
+    --good-soft: oklch(0.280 0.080 150);
+    --bad: oklch(0.660 0.170 25);
+    --bad-soft: oklch(0.300 0.090 25);
+    --track: oklch(0.340 0.020 60);
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow-lg: 0 10px 28px -10px rgb(0 0 0 / 0.55), 0 2px 6px -2px rgb(0 0 0 / 0.4);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font-family: var(--font-body); font-size: 15px; line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 36px 24px 64px; }
+
+  .eyebrow {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--accent-strong); margin: 0 0 10px;
+  }
+  h1 {
+    font-family: var(--font-display); font-weight: 600; font-size: 30px;
+    letter-spacing: -0.01em; margin: 0 0 10px; text-wrap: balance; color: var(--fg);
+  }
+  .lede { color: var(--fg-muted); max-width: 62ch; font-size: 14.5px; margin: 0 0 6px; }
+  .mocknote {
+    margin: 18px 0 30px; padding: 10px 14px; display: inline-block;
+    border: 1px dashed var(--border-strong); border-radius: 10px;
+    color: var(--fg-muted); font-size: 12.5px; max-width: 70ch;
+  }
+
+  .grid {
+    display: grid; grid-template-columns: 1.15fr 1fr; gap: 22px; align-items: start;
+  }
+  @media (max-width: 860px) {
+    .grid { grid-template-columns: 1fr; }
+    .payslip { order: -1; }
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; box-shadow: var(--shadow-sm);
+  }
+  .card-pad { padding: 22px 24px; }
+  .card-title {
+    font-family: var(--font-display); font-weight: 600; font-size: 17px; margin: 0 0 4px;
+  }
+  .card-note { color: var(--fg-muted); font-size: 12.5px; margin: 0 0 18px; }
+
+  .group { padding: 18px 0; border-top: 1px solid var(--border); }
+  .group:first-of-type { border-top: none; padding-top: 2px; }
+  .group-title {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--fg-muted); margin: 0 0 14px;
+  }
+
+  .lever { margin-bottom: 18px; }
+  .lever:last-child { margin-bottom: 0; }
+  .lever-head {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 8px;
+  }
+  .lever-label { font-size: 13.5px; font-weight: 500; }
+  .lever-value {
+    font-family: var(--font-mono); font-weight: 600; font-size: 14px;
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .chip {
+    display: inline-flex; align-items: center; font-size: 10.5px; font-weight: 600;
+    padding: 1px 7px; border-radius: 9999px; margin-left: 6px; font-family: var(--font-mono);
+    border: 1px solid; vertical-align: middle;
+  }
+  .chip.pos { color: var(--good); background: var(--good-soft); border-color: color-mix(in oklch, var(--good) 40%, transparent); }
+  .chip.neg { color: var(--bad); background: var(--bad-soft); border-color: color-mix(in oklch, var(--bad) 40%, transparent); }
+  .chip.flat { color: var(--fg-muted); background: var(--track); border-color: var(--border-strong); }
+
+  input[type="range"] {
+    width: 100%; -webkit-appearance: none; appearance: none; height: 6px;
+    background: var(--track); border-radius: 999px; outline: none; margin: 6px 0 2px;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+    background: var(--accent); border: 3px solid var(--card); box-shadow: 0 0 0 1px var(--border-strong);
+    cursor: pointer;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 18px; height: 18px; border-radius: 50%; background: var(--accent);
+    border: 3px solid var(--card); box-shadow: 0 0 0 1px var(--border-strong); cursor: pointer;
+  }
+  .hint {
+    font-size: 12px; color: var(--fg-muted); margin-top: 7px; line-height: 1.5; min-height: 17px;
+  }
+  .hint .mono { font-family: var(--font-mono); color: var(--fg); font-weight: 600; }
+  .hint.pos .mono.money { color: var(--good); }
+
+  .check-row {
+    display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none;
+  }
+  .check-row input[type="checkbox"] {
+    width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0;
+  }
+  .check-row .lever-label { font-size: 13.5px; }
+
+  /* ── расчётный листок ───────────────────────────────────────────── */
+  .payslip { position: sticky; top: 20px; }
+  .total-block {
+    padding: 24px 24px 20px; border-bottom: 1px solid var(--border);
+  }
+  .total-label { font-size: 12px; color: var(--fg-muted); margin: 0 0 4px; }
+  .total-value {
+    font-family: var(--font-mono); font-weight: 700; font-size: 38px;
+    letter-spacing: -0.01em; font-variant-numeric: tabular-nums; color: var(--fg);
+  }
+  .total-value sup { font-size: 16px; font-weight: 500; color: var(--fg-muted); margin-left: 2px; }
+
+  .lines { padding: 16px 24px; }
+  .line {
+    display: flex; justify-content: space-between; gap: 14px; padding: 9px 0;
+    border-bottom: 1px dashed var(--border); font-size: 13px;
+  }
+  .line:last-child { border-bottom: none; }
+  .line .l-label { color: var(--fg-muted); }
+  .line .l-value {
+    font-family: var(--font-mono); font-weight: 600; white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pct-block { padding: 4px 24px 20px; }
+  .pct-head { display: flex; justify-content: space-between; font-size: 12px; color: var(--fg-muted); margin-bottom: 8px; }
+  .pct-head .mono { font-family: var(--font-mono); color: var(--fg); font-weight: 600; }
+  .corridor {
+    position: relative; height: 10px; border-radius: 999px; background: var(--track);
+  }
+  .corridor .fill-base {
+    position: absolute; inset: 0; border-radius: 999px;
+    background: color-mix(in oklch, var(--accent) 22%, transparent);
+  }
+  .corridor .marker {
+    position: absolute; top: 50%; width: 16px; height: 16px; border-radius: 50%;
+    background: var(--accent); border: 3px solid var(--card); box-shadow: 0 0 0 1px var(--border-strong);
+    transform: translate(-50%, -50%); transition: left 150ms ease;
+  }
+  .corridor-ticks {
+    display: flex; justify-content: space-between; font-family: var(--font-mono);
+    font-size: 10.5px; color: var(--fg-muted); margin-top: 7px;
+  }
+
+  .tip-block {
+    margin: 0 24px 22px; padding: 14px 16px; border-radius: 12px;
+    background: var(--accent-soft); border: 1px solid color-mix(in oklch, var(--accent) 35%, transparent);
+    font-size: 13px; line-height: 1.5;
+  }
+  .tip-block .mono { font-family: var(--font-mono); font-weight: 700; color: var(--accent-strong); }
+  .tip-eyebrow {
+    font-size: 10.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--accent-strong); margin: 0 0 5px;
+  }
+
+  /* ── логика расчёта ─────────────────────────────────────────────── */
+  .logic-card { margin-bottom: 22px; }
+  .logic-steps {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 18px 0 16px;
+  }
+  @media (max-width: 760px) { .logic-steps { grid-template-columns: 1fr; } }
+  .logic-step {
+    display: flex; gap: 12px; padding: 16px; border-radius: 12px;
+    background: var(--bg); border: 1px solid var(--border);
+  }
+  .step-num {
+    font-family: var(--font-mono); font-weight: 700; font-size: 13px;
+    color: var(--accent-strong); background: var(--accent-soft);
+    width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logic-step h3 {
+    font-family: var(--font-display); font-size: 14.5px; font-weight: 600;
+    margin: 0 0 6px; line-height: 1.3;
+  }
+  .logic-step p { font-size: 12.5px; color: var(--fg-muted); margin: 0 0 6px; line-height: 1.55; }
+  .logic-step ul { margin: 6px 0 6px; padding-left: 16px; }
+  .logic-step li { font-size: 12.5px; color: var(--fg-muted); margin-bottom: 5px; line-height: 1.5; }
+  .logic-step li b { color: var(--fg); font-weight: 600; }
+  .logic-why {
+    font-size: 13px; color: var(--fg); padding: 14px 16px; border-radius: 12px;
+    background: var(--accent-soft); border: 1px solid color-mix(in oklch, var(--accent) 30%, transparent);
+    line-height: 1.6; margin: 0;
+  }
+
+  .footnotes {
+    margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--border);
+    font-size: 12.5px; color: var(--fg-muted); line-height: 1.75; max-width: 76ch;
+  }
+  .footnotes p { margin: 0 0 10px; }
+  .footnotes b { color: var(--fg); font-weight: 600; }
+  .footnotes code {
+    font-family: var(--font-mono); font-size: 11.5px; background: var(--track);
+    padding: 1px 5px; border-radius: 4px; color: var(--fg);
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <p class="eyebrow">Пример механики · мотивация оптометриста</p>
+  <h1>Зарплата оптометриста</h1>
+  <p class="lede">Та же механика, что в калькуляторах мотивации клиентов Оптимайзера — оклад + плавающий % с продаж + разовые доплаты, без градации врачей по стажу.</p>
+  <div class="mocknote">Это пример для разговора, не боевой расчёт. Ставки и пороги — ориентировочные, их нужно калибровать под фактические показатели конкретной сети, как это делалось для каждого клиента отдельно.</div>
+
+  <div class="card logic-card">
+    <div class="card-pad">
+      <h2 class="card-title">Как считается зарплата</h2>
+      <p class="card-note">Три слоя друг над другом — у каждого своя задача.</p>
+      <div class="logic-steps">
+        <div class="logic-step">
+          <span class="step-num">01</span>
+          <div>
+            <h3>Оклад — за присутствие</h3>
+            <p>Часы × ставка. Платится независимо от того, как прошли продажи — гарантированная часть, которая не наказывает за неудачный месяц и не поощряет за удачный.</p>
+          </div>
+        </div>
+        <div class="logic-step">
+          <span class="step-num">02</span>
+          <div>
+            <h3>Процент с продаж — за качество, а не за объём</h3>
+            <p>Есть базовый процент от суммы продажи линз. Но он не фиксированный — гуляет в небольшом коридоре вверх-вниз, и решают это два показателя:</p>
+            <ul>
+              <li><b>Конверсия подбор → заказ</b> — довёл ли оптометрист пациента до реального заказа.</li>
+              <li><b>Средний чек линз</b> — что в итоге купил пациент, а не только что ему подобрали.</li>
+            </ul>
+            <p>Выше верхнего порога по показателю — процент подрастает; ниже нижнего — снижается; между ними — без изменений.</p>
+          </div>
+        </div>
+        <div class="logic-step">
+          <span class="step-num">03</span>
+          <div>
+            <h3>Разовые доплаты — за то, что не продажа</h3>
+            <p>Фиксированные суммы за выполнение стандартов, не связанных напрямую с продажами — в примере это чек-лист приёма. В реальной сети сюда добавляются её собственные пункты.</p>
+          </div>
+        </div>
+      </div>
+      <p class="logic-why">Смысл коридора: оптометрист не может разогнать зарплату, просто продав побольше дешёвых линз. Процент растёт только тогда, когда пациенты реально доходят до заказа и покупают то, что им подходит — а не самое дешёвое.</p>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- ── Рычаги ─────────────────────────────────────────────────── -->
+    <div class="card">
+      <div class="card-pad">
+        <h2 class="card-title">Рычаги месяца</h2>
+        <p class="card-note">Двигай — справа видно, как меняется зарплата.</p>
+
+        <div class="group">
+          <p class="group-title">Отработка</p>
+          <div class="lever">
+            <div class="lever-head">
+              <span class="lever-label">Отработано часов</span>
+              <span class="lever-value" id="v-chasy">160 ч</span>
+            </div>
+            <input type="range" id="chasy" min="0" max="200" step="5" value="160">
+            <p class="hint">Каждый час — <span class="mono money">+120 ₽</span> к окладу.</p>
+          </div>
+        </div>
+
+        <div class="group">
+          <p class="group-title">Продажи линз — рычаги оптометриста</p>
+
+          <div class="lever">
+            <div class="lever-head">
+              <span class="lever-label">Выручка по линзам за месяц</span>
+              <span class="lever-value" id="v-vyruchka">320 000 ₽</span>
+            </div>
+            <input type="range" id="vyruchka" min="0" max="800000" step="10000" value="320000">
+            <p class="hint" id="h-vyruchka"></p>
+          </div>
+
+          <div class="lever">
+            <div class="lever-head">
+              <span class="lever-label">Конверсия подбор → заказ<span class="chip" id="chip-konv"></span></span>
+              <span class="lever-value" id="v-konv">70%</span>
+            </div>
+            <input type="range" id="konv" min="0" max="100" step="1" value="70">
+            <p class="hint" id="h-konv"></p>
+          </div>
+
+          <div class="lever">
+            <div class="lever-head">
+              <span class="lever-label">Средний чек линз<span class="chip" id="chip-chek"></span></span>
+              <span class="lever-value" id="v-chek">8 000 ₽</span>
+            </div>
+            <input type="range" id="chek" min="4000" max="12000" step="250" value="8000">
+            <p class="hint" id="h-chek"></p>
+          </div>
+
+          <div class="lever">
+            <label class="check-row">
+              <input type="checkbox" id="checklist" checked>
+              <span class="lever-label">Чек-лист приёма выполнен</span>
+            </label>
+            <p class="hint">Даёт <span class="mono">+2 000 ₽</span> к прочим выплатам — за стандарт приёма, отдельно от продаж.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Расчётный листок ──────────────────────────────────────── -->
+    <div class="card payslip">
+      <div class="total-block">
+        <p class="total-label">Итого за месяц</p>
+        <div class="total-value"><span id="total">53 200</span><sup>₽</sup></div>
+      </div>
+
+      <div class="lines">
+        <div class="line"><span class="l-label" id="l-oklad-label">Оклад · 160 ч × 120 ₽</span><span class="l-value" id="l-oklad">19 200 ₽</span></div>
+        <div class="line"><span class="l-label" id="l-pct-label">% с продаж линз · 10,0%</span><span class="l-value" id="l-pct">32 000 ₽</span></div>
+        <div class="line"><span class="l-label">Прочие выплаты</span><span class="l-value" id="l-ostal">2 000 ₽</span></div>
+      </div>
+
+      <div class="pct-block">
+        <div class="pct-head"><span>Коридор процента</span><span class="mono" id="pct-now">10,0%</span></div>
+        <div class="corridor">
+          <div class="fill-base"></div>
+          <div class="marker" id="marker" style="left:50%"></div>
+        </div>
+        <div class="corridor-ticks"><span>8%</span><span>10% база</span><span>12%</span></div>
+      </div>
+
+      <div class="tip-block">
+        <p class="tip-eyebrow">Быстрее всего</p>
+        <p id="tip">—</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footnotes">
+    <p><b>Пороги по конверсии и чеку</b> поставлены чуть выше сегодняшнего уровня сети, а не на нём — иначе плавающая часть процента никогда не сдвигается ни в плюс, ни в минус, просто топчется на месте.</p>
+    <p><b>Разовые доплаты</b> в примере — только чек-лист приёма (<code>2 000 ₽</code>). В реальной сети сюда добавляется то, что сейчас оплачивается отдельно: передача пациентов, наставничество, доли от сопутствующих услуг.</p>
+    <p>Цифры (ставка, база, коридор, пороги) — ориентир для разговора. Для каждой сети они пересчитываются под её собственный уровень конверсии и чека, как это уже сделано для нескольких клиентов Оптимайзера.</p>
+  </div>
+</div>
+
+<script>
+(function () {
+  var fmtInt = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 });
+  function money(v) { return fmtInt.format(Math.round(v)) + ' ₽'; }
+  function pctText(p) { return (p * 100).toFixed(1).replace('.', ',') + '%'; }
+
+  var NORMS = {
+    ставкаЧаса: 120,
+    базовыйПроцент: 0.10,
+    минПроцент: 0.08,
+    максПроцент: 0.12,
+    конверсия: { верх: 75, низ: 70 },
+    чек: { верх: 8500, низ: 8000 },
+    чекЛист: 2000
+  };
+
+  function bandAdj(value, band) {
+    return value >= band.верх ? 0.01 : value >= band.низ ? 0 : -0.01;
+  }
+  function clampPct(raw) {
+    var v = Math.min(NORMS.максПроцент, Math.max(NORMS.минПроцент, raw));
+    return Math.round(v * 10000) / 10000;
+  }
+
+  var els = {
+    chasy: document.getElementById('chasy'),
+    vyruchka: document.getElementById('vyruchka'),
+    konv: document.getElementById('konv'),
+    chek: document.getElementById('chek'),
+    checklist: document.getElementById('checklist')
+  };
+
+  function bandChip(el, value, band) {
+    if (value >= band.верх) { el.textContent = '+1 п.п.'; el.className = 'chip pos'; }
+    else if (value >= band.низ) { el.textContent = '0 п.п.'; el.className = 'chip flat'; }
+    else { el.textContent = '−1 п.п.'; el.className = 'chip neg'; }
+  }
+
+  function bandHintText(value, band, revenue, kind) {
+    if (value >= band.верх) {
+      return 'Верхний порог взят — <span class="mono">+1 п.п.</span> к процен­ту уже есть.';
+    }
+    var target = value >= band.низ ? band.верх : band.низ;
+    var gap = target - value;
+    var gapText = kind === 'percent' ? (gap + ' п.п.') : money(gap);
+    var targetText = kind === 'percent' ? (target + '%') : money(target);
+    return 'Дотяни до <span class="mono">' + targetText + '</span> (осталось ' + gapText + ') → <span class="mono money">+' + money(0.01 * revenue) + '/мес</span>';
+  }
+
+  function render() {
+    var часы = +els.chasy.value;
+    var выручка = +els.vyruchka.value;
+    var конв = +els.konv.value;
+    var чек = +els.chek.value;
+    var чекЛист = els.checklist.checked;
+
+    document.getElementById('v-chasy').textContent = часы + ' ч';
+    document.getElementById('v-vyruchka').textContent = money(выручка);
+    document.getElementById('v-konv').textContent = конв + '%';
+    document.getElementById('v-chek').textContent = money(чек);
+
+    var pct = clampPct(NORMS.базовыйПроцент + bandAdj(конв, NORMS.конверсия) + bandAdj(чек, NORMS.чек));
+    var oklad = часы * NORMS.ставкаЧаса;
+    var procLinz = pct * выручка;
+    var прочее = чекЛист ? NORMS.чекЛист : 0;
+    var итого = oklad + procLinz + прочее;
+
+    document.getElementById('total').textContent = fmtInt.format(Math.round(итого));
+    document.getElementById('l-oklad-label').textContent = 'Оклад · ' + часы + ' ч × 120 ₽';
+    document.getElementById('l-oklad').textContent = money(oklad);
+    document.getElementById('l-pct-label').textContent = '% с продаж линз · ' + pctText(pct);
+    document.getElementById('l-pct').textContent = money(procLinz);
+    document.getElementById('l-ostal').textContent = money(прочее);
+
+    document.getElementById('pct-now').textContent = pctText(pct);
+    var span = NORMS.максПроцент - NORMS.минПроцент;
+    var frac = (pct - NORMS.минПроцент) / span;
+    document.getElementById('marker').style.left = (frac * 100) + '%';
+
+    bandChip(document.getElementById('chip-konv'), конв, NORMS.конверсия);
+    bandChip(document.getElementById('chip-chek'), чек, NORMS.чек);
+    document.getElementById('h-konv').innerHTML = bandHintText(конв, NORMS.конверсия, выручка, 'percent');
+    document.getElementById('h-chek').innerHTML = bandHintText(чек, NORMS.чек, выручка, 'money');
+    document.getElementById('h-vyruchka').innerHTML = 'Каждые <span class="mono">10 000 ₽</span> выручки при нынешнем проценте — <span class="mono money">+' + money(pct * 10000) + '</span>';
+
+    // лучший следующий шаг
+    var moves = [];
+    if (конв < NORMS.конверсия.верх) {
+      var tc = конв >= NORMS.конверсия.низ ? NORMS.конверсия.верх : NORMS.конверсия.низ;
+      moves.push({ what: 'конверсию подбор → заказ до ' + tc + '%', money: 0.01 * выручка });
+    }
+    if (чек < NORMS.чек.верх) {
+      var tk = чек >= NORMS.чек.низ ? NORMS.чек.верх : NORMS.чек.низ;
+      moves.push({ what: 'средний чек линз до ' + money(tk), money: 0.01 * выручка });
+    }
+    var tipEl = document.getElementById('tip');
+    if (!moves.length) {
+      tipEl.innerHTML = '<strong>Процент на максимуме (' + pctText(pct) + ').</strong> Дальше зарплату двигает только объём продаж и чек-лист.';
+    } else {
+      moves.sort(function (a, b) { return b.money - a.money; });
+      var m = moves[0];
+      tipEl.innerHTML = 'Подтяни <strong>' + m.what + '</strong> → примерно <span class="mono">+' + money(m.money) + '/мес</span>.';
+    }
+  }
+
+  Object.keys(els).forEach(function (k) {
+    els[k].addEventListener('input', render);
+  });
+  render();
+})();
+</script>
+</body>
+</html>
