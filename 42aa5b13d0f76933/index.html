@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Кристалл — предложение</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    --background: #F5F7F9;
+    --card: #FFFFFF;
+    --foreground: #0D121B;
+    --muted: #F3F5F9;
+    --muted-foreground: #646972;
+    --primary: #2B62EF;
+    --border: #DBDEE5;
+    --border-strong: #BFC4CD;
+    --excellent: #00A245;  --excellent-text: #00892C;  --excellent-bg: #E6F6EC;
+    --good: #ED990E;       --good-text: #B16100;       --good-bg: #FDF5E7;
+    --poor: #DF202E;       --poor-text: #DF202E;       --poor-bg: #FCE9EA;
+    --info: #0095D3;       --info-text: #007DBA;       --info-bg: #E6F4FB;
+    --chart-1: #4076F5; --chart-2: #00A68A; --chart-3: #A46BF5;
+    --chart-4: #59B842; --chart-5: #FC8C45;
+    --radius-card: 16px;
+    --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --slide-w: 1280px;
+    --slide-h: 720px;
+    --slide-pad: 48px;
+    --gap: 24px;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    background: #2b2e33;
+    font-family: var(--font-sans);
+    color: var(--foreground);
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+  .viewport {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .stage {
+    position: relative;
+    width: var(--slide-w);
+    height: var(--slide-h);
+    flex-shrink: 0;
+    transform-origin: center center;
+  }
+  .slide {
+    width: var(--slide-w);
+    height: var(--slide-h);
+    background: var(--background);
+    position: absolute;
+    inset: 0;
+    padding: var(--slide-pad);
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.35);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .slide.active { display: flex; }
+  .eyebrow {
+    font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--primary); margin-bottom: 8px;
+  }
+  .slide h1 {
+    font-size: 34px; font-weight: 700; line-height: 1.2; letter-spacing: -0.025em;
+    margin: 0 0 10px; color: var(--foreground); max-width: 100%; white-space: nowrap;
+  }
+  .slide .sub {
+    font-size: 19px; font-weight: 400; color: var(--muted-foreground); margin: 0 0 24px;
+    line-height: 1.4; max-width: 100%; white-space: nowrap;
+  }
+  .rule { border: none; border-top: 1px solid var(--border); margin: 0 0 24px; }
+  .body { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+  .footnote {
+    position: absolute; left: var(--slide-pad); right: 120px; bottom: 20px;
+    font-size: 14px; color: var(--muted-foreground);
+  }
+  .slide-no {
+    position: absolute; right: var(--slide-pad); bottom: 20px;
+    font-size: 14px; color: var(--muted-foreground); font-variant-numeric: tabular-nums;
+  }
+  .num { font-variant-numeric: tabular-nums; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card); padding: 24px;
+  }
+  .row { display: flex; flex-direction: row; gap: var(--gap); }
+  .col { display: flex; flex-direction: column; gap: var(--gap); }
+  .grow { flex: 1; min-width: 0; }
+
+  .kpi-label { font-size: 14px; color: var(--muted-foreground); margin-bottom: 8px; }
+  .kpi-value { font-size: 44px; font-weight: 700; color: var(--foreground); font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .kpi-compare { font-size: 14px; margin-top: 10px; display: flex; align-items: center; gap: 6px; }
+  .kpi-stripe { height: 3px; width: calc(100% + 48px); border-radius: 3px 3px 0 0; margin: -24px -24px 20px; }
+
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 9999px; font-size: 13px; font-weight: 500; }
+  .pill.excellent { background: var(--excellent-bg); color: var(--excellent-text); }
+  .pill.poor { background: var(--poor-bg); color: var(--poor-text); }
+  .pill.info { background: var(--info-bg); color: var(--info-text); }
+  .pill.good { background: var(--good-bg); color: var(--good-text); }
+
+  svg.ico { width: 16px; height: 16px; stroke-width: 2; vertical-align: -3px; }
+
+  /* bar chart */
+  .bars { display: flex; align-items: flex-end; gap: 10px; height: 220px; }
+  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+  .bar-val { font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--foreground); font-variant-numeric: tabular-nums; }
+  .bar { width: 100%; border-radius: 4px 4px 0 0; background: var(--chart-1); }
+  .bar.dim { background: #C9D6FB; }
+  .bar.dashed-wrap { background: transparent; border: 2px dashed var(--border-strong); border-bottom: none; }
+  .bar-label { margin-top: 10px; font-size: 13px; color: var(--muted-foreground); }
+
+  table.t { width: 100%; border-collapse: collapse; font-size: 15px; }
+  table.t th { text-align: left; font-size: 12px; font-weight: 600; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.03em; padding: 0 12px 10px; border-bottom: 1px solid var(--border); }
+  table.t td { padding: 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  table.t th:not(:first-child), table.t td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+  table.t tbody tr:last-child td { border-bottom: none; }
+  table.t tr.total td { font-weight: 700; border-top: 2px solid var(--border-strong); border-bottom: none; }
+
+  .nav { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 10; }
+  .nav button { width: 9px; height: 9px; border-radius: 50%; border: none; background: rgba(255,255,255,0.3); cursor: pointer; padding: 0; }
+  .nav button.active { background: #fff; }
+  .arrownav { position: fixed; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; border: none; background: rgba(255,255,255,0.08); color: #fff; font-size: 18px; cursor: pointer; z-index: 10; }
+  .arrownav:hover { background: rgba(255,255,255,0.18); }
+  .arrownav.prev { left: 18px; } .arrownav.next { right: 18px; }
+
+  .cover { justify-content: center; align-items: flex-start; }
+  .cover .mark { width: 40px; height: 40px; border-radius: 10px; background: var(--primary); margin-bottom: 32px; }
+  .cover .eyebrow { margin-bottom: 20px; }
+  .cover h1 { font-size: 46px; max-width: none; white-space: nowrap; margin-bottom: 20px; }
+  .cover .sub { font-size: 21px; max-width: 100%; white-space: nowrap; margin-bottom: 0; }
+  .cover .meta { margin-top: 56px; font-size: 14px; color: var(--muted-foreground); display: flex; gap: 24px; }
+
+  /* grouped bars: client gain vs our rate */
+  .gbars { display:grid; grid-template-columns: 120px repeat(6, 1fr); align-items:end; height:150px; gap:12px; }
+  .gcell { display:flex; align-items:flex-end; justify-content:center; gap:8px; height:100%; }
+  .gbar { width:46px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
+  .gbar .v { font-size:13px; font-weight:700; margin-bottom:5px; font-variant-numeric: tabular-nums; white-space:nowrap; }
+  .gbar .b { width:100%; border-radius:4px 4px 0 0; }
+  .gbar .b.gain { background: var(--excellent); }
+  .gbar .b.rate { background: var(--chart-1); }
+  .gbar .cap { font-size:11px; color:var(--muted-foreground); text-align:center; line-height:1.2; margin-bottom:4px; white-space:nowrap; }
+  .grows { display:grid; grid-template-columns: 120px repeat(6, 1fr); gap:10px 12px; margin-top:10px; font-size:14px; }
+  .grows .lab { color: var(--muted-foreground); font-size:13px; }
+  .grows .val { text-align:center; font-variant-numeric: tabular-nums; font-weight:600; }
+  .grows .val.dim { color: var(--muted-foreground); font-weight:500; }
+  .legend { display:flex; gap:20px; font-size:13px; color:var(--muted-foreground); margin-bottom:10px; }
+  .legend span { display:flex; align-items:center; gap:6px; }
+  .legend i { width:10px; height:10px; border-radius:3px; display:inline-block; }
+  /* finmodel */
+  .fm-row { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; }
+  .fm-row .k { font-size:14px; color:var(--muted-foreground); }
+  .fm-row .n { font-size:22px; font-weight:700; font-variant-numeric: tabular-nums; }
+  input[type=range] { width:100%; accent-color: var(--primary); margin: 2px 0 18px; }
+  .preset { display:flex; gap:8px; flex-wrap:wrap; margin-top:4px; }
+  .preset button { border:1px solid var(--border); background:var(--card); border-radius:9999px; padding:6px 12px; font-size:13px; cursor:pointer; font-family:inherit; color:var(--foreground); }
+  .preset button.on { background:var(--primary); color:#fff; border-color:var(--primary); }
+  .kpi-mini { padding:18px 20px; }
+  .kpi-mini .kpi-value { font-size:24px; white-space:nowrap; }
+  .divider { justify-content:center; }
+  .divider h1 { font-size:40px; }
+  .step3 { display:grid; grid-template-columns: 1fr 24px 1fr 24px 1fr; gap:8px; align-items:stretch; }
+  .step3 .arr { display:flex; align-items:center; justify-content:center; color:var(--border-strong); font-size:22px; }
+  .step3 ul { margin:8px 0 0; padding-left:18px; font-size:14px; line-height:1.5; color:var(--foreground); }
+  .step3 .card { padding:18px 20px; }
+
+  .dts { display:grid; grid-template-columns: repeat(7, 1fr); gap:10px; flex:1; align-content:start; }
+  .dt { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 14px 12px; }
+  .dt .nm { font-size:13px; color:var(--muted-foreground); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:6px; }
+  .dt .vv { font-size:22px; font-weight:700; font-variant-numeric: tabular-nums; white-space:nowrap; }
+  .dt .now { color:var(--muted-foreground); font-weight:500; }
+  .dt .need { color:var(--excellent-text); }
+  table.t.salons td { padding: 7px 12px; }
+  table.t.salons th { padding: 0 12px 8px; }
+</style>
+</head>
+<body>
+<div class="viewport"><div class="stage" id="deck">
+
+<section class="slide cover">
+  <div class="mark"></div>
+  <div class="eyebrow">Оптимайзер · предложение собственникам</div>
+  <h1>Кристалл: на чём строим рост дальше</h1>
+  <p class="sub">Что получилось, что просядет на паузе, и предложение, где мы зарабатываем больше только вместе с вами</p>
+  <div class="meta">
+    <span>Михаил, Владислав</span>
+    <span>Октябрь 2026</span>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">Кристалл</div>
+  <h1>Рекомендовать ВТЛ научились, продавать — ещё нет</h1>
+  <p class="sub">Рецептов с рекомендацией ВТЛ: 21% в мае → 46% в октябре. Доля продаж ВТЛ весь год около 7%</p>
+  <hr class="rule">
+  <div class="body col" style="gap:14px; padding-bottom:30px;">
+    <div class="card" style="flex:1; display:flex; flex-direction:column; gap:10px; padding:18px 24px 14px;">
+      <div style="display:grid; grid-template-columns:170px 1fr; gap:14px; align-items:end; flex:1; min-height:0;">
+        <div style="font-size:14px; color:var(--foreground); font-weight:600; padding-bottom:4px; line-height:1.3;">Рецептов с рекомендацией ВТЛ</div>
+        <div class="bars" style="height:100%; gap:8px;"><div class="bar-col"><div class="bar-val" style="color:var(--muted-foreground); font-weight:500; font-size:13px; margin-bottom:4px;">36%</div><div class="bar" style="height:78%;background:var(--chart-1);opacity:0.4;"></div></div><div class="bar-col"><div class="bar-val" style="color:var(--muted-foreground); font-weight:500; font-size:13px; margin-bottom:4px;">28%</div><div class="bar" style="height:61%;background:var(--chart-1);opacity:0.4;"></div></div><div class="bar-col"><div class="bar-val" style="color:var(--muted-foreground); font-weight:500; font-size:13px; margin-bottom:4px;">24%</div><div class="bar" style="height:52%;background:var(--chart-1);opacity:0.4;"></div></div><div class="bar-col"><div class="bar-val" style="color:var(--muted-foreground); font-weight:500; font-size:13px; margin-bottom:4px;">27%</div><div class="bar" style="height:59%;background:var(--chart-1);opacity:0.4;"></div></div><div class="bar-col"><div class="bar-val" style="font-weight:700; font-size:13px; margin-bottom:4px;">21%</div><div class="bar" style="height:46%;background:var(--chart-1);"></div></div><div class="bar-col"><div class="bar-val" style="color:var(--muted-foreground); font-weight:500; font-size:13px; margin-bottom:4px;">28%</div><div class="bar" style="height:61%;background:var(--chart-1);"></div></div><div class="bar-col"><div class="bar-val" style="color:var(--muted-foreground); font-weight:500; font-size:13px; margin-bottom:4px;">32%</div><div class="bar" style="height:70%;background:var(--chart-1);"></div></div><div class="bar-col"><div class="bar-val" style="color:var(--muted-foreground); font-weight:500; font-size:13px; margin-bottom:4px;">32%</div><div class="bar" style="height:70%;background:var(--chart-1);"></div></div><div class="bar-col"><div class="bar-val" style="color:var(--muted-foreground); font-weight:500; font-size:13px; margin-bottom:4px;">38%</div><div class="bar" style="height:83%;background:var(--chart-1);"></div></div><div class="bar-col"><div class="bar-val" style="font-weight:700; font-size:13px; margin-bottom:4px;">46%</div><div class="bar dashed-wrap" style="height:100%;"></div></div></div>
+      </div>
+      <div style="display:grid; grid-template-columns:170px 1fr; gap:14px; align-items:end; flex:1; min-height:0;">
+        <div style="font-size:14px; color:var(--foreground); font-weight:600; padding-bottom:4px; line-height:1.3;">Доля продаж ВТЛ</div>
+        <div class="bars" style="height:100%; gap:8px;"><div class="bar-col"><div class="bar-val" style="color:var(--muted-foreground); font-weight:500; font-size:13px; margin-bottom:4px;">4,5%</div><div class="bar" style="height:28%;background:var(--good);"></div></div><div class="bar-col"><div class="bar-val" style="color:var(--muted-foreground); font-weight:500; font-size:13px; margin-bottom:4px;">7,5%</div><div class="bar" style="height:47%;background:var(--good);"></div></div><div class="bar-col"><div class="bar-val" style="color:var(--muted-foreground); font-weight:500; font-size:13px; margin-bottom:4px;">5,2%</div><div class="bar" style="height:33%;background:var(--good);"></div></div><div class="bar-col"><div class="bar-val" style="font-weight:700; font-size:13px; margin-bottom:4px;">15,9%</div><div class="bar" style="height:100%;background:var(--good);"></div></div><div class="bar-col"><div class="bar-val" style="color:var(--muted-foreground); font-weight:500; font-size:13px; margin-bottom:4px;">9,1%</div><div class="bar" style="height:57%;background:var(--good);"></div></div><div class="bar-col"><div class="bar-val" style="color:var(--muted-foreground); font-weight:500; font-size:13px; margin-bottom:4px;">6,5%</div><div class="bar" style="height:41%;background:var(--good);"></div></div><div class="bar-col"><div class="bar-val" style="color:var(--muted-foreground); font-weight:500; font-size:13px; margin-bottom:4px;">2,7%</div><div class="bar" style="height:17%;background:var(--good);"></div></div><div class="bar-col"><div class="bar-val" style="color:var(--muted-foreground); font-weight:500; font-size:13px; margin-bottom:4px;">6,2%</div><div class="bar" style="height:39%;background:var(--good);"></div></div><div class="bar-col"><div class="bar-val" style="color:var(--muted-foreground); font-weight:500; font-size:13px; margin-bottom:4px;">5,7%</div><div class="bar" style="height:36%;background:var(--good);"></div></div><div class="bar-col"><div class="bar-val" style="color:var(--muted-foreground); font-weight:500; font-size:13px; margin-bottom:4px;">5,7%</div><div class="bar dashed-wrap" style="height:36%;"></div></div></div>
+      </div>
+      <div style="display:grid; grid-template-columns:170px 1fr; gap:14px;"><div></div><div style="display:flex; gap:8px;"><div style="flex:1; text-align:center; font-size:12px; color:var(--muted-foreground);">Янв</div><div style="flex:1; text-align:center; font-size:12px; color:var(--muted-foreground);">Фев</div><div style="flex:1; text-align:center; font-size:12px; color:var(--muted-foreground);">Мар</div><div style="flex:1; text-align:center; font-size:12px; color:var(--muted-foreground);">Апр</div><div style="flex:1; text-align:center; font-size:12px; color:var(--muted-foreground);">Май</div><div style="flex:1; text-align:center; font-size:12px; color:var(--muted-foreground);">Июнь</div><div style="flex:1; text-align:center; font-size:12px; color:var(--muted-foreground);">Июль</div><div style="flex:1; text-align:center; font-size:12px; color:var(--muted-foreground);">Авг</div><div style="flex:1; text-align:center; font-size:12px; color:var(--muted-foreground);">Сен</div><div style="flex:1; text-align:center; font-size:12px; color:var(--muted-foreground);">Окт</div></div></div>
+    </div>
+    <div class="card" style="flex:none; display:flex; align-items:center; gap:16px; padding:16px 24px;">
+      <div class="kpi-stripe" style="background:var(--info); height:100%; width:3px; margin:0; border-radius:3px 0 0 3px;"></div>
+      <div style="font-size:15px; line-height:1.5;"><b>Добились:</b> ВТЛ рекомендуют почти в каждом втором рецепте. <b>Не добились:</b> рекомендация не доходит до покупки — ценность не донесена. Врач называет линзу, но не связывает её с проблемой клиента; консультант на «дорого» сразу предлагает простую. В апреле сеть давала 15,9% — когда ценность доносят, покупают.</div>
+    </div>
+  </div>
+  <div class="footnote">Источник: Оптимайзер, 01.01–20.10.2026. Рекомендации вносят сами оптометристы — показание, не замер (в июне 18 рецептов). Доля продаж ВТЛ — от всех заказов очков, за год 7,0%.</div>
+  <div class="slide-no">1 / 11</div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">Кристалл</div>
+  <h1>Рост рекомендаций дали регулярные задачи РОПа</h1>
+  <p class="sub">Задач в месяц: до июня 8–26, с июля 170–189 — когда появился РОП. Рекомендации ВТЛ за это время: 21% → 46%</p>
+  <hr class="rule">
+  <div class="body row" style="gap:24px; align-items:stretch;">
+    <div class="card grow" style="display:flex; flex-direction:column;">
+      <div class="bars" style="flex:1; gap:10px;">
+        <div class="bar-col"><div class="bar-val" style="color:var(--muted-foreground)">8</div><div class="bar dim" style="height:5%"></div><div class="bar-label">Мар</div></div>
+        <div class="bar-col"><div class="bar-val" style="color:var(--muted-foreground)">9</div><div class="bar dim" style="height:5%"></div><div class="bar-label">Апр</div></div>
+        <div class="bar-col"><div class="bar-val" style="color:var(--muted-foreground)">26</div><div class="bar dim" style="height:14%"></div><div class="bar-label">Май</div></div>
+        <div class="bar-col"><div class="bar-val">83</div><div class="bar" style="height:44%"></div><div class="bar-label">Июнь</div></div>
+        <div class="bar-col"><div class="bar-val">170</div><div class="bar" style="height:90%"></div><div class="bar-label">Июль</div></div>
+        <div class="bar-col"><div class="bar-val">170</div><div class="bar" style="height:90%"></div><div class="bar-label">Авг</div></div>
+        <div class="bar-col"><div class="bar-val">189</div><div class="bar" style="height:100%"></div><div class="bar-label">Сен</div></div>
+        <div class="bar-col"><div class="bar-val" style="color:var(--muted-foreground)">103</div><div class="bar dashed-wrap" style="height:55%"></div><div class="bar-label">Окт</div></div>
+      </div>
+      <div style="display:grid; grid-template-columns:3fr 1fr 4fr; gap:10px; margin-top:10px;">
+        <div style="border-top:2px solid var(--border-strong); padding-top:6px; font-size:12px; color:var(--muted-foreground); text-align:center;">Назмие · КД</div>
+        <div style="border-top:2px solid var(--good); padding-top:6px; font-size:12px; color:var(--good-text); text-align:center; white-space:nowrap;">ввод в роль</div>
+        <div style="border-top:2px solid var(--primary); padding-top:6px; font-size:12px; color:var(--primary); text-align:center;">Виктория · РОП</div>
+      </div>
+      <div style="margin-top:10px; font-size:13px; color:var(--muted-foreground);">Задач сотрудникам в месяц, все типы</div>
+    </div>
+    <div class="col" style="width:400px; flex:none; gap:12px;">
+      <div class="card" style="flex:1; display:flex; flex-direction:column; justify-content:center; padding:14px 20px;">
+        <div class="kpi-label" style="margin-bottom:4px;">Март–май · Назмие совмещала КД и клинику</div>
+        <div style="font-size:14px; line-height:1.5;">Старт был: доля ВТЛ в апреле <b class="num">15,9%</b>, лучший месяц года. С июня Назмие ушла на клинику и передала задачи. На передаче внимание просело — доля ВТЛ упала до <b class="num">2,7%</b> к июлю.</div>
+      </div>
+      <div class="card" style="flex:1; display:flex; flex-direction:column; justify-content:center; padding:14px 20px;">
+        <div class="kpi-label" style="margin-bottom:4px;">Май–июнь · новый РОП</div>
+        <div style="font-size:14px; line-height:1.5;">Викторию вывели в РОП. В июне Лена ввела её в роль: анализ филиалов, постановка задач по сигналам, контроль постановки.</div>
+      </div>
+      <div class="card" style="flex:1; display:flex; flex-direction:column; justify-content:center; padding:14px 20px;">
+        <div class="kpi-label" style="margin-bottom:4px;">Июль–октябрь · Виктория ведёт, рост постепенный</div>
+        <div style="font-size:14px; line-height:1.5;">Задач <b class="num">170–189</b> в месяц, сотрудников с задачами <b class="num">21–30</b>, рекомендации ВТЛ <b class="num">32% → 46%</b>. Разбор с нами каждую неделю, 28 встреч с апреля.</div>
+      </div>
+    </div>
+  </div>
+  <div class="footnote">Источник: Оптимайзер, задачи и продажи, 01.03–20.10.2026; встречи — записи MyMeet, апрель–октябрь. Октябрь — неполный месяц.</div>
+  <div class="slide-no">2 / 11</div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">Кристалл</div>
+  <h1>Шесть задач из десяти дают рост показателя</h1>
+  <p class="sub">379 задач с мая по октябрь, у каждой замер «было/стало». По рекомендациям ВТЛ — 75%, по записи на приём — 58%</p>
+  <hr class="rule">
+  <div class="body row" style="align-items:stretch; gap:24px;">
+    <div class="col" style="width:340px; flex:none; gap:12px;">
+      <div class="card" style="flex:1; display:flex; flex-direction:column; justify-content:center; padding:14px 22px;">
+        <div class="kpi-label" style="margin-bottom:4px;">Все задачи с привязкой к метрике</div>
+        <div class="kpi-value" style="font-size:34px;">59%</div>
+        <div class="kpi-compare" style="margin-top:6px;"><span class="pill excellent">222 из 379 — метрика выросла</span></div>
+      </div>
+      <div class="card" style="flex:1; display:flex; flex-direction:column; justify-content:center; padding:14px 22px;">
+        <div class="kpi-label" style="margin-bottom:4px;">Задачи «Кол-во рекомендаций ВТЛ»</div>
+        <div class="kpi-value" style="font-size:34px;">75%</div>
+        <div class="kpi-compare" style="margin-top:6px;"><span class="pill excellent">43 из 57 — лучший тип задач</span></div>
+      </div>
+      <div class="card" style="flex:1; display:flex; flex-direction:column; justify-content:center; padding:14px 22px;">
+        <div class="kpi-label" style="margin-bottom:4px;">Задачи «записи на диагностику»</div>
+        <div class="kpi-value" style="font-size:34px;">58%</div>
+        <div class="kpi-compare" style="margin-top:6px;"><span class="pill excellent">60 из 103</span></div>
+      </div>
+    </div>
+    <div class="col grow" style="justify-content:center; gap:14px;">
+      <div style="border-left:3px solid var(--excellent); padding-left:14px;">
+        <div style="font-size:13px; color:var(--muted-foreground); margin-bottom:3px;"><b style="color:var(--foreground);">Ковырнова Алёна</b> · сигнал: 1 рекомендация ВТЛ в неделю</div>
+        <div style="font-size:15px;">«Просмотреть подборы сентября, вместе проанализировать, какое количество рекомендаций ВТЛ было упущено, просчитать потерю выгоды»</div>
+        <div style="font-size:14px; font-weight:600; margin-top:4px;">1 <span style="color:var(--muted-foreground); font-weight:400;">→</span> <span style="color:var(--excellent-text);">4 рекомендации/нед.</span></div>
+      </div>
+      <div style="border-left:3px solid var(--excellent); padding-left:14px;">
+        <div style="font-size:13px; color:var(--muted-foreground); margin-bottom:3px;"><b style="color:var(--foreground);">Бердина Татьяна</b> · сигнал: 13 диагностик за месяц, 4 рекомендации</div>
+        <div style="font-size:15px;">«13 диагностик за месяц, всего 4 рекомендации ВТЛ. Разобрать каждый подбор — что можно было предложить клиенту»</div>
+        <div style="font-size:14px; font-weight:600; margin-top:4px;">0,7 <span style="color:var(--muted-foreground); font-weight:400;">→</span> <span style="color:var(--excellent-text);">2,9 рекомендации/нед.</span></div>
+      </div>
+      <div style="border-left:3px solid var(--excellent); padding-left:14px;">
+        <div style="font-size:13px; color:var(--muted-foreground); margin-bottom:3px;"><b style="color:var(--foreground);">Ефимова Любовь</b> · сигнал: ноль записей на диагностику за несколько недель</div>
+        <div style="font-size:15px;">«Провести беседу по увеличению записей на диагностику. Забывает предлагать»</div>
+        <div style="font-size:14px; font-weight:600; margin-top:4px;">0 <span style="color:var(--muted-foreground); font-weight:400;">→</span> <span style="color:var(--excellent-text);">1,85 записи/нед.</span></div>
+      </div>
+      <div style="font-size:13px; color:var(--muted-foreground);">Совпадение по времени у того же сотрудника — ещё не доказательство причины. Но до мая задач почти не было, а после задачи метрика в шести случаях из десяти идёт вверх.</div>
+    </div>
+  </div>
+  <div class="footnote">Расчёт «было/стало» — встроенный в Оптимайзер, по неделям до и после задачи. Источник: Оптимайзер, задачи, май–октябрь 2026.</div>
+  <div class="slide-no">3 / 11</div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">Кристалл</div>
+  <h1>Заказ с ВТЛ приносит вдвое больше: 44 тыс против 21</h1>
+  <p class="sub">Почему разрыв между рекомендацией и покупкой — это деньги: 23 тыс ₽ на каждом заказе, который ушёл без ВТЛ</p>
+  <hr class="rule">
+  <div class="body row" style="gap:18px; align-items:stretch; padding-bottom:30px;">
+    <div class="col grow" style="gap:14px;">
+      <div class="card grow" style="display:flex; flex-direction:column; padding:20px 28px 16px;">
+        <div class="bars" style="flex:1; gap:40px; padding:0 60px;">
+          <div class="bar-col"><div class="bar-val" style="font-size:22px; margin-bottom:8px; color:var(--muted-foreground);">21 255 ₽</div><div class="bar" style="height:48%; background:#C9D6FB; border-radius:8px 8px 0 0;"></div><div class="bar-label" style="font-size:15px; color:var(--foreground); font-weight:600;">Обычный заказ</div><div style="font-size:13px; color:var(--muted-foreground);">линзы 14 400 ₽</div></div>
+          <div class="bar-col"><div class="bar-val" style="font-size:22px; margin-bottom:8px;">44 300 ₽</div><div class="bar" style="height:100%; border-radius:8px 8px 0 0;"></div><div class="bar-label" style="font-size:15px; color:var(--foreground); font-weight:600;">Заказ с ВТЛ</div><div style="font-size:13px; color:var(--muted-foreground);">линзы 36 000 ₽</div></div>
+        </div>
+      </div>
+      <div class="card" style="flex:none; display:flex; align-items:center; gap:16px; padding:14px 22px;">
+        <div class="kpi-stripe" style="background:var(--info); height:100%; width:3px; margin:0; border-radius:3px 0 0 3px;"></div>
+        <div style="font-size:14px; line-height:1.5;"><b>Почему это важно.</b> Каждая рекомендация, доведённая до покупки, — +23 тыс ₽ в кассу. Каждый пункт доли ВТЛ по сети — +78 тыс ₽ выручки в месяц. Это видно и по месяцам: апрель — 15,9% и чек <b class="num">26,2 тыс ₽</b>, июль — 2,7% и <b class="num">21,2 тыс ₽</b>. Чек двигают и цены, и сезон, но доля ВТЛ — единственное из этого, чем управляет врач на приёме.</div>
+      </div>
+    </div>
+    <div class="card" style="width:330px; flex:none; display:flex; flex-direction:column; justify-content:center; padding:20px 22px;">
+      <div class="kpi-label" style="margin-bottom:2px;">Сдвиньте долю ВТЛ по сети</div>
+      <div class="fm-row"><span class="k">Доля продаж ВТЛ</span><span class="n" id="ckVtlV">7,0%</span></div>
+      <input type="range" id="ckVtl" min="2" max="40" step="0.1" value="7" style="margin-bottom:12px;">
+      <div class="preset" id="ckPresets" style="margin-bottom:16px;">
+        <button data-v="7">7% сейчас</button>
+        <button data-v="15.9">15,9% апрель</button>
+        <button data-v="35">35%</button>
+      </div>
+      <div class="kpi-label">Средний чек заказа</div>
+      <div class="kpi-value" style="font-size:34px;" id="ckAvg">22 900 ₽</div>
+      <div class="kpi-label" style="margin-top:14px;">Чек линз в заказе</div>
+      <div class="kpi-value" style="font-size:26px;" id="ckLens">15 900 ₽</div>
+      <div style="margin-top:14px; font-size:13px; color:var(--muted-foreground); line-height:1.45;">Каждый пункт доли ВТЛ — <b style="color:var(--foreground);">+230 ₽</b> к среднему чеку заказа по сети.</div>
+  </div>
+  <div class="footnote">Источник: Оптимайзер, все заказы очков по сети, июль–сентябрь 2026. Средний чек заказа: апрель 26 205 ₽, июль 21 174 ₽.</div>
+  <div class="slide-no">4 / 11</div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">Кристалл</div>
+  <h1>Пауза в разборе — риск отката, и мы его уже видели</h1>
+  <p class="sub">Четыре места, где просядет первым. Это риски, не приговор — но летом, на передаче дел, так и случилось</p>
+  <hr class="rule">
+  <div class="body col" style="gap:16px; justify-content:center;">
+    <div class="row" style="gap:20px; align-items:stretch;">
+      <div class="card grow">
+        <div class="kpi-stripe" style="background:var(--primary)"></div>
+        <div class="kpi-label">Риск 1 · внимание</div>
+        <div class="kpi-value" style="font-size:24px; white-space:nowrap;">Разбор уходит в срочное</div>
+        <div style="margin-top:14px; font-size:16px; color:var(--foreground); line-height:1.55;">Еженедельный разбор проигрывает срочному у любого, для кого он не единственная работа. На передаче дел в июне–июле доля ВТЛ упала с 9,1% до 2,7%.</div>
+      </div>
+      <div class="card grow">
+        <div class="kpi-stripe" style="background:var(--excellent)"></div>
+        <div class="kpi-label">Риск 2 · замер</div>
+        <div class="kpi-value" style="font-size:24px; white-space:nowrap;">Задача — галочка</div>
+        <div style="margin-top:14px; font-size:16px; color:var(--foreground); line-height:1.55;">Без замера «было/стало» сделанная задача и результат неразличимы. Так было до июня: 8–26 задач в месяц на двух–девяти сотрудников.</div>
+      </div>
+      <div class="card grow">
+        <div class="kpi-stripe" style="background:var(--good)"></div>
+        <div class="kpi-label">Риск 3 · скорость</div>
+        <div class="kpi-value" style="font-size:24px; white-space:nowrap;">Месяцы вместо недели</div>
+        <div style="margin-top:14px; font-size:16px; color:var(--foreground); line-height:1.55;">Материал по возражениям ВТЛ внутри собирали с 17 июля по 16 сентября. Регламент, который мы пишем за неделю, команде стоит месяца.</div>
+      </div>
+    </div>
+    <div class="card" style="flex:none; display:flex; align-items:center; gap:16px; padding:18px 24px;">
+      <div class="kpi-stripe" style="background:var(--poor); height:100%; width:3px; margin:0; border-radius:3px 0 0 3px;"></div>
+      <div style="font-size:15px; line-height:1.5;">Риск 4 — данные. Формат фиксации заказов в АМО не закрыт с 31 июля; Большая Морская месяц горела красным из-за журнала вместо системы. Без того, кто держит достоверность каждую неделю, шкала дальше не считается.</div>
+    </div>
+  </div>
+  <div class="footnote">Источник: записи встреч апрель–октябрь 2026 (MyMeet), задачи в Оптимайзере.</div>
+  <div class="slide-no">5 / 11</div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">Кристалл · предложение</div>
+  <h1>Оптимайзер видит, РОП делает, мы ведём разбор</h1>
+  <p class="sub">Это и есть процесс, который мы ведём. Ничего нового ставить не нужно, всё уже в вашем Оптимайзере</p>
+  <hr class="rule">
+  <div class="body col" style="gap:16px; justify-content:center;">
+    <div class="row" style="gap:20px; align-items:stretch;">
+      <div class="card grow">
+        <div class="kpi-stripe" style="background:var(--poor)"></div>
+        <div class="kpi-label">Что видит Оптимайзер</div>
+        <div class="kpi-value" style="font-size:24px; white-space:nowrap;">Красная зона</div>
+        <div style="margin-top:14px; font-size:16px; color:var(--foreground); line-height:1.55;">Каждую неделю по салону и по сотруднику: продажи и рекомендации ВТЛ, чек оправы и скидка, конверсия. Передаёт сигнал и задачу; через 2–3 недели сам считает «было/стало».</div>
+      </div>
+      <div class="card grow">
+        <div class="kpi-stripe" style="background:var(--primary)"></div>
+        <div class="kpi-label">Что делает РОП</div>
+        <div class="kpi-value" style="font-size:24px; white-space:nowrap;">Разбор с нами</div>
+        <div style="margin-top:14px; font-size:16px; color:var(--foreground); line-height:1.55;">Раз в неделю, на разборе, который ведём мы: берёт сигналы, ставит задачу конкретному сотруднику — что сделать иначе и к какой дате — и проверяет.</div>
+      </div>
+      <div class="card grow">
+        <div class="kpi-stripe" style="background:var(--excellent)"></div>
+        <div class="kpi-label">Что получает сеть</div>
+        <div class="kpi-value" style="font-size:24px; white-space:nowrap;">Рост по людям</div>
+        <div style="margin-top:14px; font-size:16px; color:var(--foreground); line-height:1.55;">Шесть задач из десяти заканчиваются ростом показателя. Собственнику — сводка по понедельникам: три числа и что сработало.</div>
+      </div>
+    </div>
+    <div class="card" style="flex:none; display:flex; gap:32px; padding:20px 24px;">
+      <div style="flex:1;"><div style="font-size:13px; font-weight:600; color:var(--primary); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px;">Наша часть</div><div style="font-size:15px; line-height:1.5;">Разбор каждую неделю с Викторией и Анастасией, критерии красной зоны, достоверность данных, замер «было/стало», сводка Михаилу по понедельникам.</div></div>
+      <div style="flex:1;"><div style="font-size:13px; font-weight:600; color:var(--muted-foreground); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px;">Ваша часть</div><div style="font-size:15px; line-height:1.5;">Задачи ставят и выполняют ваши люди, продают тоже они. Вы раз в неделю смотрите три числа и список того, что сработало.</div></div>
+    </div>
+  </div>
+  <div class="footnote">Источник: разделы «Динамика показателей» и «Задачи» в Оптимайзере; замер «было/стало» — встроенный, по неделям до и после задачи.</div>
+  <div class="slide-no">6 / 11</div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">Кристалл · предложение · рычаг 1</div>
+  <h1>Рычаг 1: довести рекомендацию ВТЛ до покупки</h1>
+  <p class="sub">Рекомендуют уже 46% рецептов, покупают ВТЛ 7% клиентов. Разрыв — в презентации и возражении «дорого»</p>
+  <hr class="rule">
+  <div class="body row" style="gap:20px; align-items:stretch;">
+    <div class="card" style="width:300px; flex:none; display:flex; flex-direction:column; gap:14px; padding:20px;">
+      <div><div class="kpi-label">Резерв при цели 35% по сети</div><div class="kpi-value" style="font-size:26px; color:var(--excellent-text); white-space:nowrap;">+2 190 тыс ₽ / мес</div></div>
+      <div style="font-size:13px; font-weight:600; color:var(--muted-foreground); text-transform:uppercase; letter-spacing:0.04em;">Где теряется</div>
+      <div style="border-left:3px solid var(--poor); padding-left:12px; font-size:14px; line-height:1.45;">Врач — называет ВТЛ, но не связывает его с проблемой клиента</div><div style="border-left:3px solid var(--poor); padding-left:12px; font-size:14px; line-height:1.45;">Консультант — слышит «дорого» и сразу предлагает простую линзу</div>
+    </div>
+    <div class="step3 grow">
+      <div class="card"><div class="kpi-label">Что видит Оптимайзер</div><ul><li>Каждую неделю: у какого врача и консультанта просела доля рекомендаций или продаж ВТЛ</li><li>Передаёт сигнал и задачу — разобрать случай; фиксирует, если сигнал проигнорирован</li><li>Через 2–3 недели сам считает «было/стало»</li></ul></div>
+      <div class="arr">→</div>
+      <div class="card"><div class="kpi-label">Что делает РОП</div><ul><li>С врачом — как давалась рекомендация, на примере его же рецептов</li><li>С консультантом — как отработано «дорого», по записи</li><li>Ставит контрольную точку и проверяет</li></ul></div>
+      <div class="arr">→</div>
+      <div class="card" style="background:var(--excellent-bg); border-color:transparent;"><div class="kpi-label">Что получает сеть</div><ul><li>Рекомендации уже выросли вдвое: 21% → 46%</li><li>У людей с задачей — 1 → 4 рекомендации в неделю (Ковырнова), 0,7 → 2,9 (Бердина)</li><li>Следующий шаг — чтобы рекомендация стала заказом</li></ul></div>
+    </div>
+  </div>
+  <div class="footnote">Резерв — 28 пунктов доли ВТЛ × 3,4 заказа × 23 тыс ₽ разницы чека. Источник: Оптимайзер, продажи и задачи, 2026.</div>
+  <div class="slide-no">7 / 11</div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">Кристалл · предложение · рычаг 2</div>
+  <h1>Рычаг 2: поднять чек оправы до уровня лучших салонов</h1>
+  <p class="sub">По сети 7 300 ₽, два салона держат 9 000, в апреле вся сеть давала 10 000. Разница — в вопросах до «дорого»</p>
+  <hr class="rule">
+  <div class="body row" style="gap:20px; align-items:stretch;">
+    <div class="card" style="width:300px; flex:none; display:flex; flex-direction:column; gap:14px; padding:20px;">
+      <div><div class="kpi-label">Резерв при 9 000 ₽ по сети</div><div class="kpi-value" style="font-size:26px; color:var(--excellent-text); white-space:nowrap;">+269 тыс ₽ / мес</div></div>
+      <div style="font-size:13px; font-weight:600; color:var(--muted-foreground); text-transform:uppercase; letter-spacing:0.04em;">Где теряется</div>
+      <div style="border-left:3px solid var(--poor); padding-left:12px; font-size:14px; line-height:1.45;">Консультант — не выясняет образ жизни и стиль, на «дорого» сразу даёт скидку</div><div style="border-left:3px solid var(--poor); padding-left:12px; font-size:14px; line-height:1.45;">Ассортимент — в части салонов нет оправ среднего сегмента (задача по Автовокзалу, июнь)</div>
+    </div>
+    <div class="step3 grow">
+      <div class="card"><div class="kpi-label">Что видит Оптимайзер</div><ul><li>Каждую неделю: у кого чек оправы и скидка ниже обычного уровня — по продавцу</li><li>Передаёт сигнал и задачу; фиксирует, если сигнал проигнорирован</li><li>Через 2–3 недели сам считает «было/стало»</li></ul></div>
+      <div class="arr">→</div>
+      <div class="card"><div class="kpi-label">Что делает РОП</div><ul><li>С консультантом по записи — где не спросил про образ жизни, где сразу дал скидку</li><li>Проверяет выкладку и ценовые сегменты на точке</li><li>Ставит контрольную точку и проверяет</li></ul></div>
+      <div class="arr">→</div>
+      <div class="card" style="background:var(--excellent-bg); border-color:transparent;"><div class="kpi-label">Что получает сеть</div><ul><li>Чек растёт без потери заказов — так у Сферы: +32% к чеку, конверсия не упала</li><li>Разница между 7 300 и 9 000 — это 269 тыс ₽ в месяц на 158 своих заказах</li><li>Страховка — конверсия не ниже 55%</li></ul></div>
+    </div>
+  </div>
+  <div class="footnote">Резерв — 1 700 ₽ × 158 своих заказов в месяц. Чек оправы — июль–сентябрь 2026, в сегодняшних ценах. Источник: Оптимайзер.</div>
+  <div class="slide-no">8 / 11</div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">Кристалл · предложение</div>
+  <h1>Сначала растёт ваша выручка, потом — наша ставка</h1>
+  <p class="sub">Прирост вашей выручки и ставка Оптимайзера за 10 салонов по ступеням, тыс ₽ в месяц. Условие — два показателя</p>
+  <hr class="rule">
+  <div class="body col" style="gap:10px; padding-bottom:62px;">
+    <div class="card" style="flex:1; display:flex; flex-direction:column; padding:16px 24px 12px;">
+      <div class="legend"><span><i style="background:var(--excellent)"></i>ваш прирост выручки в месяц</span><span><i style="background:var(--chart-1)"></i>ставка Оптимайзера в месяц, 10 салонов</span><span>Старт — половина цены, без условий. Ступень засчитывается, когда оба показателя достигнуты по сети два месяца подряд, а конверсия не ниже 55%</span></div>
+      <div class="gbars">
+      <div></div>
+      <div class="gcell"><div class="gbar" style="width:auto; align-items:center;"><div class="cap">старт: результата ещё нет,<br>платите половину</div><div class="v">150</div><div class="b rate" style="height:6.1%; width:46px;"></div></div></div>
+      <div class="gcell"><div class="gbar"><div class="v" style="color:var(--excellent-text)">+454</div><div class="b gain" style="height:18.5%"></div></div><div class="gbar"><div class="v">180</div><div class="b rate" style="height:7.3%"></div></div></div>
+      <div class="gcell"><div class="gbar"><div class="v" style="color:var(--excellent-text)">+971</div><div class="b gain" style="height:39.5%"></div></div><div class="gbar"><div class="v">210</div><div class="b rate" style="height:8.5%"></div></div></div>
+      <div class="gcell"><div class="gbar"><div class="v" style="color:var(--excellent-text)">+1 503</div><div class="b gain" style="height:61.1%"></div></div><div class="gbar"><div class="v">240</div><div class="b rate" style="height:9.8%"></div></div></div>
+      <div class="gcell"><div class="gbar"><div class="v" style="color:var(--excellent-text)">+2 020</div><div class="b gain" style="height:82.1%"></div></div><div class="gbar"><div class="v">270</div><div class="b rate" style="height:11.0%"></div></div></div>
+      <div class="gcell"><div class="gbar"><div class="v" style="color:var(--excellent-text)">+2 459</div><div class="b gain" style="height:100.0%"></div></div><div class="gbar"><div class="cap">полная цена</div><div class="v">300</div><div class="b rate" style="height:12.2%"></div></div></div>
+      </div>
+      <div class="grows">
+      <div class="lab">Доля ВТЛ</div><div class="val">7%</div><div class="val">12%</div><div class="val">18%</div><div class="val">24%</div><div class="val">30%</div><div class="val">35%</div>
+      <div class="lab">Чек оправы</div><div class="val">7 300 ₽</div><div class="val">7 700 ₽</div><div class="val">8 000 ₽</div><div class="val">8 400 ₽</div><div class="val">8 700 ₽</div><div class="val">9 000 ₽</div>
+      <div class="lab">ROI</div><div class="val dim">—</div><div class="val" style="color:var(--excellent-text);">×2,5</div><div class="val" style="color:var(--excellent-text);">×4,6</div><div class="val" style="color:var(--excellent-text);">×6,3</div><div class="val" style="color:var(--excellent-text);">×7,5</div><div class="val" style="color:var(--excellent-text);">×8,2</div>
+      </div>
+    </div>
+    <div class="card" style="flex:none; display:flex; align-items:center; gap:16px; padding:16px 24px;">
+      <div class="kpi-stripe" style="background:var(--primary); height:100%; width:3px; margin:0; border-radius:3px 0 0 3px;"></div>
+      <div style="font-size:15px; line-height:1.5;"><b>Почему мы на это идём.</b> Мы хотим зарабатывать больше: 300 тысяч в месяц вместо 150. Но берём их, только когда деньги уже появились у вас: уже на первой ступени ваш прирост выручки в 2,5 раза больше всей нашей ставки, на последней — в 8. Не выросло — платите половину, как сейчас.<br><b>Что такое 35% на практике.</b> Один дополнительный заказ ВТЛ в неделю у каждого врача: сейчас 21 врач продаёт 16 ВТЛ в месяц, для 35% нужно 106. У большинства — один в неделю, у самых загруженных — три.</div>
+    </div>
+  </div>
+  <div class="footnote">База 30 000 ₽ за филиал, скидка 50% → 0% по ступеням. ROI — прирост выручки к нашей ставке за месяц. Показатели считаются из заказов, не вручную: пункт доли ВТЛ ≈ 3,4 заказа × 23 тыс ₽, чек оправы — на 158 своих заказах. 35% — от всех заказов; ваш план на осень — 13%.</div>
+  <div class="slide-no">9 / 11</div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">Клиенты Оптимайзера</div>
+  <h1>У трёх сетей это уже сработало — можно позвонить им</h1>
+  <p class="sub">Три сети, где РОП каждую неделю разбирает сигналы Оптимайзера. Во всех трёх вторая метрика не просела</p>
+  <hr class="rule">
+  <div class="body col" style="gap:14px; justify-content:center;">
+    <div class="row" style="gap:16px; align-items:stretch;">
+      <div class="card grow" style="padding:24px;">
+        <div class="kpi-stripe" style="background:var(--excellent)"></div>
+        <div class="kpi-label">Надин · Ульяновск · сентябрь–октябрь 2026</div>
+        <div style="font-size:14px; color:var(--muted-foreground);">Конверсия молодого врача</div>
+        <div class="kpi-value" style="font-size:34px; margin-top:4px;">44% → 76%</div>
+        <div style="margin-top:14px; font-size:15px; line-height:1.5;">Разбор раз в неделю по его же цифрам: свои приёмы послушал, сильных коллег посмотрел, план поставил себе сам.</div>
+        <div style="margin-top:10px;"><span class="pill excellent">средний чек не просел</span></div>
+      </div>
+      <div class="card grow" style="padding:24px;">
+        <div class="kpi-stripe" style="background:var(--excellent)"></div>
+        <div class="kpi-label">Сфера · сеть оптик</div>
+        <div style="font-size:14px; color:var(--muted-foreground);">Средний чек</div>
+        <div class="kpi-value" style="font-size:34px; margin-top:4px;">+32%</div>
+        <div style="margin-top:14px; font-size:15px; line-height:1.5;">Продавцы стали объяснять, за что платить дороже, и перестали упускать клиентов. РОП каждый день разбирает каждый сигнал.</div>
+        <div style="margin-top:10px;"><span class="pill excellent">конверсия не упала</span></div>
+      </div>
+      <div class="card grow" style="padding:24px;">
+        <div class="kpi-stripe" style="background:var(--excellent)"></div>
+        <div class="kpi-label">ОДВ · сеть оптик</div>
+        <div style="font-size:14px; color:var(--muted-foreground);">Выручка год к году</div>
+        <div class="kpi-value" style="font-size:34px; margin-top:4px;">+15%</div>
+        <div style="margin-top:14px; font-size:15px; line-height:1.5;">РОПы каждый день разбирают сигналы и работают с конкретными сотрудниками. Выросли и чек, и конверсия, на уже высокой базе.</div>
+        <div style="margin-top:10px;"><span class="pill excellent">чек +10%, конверсия +3 п.п.</span></div>
+      </div>
+    </div>
+    <div class="card" style="flex:none; padding:14px 24px; font-size:15px; line-height:1.5;">Все три сети разрешили рассказать о результате и готовы подтвердить его лично. Дадим контакты руководителей, спросите у них напрямую.</div>
+  </div>
+  <div class="footnote">Результаты по данным самих сетей.</div>
+  <div class="slide-no">10 / 11</div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">Кристалл · финмодель</div>
+  <h1>Финмодель: двигайте ВТЛ и чек — цена пересчитается</h1>
+  <p class="sub">Стартовое положение — факт сейчас. Ползунки только на том, чем управляет сеть. Выручка и ставка считаются</p>
+  <hr class="rule">
+  <div class="body row" style="gap:20px; align-items:stretch; padding-bottom:36px;">
+    <div class="card" style="width:400px; flex:none; display:flex; flex-direction:column; justify-content:center;">
+      <div class="fm-row"><span class="k">Доля продаж ВТЛ по сети</span><span class="n" id="fmVtlV">7,0%</span></div>
+      <input type="range" id="fmVtl" min="2" max="40" step="0.1" value="7">
+      <div class="fm-row"><span class="k">Чек оправы, свои рецепты</span><span class="n" id="fmFrameV">7 300 ₽</span></div>
+      <input type="range" id="fmFrame" min="7000" max="10000" step="100" value="7300">
+      <div class="kpi-label" style="margin-top:4px;">Готовые сценарии</div>
+      <div class="preset" id="fmPresets">
+        <button data-v="7" data-f="7300">Сейчас</button>
+        <button data-v="12" data-f="7700">−40%</button>
+        <button data-v="18" data-f="8000">−30%</button>
+        <button data-v="24" data-f="8400">−20%</button>
+        <button data-v="30" data-f="8700">−10%</button>
+        <button data-v="35" data-f="9000">Полная</button>
+        <button data-v="15.9" data-f="7300">Апрель 2026</button>
+        <button data-v="9.1" data-f="7300">Май 2026</button>
+      </div>
+    </div>
+    <div class="col grow" style="gap:14px;">
+      <div class="row" style="gap:14px; flex:1;">
+        <div class="card grow kpi-mini"><div class="kpi-label">Ступень</div><div class="kpi-value" id="fmStep">скидка 50%</div><div style="margin-top:6px; font-size:13px; color:var(--muted-foreground);" id="fmStepNote">оба показателя на старте</div></div>
+        <div class="card grow kpi-mini"><div class="kpi-label">Ставка Оптимайзера, 10 салонов</div><div class="kpi-value" id="fmRate">150 тыс ₽ / мес</div><div style="margin-top:6px; font-size:13px; color:var(--muted-foreground);" id="fmRatePer">15 000 ₽ за филиал</div></div>
+        <div class="card grow kpi-mini"><div class="kpi-label">Средний чек заказа</div><div class="kpi-value" id="fmAvg">22 900 ₽</div><div style="margin-top:6px; font-size:13px; color:var(--muted-foreground);" id="fmAvgNote">по модели, при 7% ВТЛ — 22 900 ₽</div></div>
+      </div>
+      <div class="row" style="gap:14px; flex:1;">
+        <div class="card grow kpi-mini"><div class="kpi-label">Ваш прирост выручки</div><div class="kpi-value" id="fmGain">0 тыс ₽ / мес</div><div style="margin-top:6px; font-size:13px; color:var(--muted-foreground);" id="fmGainYear">0 ₽ в год</div></div>
+        <div class="card grow kpi-mini" style="background:var(--foreground);"><div class="kpi-label" style="color:#A9AFBC;">Остаётся вам сверх нашей надбавки</div><div class="kpi-value" id="fmNet" style="color:#fff;">0 тыс ₽ / мес</div><div style="margin-top:6px; font-size:13px; color:#A9AFBC;" id="fmNetNote">прирост минус рост ставки</div></div>
+        <div class="card grow kpi-mini"><div class="kpi-label">Чек линз в заказе</div><div class="kpi-value" id="fmLens">15 900 ₽</div><div style="margin-top:6px; font-size:13px; color:var(--muted-foreground);">линзы ВТЛ 36 000 ₽, обычные 14 400 ₽</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="footnote">Прирост — в выручке. 1 пункт доли ВТЛ = 78 тыс ₽ в месяц; 100 ₽ к чеку оправы = 15,8 тыс ₽ в месяц. База: 339 заказов в месяц, 158 из них по своим рецептам, июль–сентябрь 2026.</div>
+  <div class="slide-no">11 / 11</div>
+</section>
+
+</div></div>
+
+<button class="arrownav prev" id="prevBtn" aria-label="Предыдущий слайд">‹</button>
+<button class="arrownav next" id="nextBtn" aria-label="Следующий слайд">›</button>
+<div class="nav" id="navDots"></div>
+
+<script>
+  // check model (slide 3)
+  (function(){
+    const el = document.getElementById('ckVtl'); if (!el) return;
+    const fmt = (n)=> Math.round(n/100)*100;
+    function calc(){
+      const v = parseFloat(el.value);
+      document.getElementById('ckVtlV').textContent = v.toLocaleString('ru-RU',{minimumFractionDigits:1, maximumFractionDigits:1})+'%';
+      document.getElementById('ckAvg').textContent = fmt(21255 + v/100*23050).toLocaleString('ru-RU')+' ₽';
+      document.getElementById('ckLens').textContent = fmt(14400 + v/100*21600).toLocaleString('ru-RU')+' ₽';
+      document.querySelectorAll('#ckPresets button').forEach(b=>b.classList.toggle('on', parseFloat(b.dataset.v)===v));
+    }
+    el.addEventListener('input', calc);
+    document.querySelectorAll('#ckPresets button').forEach(b=>b.addEventListener('click', ()=>{ el.value=b.dataset.v; calc(); }));
+    calc();
+  })();
+
+  // finmodel
+  (function(){
+    const vtlEl = document.getElementById('fmVtl'), frEl = document.getElementById('fmFrame');
+    if (!vtlEl) return;
+    const steps = [[12,7700],[18,8000],[24,8400],[30,8700],[35,9000]];
+    const fmt = (n)=> Math.round(n).toLocaleString('ru-RU');
+    function calc(){
+      const v = parseFloat(vtlEl.value), f = parseInt(frEl.value);
+      document.getElementById('fmVtlV').textContent = v.toLocaleString('ru-RU',{minimumFractionDigits:1, maximumFractionDigits:1})+'%';
+      document.getElementById('fmFrameV').textContent = fmt(f)+' ₽';
+      let st = 0; steps.forEach((s,i)=>{ if (v>=s[0] && f>=s[1]) st = i+1; });
+      const disc = 50 - st*10, rate = 150 + st*30;
+      const gain = (v-7)*78.2 + (f-7300)*0.158;
+      document.getElementById('fmStep').textContent = disc>0 ? 'скидка '+disc+'%' : 'полная цена';
+      document.getElementById('fmStepNote').textContent = st===0 ? 'оба показателя на старте' : 'оба показателя ≥ ступени '+st;
+      document.getElementById('fmRate').textContent = rate+' тыс ₽ / мес';
+      document.getElementById('fmRatePer').textContent = fmt(rate*100)+' ₽ за филиал';
+      document.getElementById('fmGain').textContent = (gain>=0?'+':'−')+fmt(Math.abs(gain))+' тыс ₽ / мес';
+      document.getElementById('fmGainYear').textContent = (gain>=0?'+':'−')+(Math.abs(gain)*12/1000).toLocaleString('ru-RU',{maximumFractionDigits:1})+' млн ₽ в год';
+      const avg = 21255 + v/100*23050, lens = 14400 + v/100*21600;
+      const fa = document.getElementById('fmAvg'); if (fa) { fa.textContent = fmt(Math.round(avg/100)*100)+' ₽'; document.getElementById('fmLens').textContent = fmt(Math.round(lens/100)*100)+' ₽'; }
+      const net = gain - (rate-150);
+      document.getElementById('fmNet').textContent = (net>=0?'+':'−')+fmt(Math.abs(net))+' тыс ₽ / мес';
+      document.querySelectorAll('#fmPresets button').forEach(b=>b.classList.toggle('on', parseFloat(b.dataset.v)===v && parseInt(b.dataset.f)===f));
+    }
+    vtlEl.addEventListener('input', calc); frEl.addEventListener('input', calc);
+    document.querySelectorAll('#fmPresets button').forEach(b=>b.addEventListener('click', ()=>{ vtlEl.value=b.dataset.v; frEl.value=b.dataset.f; calc(); }));
+    calc();
+  })();
+
+  // slide navigation — one slide visible at a time, scaled to fit the viewport
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const stage = document.querySelector('.stage');
+  const dots = document.getElementById('navDots');
+  dots.innerHTML = slides.map((_,i)=>`<button data-i="${i}" aria-label="Слайд ${i+1}"></button>`).join('');
+  const dotEls = Array.from(dots.children);
+  let current = 0;
+
+  function fitStage() {
+    const scale = Math.min(window.innerWidth / 1280, window.innerHeight / 720) * 0.96;
+    stage.style.transform = `scale(${scale})`;
+  }
+
+  function render() {
+    slides.forEach((s,i)=>s.classList.toggle('active', i===current));
+    dotEls.forEach((d,idx)=>d.classList.toggle('active', idx===current));
+  }
+  function goTo(i) {
+    current = Math.max(0, Math.min(slides.length-1, i));
+    render();
+  }
+  document.getElementById('prevBtn').addEventListener('click', ()=>goTo(current-1));
+  document.getElementById('nextBtn').addEventListener('click', ()=>goTo(current+1));
+  dotEls.forEach(d=>d.addEventListener('click', ()=>goTo(parseInt(d.dataset.i))));
+  window.addEventListener('keydown', (e)=>{
+    if (e.target && e.target.tagName==='INPUT') return;
+    if (e.key==='ArrowRight' || e.key==='PageDown' || e.key===' ') goTo(current+1);
+    if (e.key==='ArrowLeft' || e.key==='PageUp') goTo(current-1);
+  });
+  window.addEventListener('resize', fitStage);
+  fitStage();
+  render();
+</script>
+</body>
+</html>
