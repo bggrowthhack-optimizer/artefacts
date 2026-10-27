@@ -1,0 +1,1821 @@
+<title>Анализ данных о продажах в сети «Вижу»</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<!-- Колода «Вижу», каркас из _ref/deck_template.html -->
+<style>
+  :root {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    --background: #F5F7F9;
+    --card: #FFFFFF;
+    --foreground: #0D121B;
+    --muted: #F3F5F9;
+    --muted-foreground: #646972;
+    --primary: #2B62EF;
+    --border: #DBDEE5;
+    --border-strong: #BFC4CD;
+    --excellent: #00A245;  --excellent-text: #00892C;  --excellent-bg: #E6F6EC;
+    --good: #ED990E;       --good-text: #B16100;       --good-bg: #FDF5E7;
+    --poor: #DF202E;       --poor-text: #DF202E;       --poor-bg: #FCE9EA;
+    --info: #0095D3;       --info-text: #007DBA;       --info-bg: #E6F4FB;
+    --chart-1: #4076F5; --chart-2: #00A68A; --chart-3: #A46BF5;
+    --chart-4: #59B842; --chart-5: #FC8C45;
+    --radius-card: 16px;
+    --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --slide-w: 1280px;
+    --slide-h: 720px;
+    --slide-pad: 48px;
+    --gap: 24px;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    background: #2b2e33;
+    font-family: var(--font-sans);
+    color: var(--foreground);
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+    min-height: 100%;
+    overflow: auto;
+  }
+  .viewport {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 0;
+  }
+  .stage {
+    position: relative;
+    width: var(--slide-w);
+    height: var(--slide-h);
+    flex-shrink: 0;
+    transform-origin: center center;
+  }
+  .slide {
+    width: var(--slide-w);
+    height: var(--slide-h);
+    background: var(--background);
+    position: absolute;
+    inset: 0;
+    padding: var(--slide-pad);
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.35);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .slide.active { display: flex; }
+  .eyebrow {
+    font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--primary); margin-bottom: 8px;
+  }
+  .slide h1 {
+    font-size: 34px; font-weight: 700; line-height: 1.2; letter-spacing: -0.025em;
+    margin: 0 0 10px; color: var(--foreground); max-width: 100%; white-space: nowrap;
+  }
+  .slide .sub {
+    font-size: 19px; font-weight: 400; color: var(--muted-foreground); margin: 0 0 24px;
+    line-height: 1.4; max-width: 100%; white-space: nowrap;
+  }
+  .rule { border: none; border-top: 1px solid var(--border); margin: 0 0 24px; }
+  .body { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+  .footnote {
+    position: absolute; left: var(--slide-pad); right: 120px; bottom: 20px;
+    font-size: 14px; color: var(--muted-foreground);
+  }
+  .slide-no {
+    position: absolute; right: var(--slide-pad); bottom: 20px;
+    font-size: 14px; color: var(--muted-foreground); font-variant-numeric: tabular-nums;
+  }
+  .num { font-variant-numeric: tabular-nums; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card); padding: 24px;
+  }
+  .row { display: flex; flex-direction: row; gap: var(--gap); }
+  .col { display: flex; flex-direction: column; gap: var(--gap); }
+  .grow { flex: 1; min-width: 0; }
+
+  .kpi-label { font-size: 14px; color: var(--muted-foreground); margin-bottom: 8px; }
+  .kpi-value { font-size: 44px; font-weight: 700; color: var(--foreground); font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .kpi-compare { font-size: 14px; margin-top: 10px; display: flex; align-items: center; gap: 6px; }
+  .kpi-stripe { height: 3px; width: calc(100% + 48px); border-radius: 3px 3px 0 0; margin: -24px -24px 20px; }
+
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 9999px; font-size: 13px; font-weight: 500; }
+  .pill.excellent { background: var(--excellent-bg); color: var(--excellent-text); }
+  .pill.poor { background: var(--poor-bg); color: var(--poor-text); }
+  .pill.info { background: var(--info-bg); color: var(--info-text); }
+  .pill.good { background: var(--good-bg); color: var(--good-text); }
+
+  svg.ico { width: 16px; height: 16px; stroke-width: 2; vertical-align: -3px; }
+
+  /* bar chart */
+  .bars { display: flex; align-items: flex-end; gap: 10px; height: 220px; }
+  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+  .bar-val { font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--foreground); font-variant-numeric: tabular-nums; }
+  .bar { width: 100%; border-radius: 4px 4px 0 0; background: var(--chart-1); }
+  .bar.dim { background: #C9D6FB; }
+  .bar.dashed-wrap { background: transparent; border: 2px dashed var(--border-strong); border-bottom: none; }
+  .bar-label { margin-top: 10px; font-size: 13px; color: var(--muted-foreground); }
+
+  table.t { width: 100%; border-collapse: collapse; font-size: 15px; }
+  table.t th { text-align: left; font-size: 12px; font-weight: 600; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.03em; padding: 0 12px 10px; border-bottom: 1px solid var(--border); }
+  table.t td { padding: 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  table.t th:not(:first-child), table.t td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+  table.t tbody tr:last-child td { border-bottom: none; }
+  table.t tr.total td { font-weight: 700; border-top: 2px solid var(--border-strong); border-bottom: none; }
+
+  .nav { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 10; }
+  .nav button { width: 9px; height: 9px; border-radius: 50%; border: none; background: rgba(255,255,255,0.3); cursor: pointer; padding: 0; }
+  .nav button.active { background: #fff; }
+  .arrownav { position: fixed; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; border: none; background: rgba(255,255,255,0.08); color: #fff; font-size: 18px; cursor: pointer; z-index: 10; }
+  .arrownav:hover { background: rgba(255,255,255,0.18); }
+  .arrownav.prev { left: 18px; } .arrownav.next { right: 18px; }
+
+  .cover { justify-content: center; align-items: flex-start; }
+  .cover .mark { width: 40px; height: 40px; border-radius: 12px; background: var(--primary); margin-bottom: 32px; }
+  .cover .eyebrow { margin-bottom: 20px; }
+  .cover h1 { font-size: 44px; max-width: none; white-space: nowrap; margin-bottom: 20px; }
+  .cover .sub { font-size: 21px; max-width: 100%; white-space: nowrap; margin-bottom: 0; }
+  .cover .meta { position: absolute; left: var(--slide-pad); bottom: 48px; font-size: 13px; color: var(--muted-foreground); display: flex; gap: 24px; }
+
+  /* маршрут: нумерованные шаги с вопросами */
+  .route { flex:1; display:flex; flex-direction:column; min-height:0; padding:8px 24px; }
+  .route-head {
+    display:grid; grid-template-columns:52px 460px 1fr; align-items:center;
+    font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase;
+    color:var(--muted-foreground); padding-bottom:12px; border-bottom:1px solid var(--border);
+  }
+  .route-rail { position:relative; flex:1; display:flex; flex-direction:column; min-height:0; }
+  .route-rail::before {
+    content:''; position:absolute; left:16px; top:28px; bottom:28px;
+    width:2px; background:var(--border);
+  }
+  .route-row {
+    display:grid; grid-template-columns:52px 460px 1fr; align-items:center;
+    flex:1; min-height:0; border-bottom:1px solid var(--border);
+  }
+  .route-row:last-child { border-bottom:none; }
+  .route-n {
+    position:relative; z-index:1; width:34px; height:34px; border-radius:12px;
+    background:var(--card); border:2px solid var(--border-strong); color:var(--foreground);
+    font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center;
+    font-variant-numeric:tabular-nums;
+  }
+  .route-t { font-size:21px; font-weight:600; color:var(--foreground); padding-right:24px; }
+  .route-q { font-size:17px; color:var(--muted-foreground); display:flex; align-items:center; gap:16px; }
+  .route-ok {
+    font-size:13px; font-weight:600; padding:4px 12px; border-radius:12px;
+    background:var(--excellent-bg); color:var(--excellent-text); white-space:nowrap;
+  }
+
+  /* протокол сборки: шесть карточек */
+  .proto { display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:1fr 1fr; gap:16px; flex:1; min-height:0; }
+  .proto > .card { padding:18px; display:flex; flex-direction:column; min-height:0; }
+  .proto-h { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+  .proto-n {
+    width:24px; height:24px; border-radius:12px; background:var(--muted);
+    color:var(--muted-foreground); font-size:11px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .proto-t { font-size:21px; font-weight:600; color:var(--foreground); }
+  .proto-b { font-size:15px; line-height:1.45; color:var(--muted-foreground); }
+  .proto-b b { color:var(--foreground); font-weight:600; }
+  .proto-b p { margin:0 0 7px; }
+  .proto-b p:last-child { margin-bottom:0; }
+  .proto-f {
+    margin-top:auto; padding-top:12px; border-top:1px solid var(--border);
+    font-size:17px; font-weight:600; color:var(--foreground); font-variant-numeric:tabular-nums;
+  }
+  .proto .ok .proto-n { background:var(--excellent-bg); color:var(--excellent-text); }
+  .proto .ok .proto-f { font-size:34px; color:var(--excellent-text); line-height:1.1; }
+
+  /* парные полосы: доля приёмов vs доля выручки */
+  .pairs { display:flex; flex-direction:column; gap:2px; }
+  .pair-row { display:flex; align-items:center; gap:14px; }
+  .pair-name { width:160px; flex-shrink:0; font-size:13px; font-weight:600; color:var(--foreground); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pair-bars { flex:1; display:flex; flex-direction:column; gap:3px; }
+  .pair-track { display:flex; align-items:center; height:11px; }
+  .pair-fill { height:8px; border-radius:4px; }
+  .pair-val { margin-left:8px; font-size:11.5px; color:var(--muted-foreground); font-variant-numeric:tabular-nums; white-space:nowrap; }
+
+  /* grouped bars: client gain vs our rate */
+  .gbars { display:grid; grid-template-columns: 120px repeat(6, 1fr); align-items:end; height:150px; gap:12px; }
+  .gcell { display:flex; align-items:flex-end; justify-content:center; gap:8px; height:100%; }
+  .gbar { width:46px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
+  .gbar .v { font-size:13px; font-weight:700; margin-bottom:5px; font-variant-numeric: tabular-nums; white-space:nowrap; }
+  .gbar .b { width:100%; border-radius:4px 4px 0 0; }
+  .gbar .b.gain { background: var(--excellent); }
+  .gbar .b.rate { background: var(--chart-1); }
+  .gbar .cap { font-size:11px; color:var(--muted-foreground); text-align:center; line-height:1.2; margin-bottom:4px; white-space:nowrap; }
+  .grows { display:grid; grid-template-columns: 120px repeat(6, 1fr); gap:10px 12px; margin-top:10px; font-size:14px; }
+  .grows .lab { color: var(--muted-foreground); font-size:13px; }
+  .grows .val { text-align:center; font-variant-numeric: tabular-nums; font-weight:600; }
+  .grows .val.dim { color: var(--muted-foreground); font-weight:500; }
+  .legend { display:flex; gap:20px; font-size:13px; color:var(--muted-foreground); margin-bottom:10px; }
+  .legend span { display:flex; align-items:center; gap:6px; }
+  .legend i { width:10px; height:10px; border-radius:3px; display:inline-block; }
+  /* finmodel */
+  .fm-row { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; }
+  .fm-row .k { font-size:14px; color:var(--muted-foreground); }
+  .fm-row .n { font-size:22px; font-weight:700; font-variant-numeric: tabular-nums; }
+  input[type=range] { width:100%; accent-color: var(--primary); margin: 2px 0 18px; }
+  .preset { display:flex; gap:8px; flex-wrap:wrap; margin-top:4px; }
+  .preset button { border:1px solid var(--border); background:var(--card); border-radius:9999px; padding:6px 12px; font-size:13px; cursor:pointer; font-family:inherit; color:var(--foreground); }
+  .preset button.on { background:var(--primary); color:#fff; border-color:var(--primary); }
+  .kpi-mini { padding:18px 20px; }
+  .kpi-mini .kpi-value { font-size:24px; white-space:nowrap; }
+  .divider { justify-content:center; }
+  .divider h1 { font-size:40px; }
+  .step3 { display:grid; grid-template-columns: 1fr 24px 1fr 24px 1fr; gap:8px; align-items:stretch; }
+  .step3 .arr { display:flex; align-items:center; justify-content:center; color:var(--border-strong); font-size:22px; }
+  .step3 ul { margin:8px 0 0; padding-left:18px; font-size:14px; line-height:1.5; color:var(--foreground); }
+  .step3 .card { padding:18px 20px; }
+
+  .dts { display:grid; grid-template-columns: repeat(7, 1fr); gap:10px; flex:1; align-content:start; }
+  .dt { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 14px 12px; }
+  .dt .nm { font-size:13px; color:var(--muted-foreground); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:6px; }
+  .dt .vv { font-size:22px; font-weight:700; font-variant-numeric: tabular-nums; white-space:nowrap; }
+  .dt .now { color:var(--muted-foreground); font-weight:500; }
+  .dt .need { color:var(--excellent-text); }
+  table.t.salons td { padding: 7px 12px; }
+  table.t.salons th { padding: 0 12px 8px; }
+
+  .gbars { display:grid; grid-template-columns: 210px repeat(6,1fr); align-items:end; height:190px; gap:10px; }
+  .gcell { display:flex; align-items:flex-end; justify-content:center; gap:7px; height:100%; }
+  .gbar  { width:40px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
+  .gbar .v { font-size:12px; font-weight:700; margin-bottom:5px; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .gbar .b { width:100%; border-radius:4px 4px 0 0; }
+  .grow-row { display:grid; grid-template-columns:210px repeat(6,1fr); gap:10px; align-items:center; padding:7px 0; }
+  .grow-row .lbl { font-size:14px; color:var(--muted-foreground); }
+  .grow-row .vl  { text-align:center; font-size:15px; font-variant-numeric:tabular-nums; }
+  .note { background:var(--muted); border-left:4px solid var(--primary); border-radius:0 12px 12px 0; padding:18px 22px; }
+  .note .q { font-size:20px; font-weight:600; line-height:1.45; }
+  .note .s { font-size:15px; color:var(--muted-foreground); margin-top:7px; line-height:1.5; }
+.ask{margin-top:auto;padding-top:14px;font-size:15px;color:var(--muted-foreground);font-style:italic;}
+.ask b{font-style:normal;font-weight:600;color:var(--foreground);}
+
+  .calc { font-size:15px; color:var(--foreground); margin-top:12px; font-variant-numeric:tabular-nums; }
+  .calc b { font-weight:700; }
+  .calc .eq { color:var(--muted-foreground); }
+  .meaning { margin-top:auto; padding-top:13px; border-top:1px solid var(--border); font-size:17px; line-height:1.45; color:var(--foreground); }
+  .meaning b { font-weight:700; }
+  .rel { display:inline-block; font-size:11px; font-weight:600; padding:1px 7px; border-radius:4px; vertical-align:middle; margin-left:7px; background:var(--good-bg); color:var(--good-text); letter-spacing:0.01em; }
+  .rel.calc { background:#EDF1FE; color:var(--primary); }
+
+  /* выравнивание блоков */
+  .slide > .body { display:flex; flex-direction:column; }
+  .slide > .body > .row:first-child,
+  .slide > .body > .card:first-child { flex:1; min-height:0; }
+  .slide .meaning { margin-top:auto; }
+  .slide .calc { margin-top:16px; }
+</style>
+
+<div class="viewport"><div class="stage" id="deck">
+
+<section class="slide cover active">
+  <div class="mark"></div>
+  <div class="eyebrow">Оптимайзер · аналитика для сетей оптик</div>
+  <h1>Анализ данных о продажах в сети «Вижу»</h1>
+  <p class="sub">Январь 2025 — октябрь 2026</p>
+  <div class="meta"><span>Сеть оптик «Вижу», Оренбургская область</span></div>
+</section>
+
+<section class="slide" style="padding-bottom:84px">
+  <div class="eyebrow">Порядок работы</div>
+  <h1>Как мы анализировали ваши данные</h1>
+  <hr class="rule">
+  <div class="body">
+    <div class="card grow" style="padding:0;display:flex;flex-direction:column;">
+      <div class="route">
+        <div class="route-head"><span></span><span>Что смотрели</span><span>На какой вопрос отвечает</span></div>
+        <div class="route-rail">
+        <div class="route-row">
+          <div class="route-n">1</div>
+          <div class="route-t">Структурировали ваши данные</div>
+          <div class="route-q"><span>Можно ли этим цифрам верить</span></div>
+        </div>
+        <div class="route-row">
+          <div class="route-n">2</div>
+          <div class="route-t">Из чего складывается выручка</div>
+          <div class="route-q"><span>Где у вас деньги</span></div>
+        </div>
+        <div class="route-row">
+          <div class="route-n">3</div>
+          <div class="route-t">Салоны и врачи между собой</div>
+          <div class="route-q"><span>Везде одинаково или нет</span></div>
+        </div>
+        <div class="route-row">
+          <div class="route-n">4</div>
+          <div class="route-t">Конверсия и чужие рецепты</div>
+          <div class="route-q"><span>Сколько людей доходит до заказа</span></div>
+        </div>
+        <div class="route-row">
+          <div class="route-n">5</div>
+          <div class="route-t">Доля ВТЛ</div>
+          <div class="route-q"><span>Какой тип линз продаётся</span></div>
+        </div>
+        <div class="route-row">
+          <div class="route-n">6</div>
+          <div class="route-t">Средний чек, оправа и скидка</div>
+          <div class="route-q"><span>Сколько остаётся с одного заказа</span></div>
+        </div>
+        <div class="route-row">
+          <div class="route-n">7</div>
+          <div class="route-t">Финмодель и план развития</div>
+          <div class="route-q"><span>Сколько это стоит и что делать</span></div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footnote">Источник: ваши выгрузки продаж и приёмов · январь 2025 — октябрь 2026 · 13 салонов</div>
+  <div class="slide-no">1</div>
+</section>
+
+<section class="slide" style="padding-bottom:84px">
+  <div class="eyebrow">Шаг 2 · Из чего складывается выручка</div>
+  <h1>Очки — 198 млн ₽ за 22 месяца, 86% выручки</h1>
+  <hr class="rule">
+  <div class="body">
+
+    <div class="card grow" style="padding:28px 28px 22px;display:flex;flex-direction:column;justify-content:center;">
+      <div style="display:flex;width:100%;height:92px;border-radius:12px;overflow:hidden;">
+        <div style="width:65%;background:var(--chart-1);display:flex;flex-direction:column;align-items:center;justify-content:center;white-space:nowrap;">
+          <span style="font-size:23px;font-weight:700;color:#fff;">Линза</span>
+          <span style="font-size:14px;font-weight:600;color:#fff;opacity:0.9;">150,3 млн · 65%</span>
+        </div>
+        <div style="width:21%;background:var(--chart-2);display:flex;flex-direction:column;align-items:center;justify-content:center;white-space:nowrap;">
+          <span style="font-size:18px;font-weight:700;color:#fff;">Оправа</span>
+          <span style="font-size:12px;font-weight:600;color:#fff;opacity:0.9;">48,1 млн · 21%</span>
+        </div>
+        <div style="width:10%;background:var(--border-strong);"></div>
+        <div style="width:4%;background:var(--border-strong);opacity:0.55;"></div>
+      </div>
+      <div style="display:flex;gap:28px;margin-top:14px;">
+        <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted-foreground);white-space:nowrap;"><span style="width:10px;height:10px;border-radius:4px;background:var(--border-strong);display:inline-block;"></span>Услуга 22,5 млн · 10% — не очки</span>
+        <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted-foreground);white-space:nowrap;"><span style="width:10px;height:10px;border-radius:4px;background:var(--border-strong);opacity:0.55;display:inline-block;"></span>Контактные 9,0 млн · 4% — не очки</span>
+      </div>
+    </div>
+
+    <div class="card grow" style="background:var(--muted);border-color:var(--border);margin-top:16px;padding:24px 28px;display:flex;flex-direction:column;justify-content:center;gap:16px;">
+      <div style="display:flex;align-items:baseline;gap:14px;">
+        <div style="font-size:21px;font-weight:700;color:var(--foreground);white-space:nowrap;">Нет закупочных цен</div>
+        <div style="font-size:15px;color:var(--muted-foreground);">нам не смогли выгрузить достоверные данные — дальше всюду оборот, не прибыль</div>
+      </div>
+      <div style="height:1px;background:var(--border);"></div>
+      <div style="display:flex;align-items:baseline;gap:14px;">
+        <div style="font-size:21px;font-weight:700;color:var(--foreground);white-space:nowrap;">Держим в уме: ~65%</div>
+        <div style="font-size:15px;color:var(--muted-foreground);">средняя валовая рентабельность по рынку оптики — ориентир, не расчёт по вашим данным</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="footnote">Источник: позиции заказов из вашей системы · январь 2025 — октябрь 2026 · 13 салонов</div>
+  <div class="slide-no">2</div>
+</section>
+
+<section class="slide" style="padding-bottom:84px">
+  <div class="eyebrow">Шаг 3 · Салоны между собой</div>
+  <h1>Та же выручка — но приёмы и деньги не растут вместе</h1>
+  <hr class="rule">
+  <div class="body">
+
+    <div class="row grow">
+
+      <div class="card" style="flex:1.65;padding:20px 24px;display:flex;flex-direction:column;justify-content:center;">
+        <div style="display:flex;gap:24px;margin-bottom:12px;">
+          <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted-foreground);"><span style="width:18px;height:8px;border-radius:4px;background:var(--border-strong);display:inline-block;"></span>Приёмов, шт</span>
+          <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted-foreground);"><span style="width:18px;height:8px;border-radius:4px;background:var(--chart-1);display:inline-block;"></span>Выручка, млн ₽</span>
+        </div>
+        <div class="pairs">
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;">
+          <div class="pair-name">Гаранькина Оренбург</div>
+          <div class="pair-bars">
+            <div class="pair-track"><div class="pair-fill" style="width:100.0%;background:var(--border-strong);"></div><span class="pair-val">1 813 шт</span></div>
+            <div class="pair-track"><div class="pair-fill" style="width:61.7%;background:var(--chart-1);"></div><span class="pair-val" style="color:var(--chart-1);font-weight:700;">14,37 млн ₽</span></div>
+          </div>
+        </div>
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;">
+          <div class="pair-name">Оренбург</div>
+          <div class="pair-bars">
+            <div class="pair-track"><div class="pair-fill" style="width:66.5%;background:var(--border-strong);"></div><span class="pair-val">1 205 шт</span></div>
+            <div class="pair-track"><div class="pair-fill" style="width:100.0%;background:var(--chart-1);"></div><span class="pair-val" style="color:var(--chart-1);font-weight:700;">23,29 млн ₽</span></div>
+          </div>
+        </div>
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;">
+          <div class="pair-name">Чайка</div>
+          <div class="pair-bars">
+            <div class="pair-track"><div class="pair-fill" style="width:53.3%;background:var(--border-strong);"></div><span class="pair-val">966 шт</span></div>
+            <div class="pair-track"><div class="pair-fill" style="width:41.2%;background:var(--chart-1);"></div><span class="pair-val" style="color:var(--chart-1);font-weight:700;">9,58 млн ₽</span></div>
+          </div>
+        </div>
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;">
+          <div class="pair-name">Кумертау</div>
+          <div class="pair-bars">
+            <div class="pair-track"><div class="pair-fill" style="width:52.0%;background:var(--border-strong);"></div><span class="pair-val">943 шт</span></div>
+            <div class="pair-track"><div class="pair-fill" style="width:31.0%;background:var(--chart-1);"></div><span class="pair-val" style="color:var(--chart-1);font-weight:700;">7,21 млн ₽</span></div>
+          </div>
+        </div>
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;">
+          <div class="pair-name">Соль-Илецк</div>
+          <div class="pair-bars">
+            <div class="pair-track"><div class="pair-fill" style="width:32.6%;background:var(--border-strong);"></div><span class="pair-val">591 шт</span></div>
+            <div class="pair-track"><div class="pair-fill" style="width:41.6%;background:var(--chart-1);"></div><span class="pair-val" style="color:var(--chart-1);font-weight:700;">9,69 млн ₽</span></div>
+          </div>
+        </div>
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;">
+          <div class="pair-name">Пролетарская, 288 Б</div>
+          <div class="pair-bars">
+            <div class="pair-track"><div class="pair-fill" style="width:32.5%;background:var(--border-strong);"></div><span class="pair-val">590 шт</span></div>
+            <div class="pair-track"><div class="pair-fill" style="width:21.6%;background:var(--chart-1);"></div><span class="pair-val" style="color:var(--chart-1);font-weight:700;">5,04 млн ₽</span></div>
+          </div>
+        </div>
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;">
+          <div class="pair-name">Сорочинск</div>
+          <div class="pair-bars">
+            <div class="pair-track"><div class="pair-fill" style="width:29.2%;background:var(--border-strong);"></div><span class="pair-val">529 шт</span></div>
+            <div class="pair-track"><div class="pair-fill" style="width:39.1%;background:var(--chart-1);"></div><span class="pair-val" style="color:var(--chart-1);font-weight:700;">9,09 млн ₽</span></div>
+          </div>
+        </div>
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;">
+          <div class="pair-name">Бузулук</div>
+          <div class="pair-bars">
+            <div class="pair-track"><div class="pair-fill" style="width:26.2%;background:var(--border-strong);"></div><span class="pair-val">475 шт</span></div>
+            <div class="pair-track"><div class="pair-fill" style="width:31.2%;background:var(--chart-1);"></div><span class="pair-val" style="color:var(--chart-1);font-weight:700;">7,26 млн ₽</span></div>
+          </div>
+        </div>
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;">
+          <div class="pair-name">Орск</div>
+          <div class="pair-bars">
+            <div class="pair-track"><div class="pair-fill" style="width:15.8%;background:var(--border-strong);"></div><span class="pair-val">287 шт</span></div>
+            <div class="pair-track"><div class="pair-fill" style="width:9.3%;background:var(--chart-1);"></div><span class="pair-val" style="color:var(--chart-1);font-weight:700;">2,17 млн ₽</span></div>
+          </div>
+        </div>
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;">
+          <div class="pair-name">Саракташ</div>
+          <div class="pair-bars">
+            <div class="pair-track"><div class="pair-fill" style="width:14.5%;background:var(--border-strong);"></div><span class="pair-val">262 шт</span></div>
+            <div class="pair-track"><div class="pair-fill" style="width:14.6%;background:var(--chart-1);"></div><span class="pair-val" style="color:var(--chart-1);font-weight:700;">3,40 млн ₽</span></div>
+          </div>
+        </div>
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;">
+          <div class="pair-name">Гай</div>
+          <div class="pair-bars">
+            <div class="pair-track"><div class="pair-fill" style="width:13.8%;background:var(--border-strong);"></div><span class="pair-val">251 шт</span></div>
+            <div class="pair-track"><div class="pair-fill" style="width:9.1%;background:var(--chart-1);"></div><span class="pair-val" style="color:var(--chart-1);font-weight:700;">2,12 млн ₽</span></div>
+          </div>
+        </div>
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;">
+          <div class="pair-name">Абдулино</div>
+          <div class="pair-bars">
+            <div class="pair-track"><div class="pair-fill" style="width:13.3%;background:var(--border-strong);"></div><span class="pair-val">241 шт</span></div>
+            <div class="pair-track"><div class="pair-fill" style="width:18.6%;background:var(--chart-1);"></div><span class="pair-val" style="color:var(--chart-1);font-weight:700;">4,32 млн ₽</span></div>
+          </div>
+        </div>
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;">
+          <div class="pair-name">Новосергиевка</div>
+          <div class="pair-bars">
+            <div class="pair-track"><div class="pair-fill" style="width:7.6%;background:var(--border-strong);"></div><span class="pair-val">137 шт</span></div>
+            <div class="pair-track"><div class="pair-fill" style="width:16.0%;background:var(--chart-1);"></div><span class="pair-val" style="color:var(--chart-1);font-weight:700;">3,74 млн ₽</span></div>
+          </div>
+        </div>
+        </div>
+      </div>
+
+      <div class="card grow" style="display:flex;flex-direction:column;justify-content:center;gap:20px;">
+        <div>
+          <div style="font-size:15px;font-weight:700;color:var(--foreground);margin-bottom:8px;">Гаранькина и Оренбург</div>
+          <div style="font-size:13.5px;line-height:1.7;color:var(--muted-foreground);">1 813 приёмов <span class="eq">→</span> 14,37 млн ₽<br>1 205 приёмов <span class="eq">→</span> <b style="color:var(--foreground);">23,29 млн ₽</b></div>
+          <div style="font-size:13.5px;font-weight:600;color:var(--chart-1);margin-top:8px;">Меньше потока — больше денег</div>
+        </div>
+        <div style="border-top:1px solid var(--border);padding-top:20px;">
+          <div style="font-size:15px;font-weight:700;color:var(--foreground);margin-bottom:8px;">Соль-Илецк и Пролетарская</div>
+          <div style="font-size:13.5px;line-height:1.7;color:var(--muted-foreground);">591 приём <span class="eq">→</span> 9,69 млн ₽<br>590 приёмов <span class="eq">→</span> <b style="color:var(--foreground);">5,04 млн ₽</b></div>
+          <div style="font-size:13.5px;font-weight:600;color:var(--chart-1);margin-top:8px;">Один и тот же поток — разница почти вдвое</div>
+        </div>
+        <div style="margin-top:4px;padding:16px 18px;background:var(--info-bg);border:1px solid var(--info);border-radius:10px;">
+          <div style="font-size:15px;font-weight:700;color:var(--foreground);">Деньги не следуют за потоком напрямую. Возможные причины:</div>
+          <div style="font-size:14.5px;font-weight:600;color:var(--foreground);margin-top:10px;line-height:1.8;">
+            <span class="eq">•</span> конверсия<br>
+            <span class="eq">•</span> средний чек
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <div class="footnote">Источник: приёмы и заказы из вашей системы · окт 2025 — авг 2026 · 13 салонов</div>
+  <div class="slide-no">3</div>
+</section>
+
+<section class="slide" style="padding-bottom:84px">
+  <div class="eyebrow">Шаг 4 · Конверсия и чужие рецепты</div>
+  <h1>Одна из причин с прошлого слайда — конверсия</h1>
+  <hr class="rule">
+  <div class="body">
+
+    <div style="display:inline-flex;align-self:flex-start;align-items:center;gap:8px;font-size:17px;font-weight:700;color:var(--info-text);background:var(--info-bg);border:1px solid var(--info);border-radius:9px;padding:10px 18px;margin-bottom:12px;">Среднемесячные цифры · достоверная выборка — окт 2025 — авг 2026 · 13 салонов</div>
+
+    <div class="row grow">
+
+      <div class="card grow" style="padding:14px 24px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+
+        <div style="width:640px;height:48px;background:var(--border-strong);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:17px;">754 приёма в месяц</div>
+
+        <div style="display:flex;align-items:center;gap:8px;margin:8px 0;">
+          <div style="width:2px;height:16px;background:var(--border-strong);border-radius:1px;"></div>
+          <div style="font-size:14.5px;font-weight:700;color:var(--foreground);">конверсия 83%</div>
+        </div>
+
+        <div style="width:532px;height:44px;background:var(--border-strong);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15.5px;">627 заказов всего в месяц</div>
+
+        <div style="display:flex;align-items:center;gap:8px;margin:8px 0;">
+          <div style="width:2px;height:16px;background:var(--border-strong);border-radius:1px;"></div>
+          <div style="font-size:14.5px;font-weight:700;color:var(--foreground);">минус <span style="color:var(--poor-text);">248</span> чужих и неподтверждённых</div>
+        </div>
+
+        <div style="width:322px;height:42px;background:var(--border-strong);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;">379 — подтверждено</div>
+
+        <div style="display:flex;align-items:center;gap:8px;margin:12px 0 0;">
+          <div style="width:2px;height:16px;background:var(--border-strong);border-radius:1px;"></div>
+        </div>
+
+        <div style="text-align:center;">
+          <div style="font-size:16px;font-weight:600;color:var(--foreground);">Реальная конверсия из приёма в заказ очков</div>
+          <div style="font-size:36px;font-weight:700;color:var(--chart-1);line-height:1.1;margin-top:4px;">52%</div>
+        </div>
+
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);text-align:center;">
+          <div style="font-size:42px;font-weight:700;color:var(--poor-text);line-height:1;">363 человека</div>
+          <div style="font-size:15px;color:var(--foreground);margin-top:5px;">в месяц уходят после приёма без заказа</div>
+        </div>
+
+      </div>
+
+      <div class="card" style="flex:0 0 400px;padding:26px 28px;display:flex;flex-direction:column;justify-content:center;">
+        <div style="font-size:13px;font-weight:600;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;">Что входит в эти цифры</div>
+
+        <div style="display:flex;gap:14px;align-items:flex-start;padding:13px 0;">
+          <div style="font-size:22px;font-weight:700;color:var(--foreground);min-width:60px;flex-shrink:0;line-height:1.1;">83%</div>
+          <div style="font-size:14.5px;line-height:1.5;color:var(--foreground);"><b>Как считают обычно</b><br><span style="color:var(--muted-foreground);">заказы делят на приёмы, без проверки, чей это пациент</span></div>
+        </div>
+
+        <div style="display:flex;gap:14px;align-items:flex-start;padding:13px 0;border-top:1px solid var(--border);">
+          <div style="font-size:22px;font-weight:700;color:var(--poor-text);min-width:60px;flex-shrink:0;line-height:1.1;">153</div>
+          <div style="font-size:14.5px;line-height:1.5;color:var(--foreground);"><b>Чужой рецепт</b><br><span style="color:var(--muted-foreground);">человек был не у вашего врача — это не ваш клиент</span></div>
+        </div>
+
+        <div style="display:flex;gap:14px;align-items:flex-start;padding:13px 0;border-top:1px solid var(--border);">
+          <div style="font-size:22px;font-weight:700;color:var(--poor-text);min-width:60px;flex-shrink:0;line-height:1.1;">95</div>
+          <div style="font-size:14.5px;line-height:1.5;color:var(--foreground);"><b>Нет приёма или старше года</b><br><span style="color:var(--muted-foreground);">доказать, что это ваш клиент, нельзя — считаем как чужого</span></div>
+        </div>
+
+        <div style="display:flex;gap:14px;align-items:flex-start;padding:13px 0;border-top:1px solid var(--border);">
+          <div style="font-size:22px;font-weight:700;color:var(--chart-1);min-width:60px;flex-shrink:0;line-height:1.1;">52%</div>
+          <div style="font-size:14.5px;line-height:1.5;color:var(--foreground);"><b>Реальная конверсия</b><br><span style="color:var(--muted-foreground);">без чужих и без неподтверждённых — то, что точно можно засчитать</span></div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <div class="footnote">Источник: приёмы и заказы из вашей системы · достоверная выборка — окт 2025 — авг 2026 · 13 салонов</div>
+  <div class="slide-no">4</div>
+</section>
+
+<section class="slide" style="padding-bottom:84px">
+  <div class="eyebrow">Шаг 4 · Конверсия по всем салонам</div>
+  <h1>В половине салонов конверсия недостоверна</h1>
+  <hr class="rule">
+  <div class="body">
+
+    <div class="row grow">
+
+      <div class="card grow" style="flex:1.7;padding:18px 22px;display:flex;flex-direction:column;justify-content:center;">
+
+        <div style="display:flex;align-items:center;gap:14px;padding:0 6px 6px;font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:var(--muted-foreground);border-bottom:1px solid var(--border);margin-bottom:4px;">
+          <div style="width:160px;flex-shrink:0;">Салон</div>
+          <div style="flex:1;">Конверсия</div>
+          <div style="width:80px;flex-shrink:0;text-align:right;">Восстановлено</div>
+          <div style="width:84px;flex-shrink:0;text-align:right;">Статус</div>
+        </div>
+
+        <div class="pairs">
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;align-items:center;">
+          <div class="pair-name">Гаранькина Оренбург</div>
+          <div class="pair-bars" style="flex:1;"><div class="pair-track"><div class="pair-fill" style="width:32%;background:var(--border-strong);"></div><span class="pair-val">32%</span></div></div>
+          <div style="width:80px;flex-shrink:0;text-align:right;font-size:12px;font-weight:700;color:var(--poor-text);">56%</div>
+          <div style="width:84px;flex-shrink:0;text-align:right;"><span class="pill poor" style="font-size:10.5px;padding:2px 8px;">проверять</span></div>
+        </div>
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;align-items:center;">
+          <div class="pair-name">Оренбург</div>
+          <div class="pair-bars" style="flex:1;"><div class="pair-track"><div class="pair-fill" style="width:55%;background:var(--border-strong);"></div><span class="pair-val">55%</span></div></div>
+          <div style="width:80px;flex-shrink:0;text-align:right;font-size:12px;color:var(--muted-foreground);">22%</div>
+          <div style="width:84px;flex-shrink:0;text-align:right;"><span class="pill excellent" style="font-size:10.5px;padding:2px 8px;">надёжно</span></div>
+        </div>
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;align-items:center;">
+          <div class="pair-name">Чайка</div>
+          <div class="pair-bars" style="flex:1;"><div class="pair-track"><div class="pair-fill" style="width:52%;background:var(--border-strong);"></div><span class="pair-val">52%</span></div></div>
+          <div style="width:80px;flex-shrink:0;text-align:right;font-size:12px;color:var(--muted-foreground);">33%</div>
+          <div style="width:84px;flex-shrink:0;text-align:right;"><span class="pill excellent" style="font-size:10.5px;padding:2px 8px;">надёжно</span></div>
+        </div>
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;align-items:center;">
+          <div class="pair-name">Кумертау</div>
+          <div class="pair-bars" style="flex:1;"><div class="pair-track"><div class="pair-fill" style="width:56%;background:var(--border-strong);"></div><span class="pair-val">56%</span></div></div>
+          <div style="width:80px;flex-shrink:0;text-align:right;font-size:12px;color:var(--muted-foreground);">3%</div>
+          <div style="width:84px;flex-shrink:0;text-align:right;"><span class="pill excellent" style="font-size:10.5px;padding:2px 8px;">надёжно</span></div>
+        </div>
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;align-items:center;">
+          <div class="pair-name">Пролетарская, 288 Б</div>
+          <div class="pair-bars" style="flex:1;"><div class="pair-track"><div class="pair-fill" style="width:48%;background:var(--border-strong);"></div><span class="pair-val">48%</span></div></div>
+          <div style="width:80px;flex-shrink:0;text-align:right;font-size:12px;color:var(--muted-foreground);">30%</div>
+          <div style="width:84px;flex-shrink:0;text-align:right;"><span class="pill excellent" style="font-size:10.5px;padding:2px 8px;">надёжно</span></div>
+        </div>
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;align-items:center;">
+          <div class="pair-name">Соль-Илецк</div>
+          <div class="pair-bars" style="flex:1;"><div class="pair-track"><div class="pair-fill" style="width:76%;background:var(--border-strong);"></div><span class="pair-val">76%</span></div></div>
+          <div style="width:80px;flex-shrink:0;text-align:right;font-size:12px;color:var(--muted-foreground);">3%</div>
+          <div style="width:84px;flex-shrink:0;text-align:right;"><span class="pill poor" style="font-size:10.5px;padding:2px 8px;">проверять</span></div>
+        </div>
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;align-items:center;">
+          <div class="pair-name">Сорочинск</div>
+          <div class="pair-bars" style="flex:1;"><div class="pair-track"><div class="pair-fill" style="width:59%;background:var(--border-strong);"></div><span class="pair-val">59%</span></div></div>
+          <div style="width:80px;flex-shrink:0;text-align:right;font-size:12px;color:var(--muted-foreground);">5%</div>
+          <div style="width:84px;flex-shrink:0;text-align:right;"><span class="pill poor" style="font-size:10.5px;padding:2px 8px;">проверять</span></div>
+        </div>
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;align-items:center;">
+          <div class="pair-name">Бузулук</div>
+          <div class="pair-bars" style="flex:1;"><div class="pair-track"><div class="pair-fill" style="width:66%;background:var(--border-strong);"></div><span class="pair-val">66%</span></div></div>
+          <div style="width:80px;flex-shrink:0;text-align:right;font-size:12px;color:var(--muted-foreground);">28%</div>
+          <div style="width:84px;flex-shrink:0;text-align:right;"><span class="pill excellent" style="font-size:10.5px;padding:2px 8px;">надёжно</span></div>
+        </div>
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;align-items:center;">
+          <div class="pair-name">Орск</div>
+          <div class="pair-bars" style="flex:1;"><div class="pair-track"><div class="pair-fill" style="width:37%;background:var(--border-strong);"></div><span class="pair-val">37%</span></div></div>
+          <div style="width:80px;flex-shrink:0;text-align:right;font-size:12px;color:var(--muted-foreground);">23%</div>
+          <div style="width:84px;flex-shrink:0;text-align:right;"><span class="pill excellent" style="font-size:10.5px;padding:2px 8px;">надёжно</span></div>
+        </div>
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;align-items:center;">
+          <div class="pair-name">Саракташ</div>
+          <div class="pair-bars" style="flex:1;"><div class="pair-track"><div class="pair-fill" style="width:65%;background:var(--border-strong);"></div><span class="pair-val">65%</span></div></div>
+          <div style="width:80px;flex-shrink:0;text-align:right;font-size:12px;font-weight:700;color:var(--poor-text);">40%</div>
+          <div style="width:84px;flex-shrink:0;text-align:right;"><span class="pill poor" style="font-size:10.5px;padding:2px 8px;">проверять</span></div>
+        </div>
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;align-items:center;">
+          <div class="pair-name">Гай</div>
+          <div class="pair-bars" style="flex:1;"><div class="pair-track"><div class="pair-fill" style="width:68%;background:var(--border-strong);"></div><span class="pair-val">68%</span></div></div>
+          <div style="width:80px;flex-shrink:0;text-align:right;font-size:12px;color:var(--muted-foreground);">24%</div>
+          <div style="width:84px;flex-shrink:0;text-align:right;"><span class="pill excellent" style="font-size:10.5px;padding:2px 8px;">надёжно</span></div>
+        </div>
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;align-items:center;">
+          <div class="pair-name">Абдулино</div>
+          <div class="pair-bars" style="flex:1;"><div class="pair-track"><div class="pair-fill" style="width:48%;background:var(--border-strong);"></div><span class="pair-val">48%</span></div></div>
+          <div style="width:80px;flex-shrink:0;text-align:right;font-size:12px;color:var(--muted-foreground);">15%</div>
+          <div style="width:84px;flex-shrink:0;text-align:right;"><span class="pill poor" style="font-size:10.5px;padding:2px 8px;">проверять</span></div>
+        </div>
+        <div class="pair-row" style="border-radius:6px;padding:3px 6px;align-items:center;">
+          <div class="pair-name">Новосергиевка</div>
+          <div class="pair-bars" style="flex:1;"><div class="pair-track"><div class="pair-fill" style="width:70%;background:var(--border-strong);"></div><span class="pair-val">70%</span></div></div>
+          <div style="width:80px;flex-shrink:0;text-align:right;font-size:12px;color:var(--muted-foreground);">12%</div>
+          <div style="width:84px;flex-shrink:0;text-align:right;"><span class="pill poor" style="font-size:10.5px;padding:2px 8px;">проверять</span></div>
+        </div>
+        </div>
+      </div>
+
+      <div class="card" style="flex:0 0 380px;padding:24px 26px;display:flex;flex-direction:column;justify-content:center;">
+        <div style="font-size:13px;font-weight:600;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;">Откуда взялась часть приёмов</div>
+
+        <div style="display:flex;gap:12px;align-items:flex-start;padding:11px 0;">
+          <div style="font-size:19px;font-weight:700;color:var(--foreground);min-width:50px;flex-shrink:0;line-height:1.1;">75%</div>
+          <div style="font-size:13.5px;line-height:1.45;color:var(--foreground);">салон был в вашей выгрузке сразу</div>
+        </div>
+
+        <div style="display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-top:1px solid var(--border);">
+          <div style="font-size:19px;font-weight:700;color:var(--foreground);min-width:50px;flex-shrink:0;line-height:1.1;">24%</div>
+          <div style="font-size:13.5px;line-height:1.45;color:var(--foreground);">восстановили — по врачу, который обычно принимает, или по заказу в тот же день</div>
+        </div>
+
+        <div style="display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-top:1px solid var(--border);">
+          <div style="font-size:19px;font-weight:700;color:var(--poor-text);min-width:50px;flex-shrink:0;line-height:1.1;">0,6%</div>
+          <div style="font-size:13.5px;line-height:1.45;color:var(--foreground);">97 записей — восстановить не удалось, исключили из расчётов</div>
+        </div>
+
+        <div style="margin-top:14px;padding:12px 16px;background:var(--muted);border-radius:10px;font-size:12.5px;line-height:1.5;color:var(--foreground);">У Гаранькиной и Саракташа салон не был указан в журнале приёма — мы определили его сами, косвенно.</div>
+
+        <div style="margin-top:8px;padding:12px 16px;background:var(--poor-bg);border:1px solid var(--poor);border-radius:10px;font-size:12.5px;line-height:1.5;color:var(--foreground);"><b style="color:var(--poor-text);">Высокий риск:</b> у Соль-Илецка, Сорочинска, Саракташа, Абдулино и Новосергиевки заказов больше, чем приёмов, — часть визитов вообще не попала в журнал.</div>
+      </div>
+
+    </div>
+
+  </div>
+  <div class="footnote">Источник: приёмы и заказы из вашей системы · достоверная выборка — окт 2025 — авг 2026 · 13 салонов</div>
+  <div class="slide-no">5</div>
+</section>
+
+<section class="slide" style="padding-bottom:84px">
+  <div class="eyebrow">Шаг 4 · Кто не фиксирует приёмы</div>
+  <h1>У одних сотрудников без приёма — 6% заказов, у других — 59%</h1>
+  <hr class="rule">
+  <div class="body">
+
+    <div class="row grow">
+
+      <div class="card grow" style="flex:1.8;padding:10px 24px;display:flex;flex-direction:column;justify-content:center;">
+        <table class="t salons" style="font-size:13px;width:100%;table-layout:fixed;">
+          <thead>
+            <tr>
+              <th style="padding:0 8px 5px;white-space:nowrap;">Салон</th>
+              <th style="padding:0 8px 5px;white-space:nowrap;">Код сотрудника</th>
+              <th style="padding:0 8px 5px;white-space:nowrap;">Заказов</th>
+              <th style="padding:0 8px 5px;white-space:nowrap;width:220px;">Без приёма в базе</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding:2px 8px;font-weight:600;white-space:nowrap;">Соль-Илецк</td>
+              <td style="padding:2px 8px;white-space:nowrap;color:var(--muted-foreground);">СОТР-37A5</td>
+              <td style="padding:2px 8px;white-space:nowrap;">284</td>
+              <td style="padding:2px 8px;white-space:nowrap;"><div style="display:flex;align-items:center;gap:10px;"><div style="width:100px;height:8px;background:var(--muted);border-radius:4px;overflow:hidden;"><div style="width:26%;height:100%;background:var(--border-strong);"></div></div>26%</div></td>
+            </tr>
+            <tr>
+              <td style="padding:2px 8px;font-weight:600;white-space:nowrap;">Соль-Илецк</td>
+              <td style="padding:2px 8px;white-space:nowrap;color:var(--muted-foreground);">СОТР-23F2</td>
+              <td style="padding:2px 8px;white-space:nowrap;">179</td>
+              <td style="padding:2px 8px;white-space:nowrap;"><div style="display:flex;align-items:center;gap:10px;"><div style="width:100px;height:8px;background:var(--muted);border-radius:4px;overflow:hidden;"><div style="width:20%;height:100%;background:var(--border-strong);"></div></div>20%</div></td>
+            </tr>
+            <tr>
+              <td style="padding:2px 8px;font-weight:600;white-space:nowrap;">Сорочинск</td>
+              <td style="padding:2px 8px;white-space:nowrap;color:var(--muted-foreground);">СОТР-67FB</td>
+              <td style="padding:2px 8px;white-space:nowrap;">270</td>
+              <td style="padding:2px 8px;white-space:nowrap;"><div style="display:flex;align-items:center;gap:10px;"><div style="width:100px;height:8px;background:var(--muted);border-radius:4px;overflow:hidden;"><div style="width:6%;height:100%;background:var(--border-strong);"></div></div>6%</div></td>
+            </tr>
+            <tr>
+              <td style="padding:2px 8px;font-weight:600;white-space:nowrap;">Сорочинск</td>
+              <td style="padding:2px 8px;white-space:nowrap;color:var(--muted-foreground);">СОТР-CEF8</td>
+              <td style="padding:2px 8px;white-space:nowrap;">225</td>
+              <td style="padding:2px 8px;white-space:nowrap;"><div style="display:flex;align-items:center;gap:10px;"><div style="width:100px;height:8px;background:var(--muted);border-radius:4px;overflow:hidden;"><div style="width:59%;height:100%;background:var(--poor);"></div></div><b style="color:var(--poor-text);">59%</b></div></td>
+            </tr>
+            <tr>
+              <td style="padding:2px 8px;font-weight:600;white-space:nowrap;">Саракташ</td>
+              <td style="padding:2px 8px;white-space:nowrap;color:var(--muted-foreground);">СОТР-463E</td>
+              <td style="padding:2px 8px;white-space:nowrap;">155</td>
+              <td style="padding:2px 8px;white-space:nowrap;"><div style="display:flex;align-items:center;gap:10px;"><div style="width:100px;height:8px;background:var(--muted);border-radius:4px;overflow:hidden;"><div style="width:32%;height:100%;background:var(--poor);"></div></div><b style="color:var(--poor-text);">32%</b></div></td>
+            </tr>
+            <tr>
+              <td style="padding:2px 8px;font-weight:600;white-space:nowrap;">Саракташ</td>
+              <td style="padding:2px 8px;white-space:nowrap;color:var(--muted-foreground);">СОТР-2945</td>
+              <td style="padding:2px 8px;white-space:nowrap;">80</td>
+              <td style="padding:2px 8px;white-space:nowrap;"><div style="display:flex;align-items:center;gap:10px;"><div style="width:100px;height:8px;background:var(--muted);border-radius:4px;overflow:hidden;"><div style="width:20%;height:100%;background:var(--border-strong);"></div></div>20%</div></td>
+            </tr>
+            <tr>
+              <td style="padding:2px 8px;font-weight:600;white-space:nowrap;">Абдулино</td>
+              <td style="padding:2px 8px;white-space:nowrap;color:var(--muted-foreground);">СОТР-CBE4</td>
+              <td style="padding:2px 8px;white-space:nowrap;">73</td>
+              <td style="padding:2px 8px;white-space:nowrap;"><div style="display:flex;align-items:center;gap:10px;"><div style="width:100px;height:8px;background:var(--muted);border-radius:4px;overflow:hidden;"><div style="width:29%;height:100%;background:var(--border-strong);"></div></div>29%</div></td>
+            </tr>
+            <tr>
+              <td style="padding:2px 8px;font-weight:600;white-space:nowrap;">Абдулино</td>
+              <td style="padding:2px 8px;white-space:nowrap;color:var(--muted-foreground);">СОТР-5248</td>
+              <td style="padding:2px 8px;white-space:nowrap;">54</td>
+              <td style="padding:2px 8px;white-space:nowrap;"><div style="display:flex;align-items:center;gap:10px;"><div style="width:100px;height:8px;background:var(--muted);border-radius:4px;overflow:hidden;"><div style="width:7%;height:100%;background:var(--border-strong);"></div></div>7%</div></td>
+            </tr>
+            <tr>
+              <td style="padding:2px 8px;font-weight:600;white-space:nowrap;">Новосергиевка</td>
+              <td style="padding:2px 8px;white-space:nowrap;color:var(--muted-foreground);">СОТР-342C</td>
+              <td style="padding:2px 8px;white-space:nowrap;">202</td>
+              <td style="padding:2px 8px;white-space:nowrap;"><div style="display:flex;align-items:center;gap:10px;"><div style="width:100px;height:8px;background:var(--muted);border-radius:4px;overflow:hidden;"><div style="width:51%;height:100%;background:var(--poor);"></div></div><b style="color:var(--poor-text);">51%</b></div></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="calc" style="margin-top:8px;font-size:14px;">В Сорочинске у двух сотрудников один и тот же салон, один список клиентов — а без приёма <b>6%</b> заказов против <b>59%</b>. Дело не в месте, а в человеке.</div>
+      </div>
+
+      <div class="card grow" style="padding:24px 26px;display:flex;flex-direction:column;justify-content:center;gap:10px;">
+        <div style="padding:12px 16px;background:var(--muted);border-radius:10px;font-size:13px;line-height:1.55;color:var(--foreground);">Точную конверсию у этих сотрудников посчитать нельзя — приёмы занижены, можно сделать неверный вывод.</div>
+
+        <div style="padding:12px 16px;background:var(--poor-bg);border:1px solid var(--poor);border-radius:10px;font-size:13px;line-height:1.55;color:var(--foreground);">Но то, что часть заказов проходит вообще без приёма в базе, — это <b style="color:var(--poor-text);">точно потенциальная точка потерь</b>, с которой стоит разобраться на месте.</div>
+      </div>
+
+    </div>
+
+  </div>
+  <div class="footnote">Источник: приёмы и заказы из вашей системы · достоверная выборка — окт 2025 — авг 2026 · 5 салонов · таблицу «код — сотрудник» предоставим отдельно</div>
+  <div class="slide-no">6</div>
+</section>
+
+<section class="slide" style="padding-bottom:84px">
+  <div class="eyebrow">Шаг 4 · Точка потерь — конверсия</div>
+  <h1>До нормы — ~26 млн ₽ валовой прибыли в год</h1>
+  <hr class="rule">
+  <div class="body">
+
+    <div style="display:inline-flex;align-self:flex-start;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--foreground);background:var(--muted);border-radius:9px;padding:7px 14px;margin-bottom:10px;">Норма — 80% (у части приёмов зрение не меняется, новые очки не нужны) · сейчас — 52%</div>
+
+    <div class="row grow">
+
+      <div class="card grow" style="padding:22px 26px;display:flex;flex-direction:column;justify-content:center;">
+
+        <div style="display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-size:14px;color:var(--muted-foreground);">Приёмов в месяц</span>
+          <span style="font-size:20px;font-weight:700;color:var(--foreground);">754</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;">
+          <span style="font-size:14px;color:var(--muted-foreground);">Заказов при норме 80%</span>
+          <span style="font-size:20px;font-weight:700;color:var(--chart-1);">603</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;">
+          <span style="font-size:14px;color:var(--muted-foreground);">Подтверждено сейчас (52%)</span>
+          <span style="font-size:20px;font-weight:700;color:var(--foreground);">379</span>
+        </div>
+
+        <div style="height:1px;background:var(--border);margin:14px 0;"></div>
+
+        <div style="display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-size:14.5px;font-weight:600;color:var(--foreground);">Разрыв в заказах</span>
+          <span style="font-size:24px;font-weight:700;color:var(--poor-text);">224/мес</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;">
+          <span style="font-size:14.5px;font-weight:600;color:var(--foreground);">× средний чек с очками</span>
+          <span style="font-size:24px;font-weight:700;color:var(--foreground);">14 676 ₽</span>
+        </div>
+
+        <div style="margin-top:18px;padding:12px 14px;background:var(--muted);border-radius:9px;font-size:12px;line-height:1.5;color:var(--muted-foreground);">Норма 80% — допущение, не измерение. Часть приёмов (24%) восстановлена нами, не из журнала, — с этим расчётом стоит быть аккуратнее, чем с остальными цифрами презентации.</div>
+      </div>
+
+      <div class="card grow" style="padding:24px 28px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;">
+
+        <div style="font-size:14px;color:var(--muted-foreground);">Потенциал по выручке</div>
+        <div style="font-size:32px;font-weight:700;color:var(--foreground);margin-top:4px;">39,5 млн ₽ <span style="font-size:16px;font-weight:500;color:var(--muted-foreground);">в год</span></div>
+
+        <div style="width:100%;height:1px;background:var(--border);margin:18px 0;"></div>
+
+        <div style="font-size:14px;color:var(--muted-foreground);">Потенциал по валовой прибыли</div>
+        <div style="font-size:11.5px;color:var(--muted-foreground);margin-top:3px;max-width:230px;line-height:1.4;">ориентир ~65% — средняя рентабельность рынка оптики, не расчёт по вашим закупочным ценам</div>
+        <div style="font-size:60px;font-weight:700;color:var(--chart-1);line-height:1;margin-top:12px;">25,7 млн ₽</div>
+        <div style="font-size:14.5px;color:var(--foreground);margin-top:6px;font-weight:600;">в год — если довести конверсию до нормы</div>
+      </div>
+
+    </div>
+
+  </div>
+  <div class="footnote">Источник: приёмы и заказы из вашей системы · достоверная выборка — окт 2025 — авг 2026 · 13 салонов</div>
+  <div class="slide-no">7</div>
+</section>
+
+<section class="slide" style="padding-bottom:84px">
+  <div class="eyebrow">Вторая точка потерь · Средний чек</div>
+  <h1>Свой и чужой рецепт нельзя считать одним чеком</h1>
+  <hr class="rule">
+  <div class="body">
+
+    <div class="row grow">
+
+      <div class="card grow" style="display:flex;flex-direction:column;justify-content:center;padding:26px 30px;">
+        <div style="font-size:14px;font-weight:600;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:18px;">Почему важно считать раздельно</div>
+        <div style="font-size:16px;line-height:1.7;color:var(--foreground);">Хорошую линзу рекомендует врач — и человек соглашается, если доверяет. Доверие строится только на приёме, в кабинете.</div>
+        <div style="font-size:16px;line-height:1.7;color:var(--foreground);margin-top:14px;">«Чужой» рецепт — человек не был у вашего врача. Рекомендации не было — апгрейда чаще всего тоже.</div>
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);font-size:15px;font-weight:600;color:var(--foreground);">Если считать чек вместе — средняя цифра смажет обе картины. Дальше в презентации считаем раздельно.</div>
+      </div>
+
+      <div class="card grow" style="padding:24px 28px;display:flex;flex-direction:column;justify-content:center;">
+
+        <div style="display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-size:16px;font-weight:600;color:var(--foreground);">Свой рецепт</span>
+          <span style="font-size:34px;font-weight:700;color:var(--chart-1);">15 546 ₽</span>
+        </div>
+        <div style="font-size:13px;color:var(--muted-foreground);margin-top:4px;">ВТЛ в 35% заказов</div>
+
+        <div style="height:1px;background:var(--border);margin:18px 0;"></div>
+
+        <div style="display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-size:16px;font-weight:600;color:var(--foreground);">Чужой рецепт</span>
+          <span style="font-size:34px;font-weight:700;color:var(--foreground);">12 478 ₽</span>
+        </div>
+        <div style="font-size:13px;color:var(--muted-foreground);margin-top:4px;">ВТЛ в 23% заказов</div>
+
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);text-align:center;">
+          <div style="font-size:14px;color:var(--muted-foreground);">Разница</div>
+          <div style="font-size:30px;font-weight:700;color:var(--poor-text);margin-top:2px;">3 068 ₽ <span style="font-size:16px;font-weight:600;">· +25%</span></div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <div class="footnote">Источник: заказы из вашей системы · достоверная выборка — окт 2025 — авг 2026 · 13 салонов</div>
+  <div class="slide-no">8</div>
+</section>
+
+<section class="slide" style="padding-bottom:84px">
+  <div class="eyebrow">Внутри чека · Кто продаёт ВТЛ</div>
+  <h1>ВТЛ продают от 17% до 57% — зависит от врача</h1>
+  <hr class="rule">
+  <div class="body">
+
+    <div class="row grow">
+
+      <div class="card grow" style="flex:1.8;padding:14px 24px;display:flex;flex-direction:column;justify-content:center;">
+        <table class="t salons" style="font-size:12.5px;width:100%;table-layout:fixed;">
+          <thead>
+            <tr>
+              <th style="padding:0 6px 6px;white-space:nowrap;">Салон</th>
+              <th style="padding:0 6px 6px;white-space:nowrap;width:92px;">Код врача</th>
+              <th style="padding:0 6px 6px;white-space:nowrap;width:88px;">Заказов/мес</th>
+              <th style="padding:0 6px 6px;white-space:nowrap;width:150px;">ВТЛ</th>
+              <th style="padding:0 6px 6px;white-space:nowrap;width:84px;">Конверсия</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="padding:5px 6px;font-weight:600;white-space:nowrap;">Гаранькина</td><td style="padding:5px 6px;white-space:nowrap;color:var(--muted-foreground);">СОТР-A920</td><td style="padding:5px 6px;white-space:nowrap;">26</td><td style="padding:5px 6px;white-space:nowrap;"><div style="display:flex;align-items:center;gap:8px;"><div style="width:70px;height:8px;background:var(--muted);border-radius:4px;overflow:hidden;"><div style="width:57%;height:100%;background:var(--chart-1);"></div></div><b>57%</b></div></td><td style="padding:5px 6px;white-space:nowrap;">30%</td></tr>
+            <tr><td style="padding:5px 6px;font-weight:600;white-space:nowrap;">Гаранькина</td><td style="padding:5px 6px;white-space:nowrap;color:var(--muted-foreground);">СОТР-5994</td><td style="padding:5px 6px;white-space:nowrap;">25</td><td style="padding:5px 6px;white-space:nowrap;"><div style="display:flex;align-items:center;gap:8px;"><div style="width:70px;height:8px;background:var(--muted);border-radius:4px;overflow:hidden;"><div style="width:56%;height:100%;background:var(--chart-1);"></div></div>56%</div></td><td style="padding:5px 6px;white-space:nowrap;">37%</td></tr>
+            <tr><td style="padding:5px 6px;font-weight:600;white-space:nowrap;">Чайка</td><td style="padding:5px 6px;white-space:nowrap;color:var(--muted-foreground);">СОТР-2064</td><td style="padding:5px 6px;white-space:nowrap;">26</td><td style="padding:5px 6px;white-space:nowrap;"><div style="display:flex;align-items:center;gap:8px;"><div style="width:70px;height:8px;background:var(--muted);border-radius:4px;overflow:hidden;"><div style="width:54%;height:100%;background:var(--border-strong);"></div></div>54%</div></td><td style="padding:5px 6px;white-space:nowrap;">55%</td></tr>
+            <tr><td style="padding:5px 6px;font-weight:600;white-space:nowrap;">Оренбург</td><td style="padding:5px 6px;white-space:nowrap;color:var(--muted-foreground);">СОТР-9ED4</td><td style="padding:5px 6px;white-space:nowrap;">48</td><td style="padding:5px 6px;white-space:nowrap;"><div style="display:flex;align-items:center;gap:8px;"><div style="width:70px;height:8px;background:var(--muted);border-radius:4px;overflow:hidden;"><div style="width:46%;height:100%;background:var(--border-strong);"></div></div>46%</div></td><td style="padding:5px 6px;white-space:nowrap;">64%</td></tr>
+            <tr><td style="padding:5px 6px;font-weight:600;white-space:nowrap;">Чайка</td><td style="padding:5px 6px;white-space:nowrap;color:var(--muted-foreground);">СОТР-02AF</td><td style="padding:5px 6px;white-space:nowrap;">23</td><td style="padding:5px 6px;white-space:nowrap;"><div style="display:flex;align-items:center;gap:8px;"><div style="width:70px;height:8px;background:var(--muted);border-radius:4px;overflow:hidden;"><div style="width:46%;height:100%;background:var(--border-strong);"></div></div>46%</div></td><td style="padding:5px 6px;white-space:nowrap;">53%</td></tr>
+            <tr><td style="padding:5px 6px;font-weight:600;white-space:nowrap;">Оренбург</td><td style="padding:5px 6px;white-space:nowrap;color:var(--muted-foreground);">СОТР-327F</td><td style="padding:5px 6px;white-space:nowrap;">34</td><td style="padding:5px 6px;white-space:nowrap;"><div style="display:flex;align-items:center;gap:8px;"><div style="width:70px;height:8px;background:var(--muted);border-radius:4px;overflow:hidden;"><div style="width:45%;height:100%;background:var(--border-strong);"></div></div>45%</div></td><td style="padding:5px 6px;white-space:nowrap;">62%</td></tr>
+            <tr><td style="padding:5px 6px;font-weight:600;white-space:nowrap;">Кумертау</td><td style="padding:5px 6px;white-space:nowrap;color:var(--muted-foreground);">СОТР-6C00</td><td style="padding:5px 6px;white-space:nowrap;">51</td><td style="padding:5px 6px;white-space:nowrap;"><div style="display:flex;align-items:center;gap:8px;"><div style="width:70px;height:8px;background:var(--muted);border-radius:4px;overflow:hidden;"><div style="width:22%;height:100%;background:var(--border-strong);"></div></div>22%</div></td><td style="padding:5px 6px;white-space:nowrap;">63%</td></tr>
+            <tr><td style="padding:5px 6px;font-weight:600;white-space:nowrap;">Новосергиевка</td><td style="padding:5px 6px;white-space:nowrap;color:var(--muted-foreground);">СОТР-342C</td><td style="padding:5px 6px;white-space:nowrap;">32</td><td style="padding:5px 6px;white-space:nowrap;"><div style="display:flex;align-items:center;gap:8px;"><div style="width:70px;height:8px;background:var(--muted);border-radius:4px;overflow:hidden;"><div style="width:21%;height:100%;background:var(--border-strong);"></div></div>21%</div></td><td style="padding:5px 6px;white-space:nowrap;">73%</td></tr>
+            <tr><td style="padding:5px 6px;font-weight:600;white-space:nowrap;">Сорочинск</td><td style="padding:5px 6px;white-space:nowrap;color:var(--muted-foreground);">СОТР-67FB</td><td style="padding:5px 6px;white-space:nowrap;">25</td><td style="padding:5px 6px;white-space:nowrap;"><div style="display:flex;align-items:center;gap:8px;"><div style="width:70px;height:8px;background:var(--muted);border-radius:4px;overflow:hidden;"><div style="width:21%;height:100%;background:var(--border-strong);"></div></div>21%</div></td><td style="padding:5px 6px;white-space:nowrap;">71%</td></tr>
+            <tr><td style="padding:5px 6px;font-weight:600;white-space:nowrap;">Соль-Илецк</td><td style="padding:5px 6px;white-space:nowrap;color:var(--muted-foreground);">СОТР-37A5</td><td style="padding:5px 6px;white-space:nowrap;">24</td><td style="padding:5px 6px;white-space:nowrap;"><div style="display:flex;align-items:center;gap:8px;"><div style="width:70px;height:8px;background:var(--muted);border-radius:4px;overflow:hidden;"><div style="width:20%;height:100%;background:var(--border-strong);"></div></div>20%</div></td><td style="padding:5px 6px;white-space:nowrap;"><b style="color:var(--chart-1);">93%</b></td></tr>
+            <tr><td style="padding:5px 6px;font-weight:600;white-space:nowrap;">Бузулук</td><td style="padding:5px 6px;white-space:nowrap;color:var(--muted-foreground);">СОТР-71FD</td><td style="padding:5px 6px;white-space:nowrap;">16</td><td style="padding:5px 6px;white-space:nowrap;"><div style="display:flex;align-items:center;gap:8px;"><div style="width:70px;height:8px;background:var(--muted);border-radius:4px;overflow:hidden;"><div style="width:18%;height:100%;background:var(--border-strong);"></div></div>18%</div></td><td style="padding:5px 6px;white-space:nowrap;">69%</td></tr>
+            <tr><td style="padding:5px 6px;font-weight:600;white-space:nowrap;">Сорочинск</td><td style="padding:5px 6px;white-space:nowrap;color:var(--muted-foreground);">СОТР-CEF8</td><td style="padding:5px 6px;white-space:nowrap;">29</td><td style="padding:5px 6px;white-space:nowrap;"><div style="display:flex;align-items:center;gap:8px;"><div style="width:70px;height:8px;background:var(--muted);border-radius:4px;overflow:hidden;"><div style="width:17%;height:100%;background:var(--poor);"></div></div><b style="color:var(--poor-text);">17%</b></div></td><td style="padding:5px 6px;white-space:nowrap;">43%</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card grow" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px 24px;">
+        <div class="kpi-label">ВТЛ не двигает конверсию</div>
+        <div style="display:flex;align-items:baseline;gap:14px;margin-top:12px;">
+          <div style="text-align:center;">
+            <div style="font-size:34px;font-weight:700;color:var(--foreground);line-height:1;">53%</div>
+            <div style="font-size:11.5px;color:var(--muted-foreground);margin-top:4px;max-width:100px;line-height:1.3;">у врачей, кто рекомендует ВТЛ чаще</div>
+          </div>
+          <div style="font-size:16px;color:var(--border-strong);">≈</div>
+          <div style="text-align:center;">
+            <div style="font-size:34px;font-weight:700;color:var(--foreground);line-height:1;">52%</div>
+            <div style="font-size:11.5px;color:var(--muted-foreground);margin-top:4px;max-width:100px;line-height:1.3;">у врачей, кто рекомендует реже</div>
+          </div>
+        </div>
+        <div style="font-size:14px;line-height:1.6;color:var(--foreground);margin-top:20px;max-width:230px;">Конверсия у них почти одинаковая. Рекомендовать ВТЛ и доводить приём до заказа — разные навыки.</div>
+        <div style="font-size:12px;color:var(--muted-foreground);margin-top:14px;max-width:220px;line-height:1.5;">сравнение по 68 врачам, у кого есть обе цифры</div>
+      </div>
+
+    </div>
+
+  </div>
+  <div class="footnote">Источник: заказы и приёмы из вашей системы · весь период данных (янв 2025 — окт 2026) · 13 салонов</div>
+  <div class="slide-no">9</div>
+</section>
+
+<section class="slide" style="padding-bottom:84px">
+  <div class="eyebrow">Внутри чека · Самая дорогая группа</div>
+  <h1>90 из 100 40+ уходят без прогрессивов или офисов</h1>
+  <hr class="rule">
+  <div class="body">
+
+    <div style="display:inline-flex;align-self:flex-start;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--foreground);background:var(--muted);border-radius:9px;padding:7px 14px;margin-bottom:10px;">Внутри ВТЛ — самая дорогая группа, и нужна она именно клиентам 40+: прогрессивы и офисные линзы</div>
+
+    <div class="row grow">
+
+      <div class="card grow" style="display:flex;flex-direction:column;justify-content:center;padding:26px 30px;">
+        <div style="font-size:14px;font-weight:600;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:18px;">Почему это важно</div>
+        <div style="font-size:16px;line-height:1.7;color:var(--foreground);">После 40 лет зрение вблизи ухудшается почти у всех — это возрастная норма, не исключение. Прогрессивная или офисная линза решает именно эту проблему: одна пара очков вместо отдельных для дали и для чтения.</div>
+        <div style="font-size:16px;line-height:1.7;color:var(--foreground);margin-top:14px;">Эту линзу должен предложить врач. Если предложения не было или его не довели до конца — человек уходит с обычной линзой, хотя мог бы взять то, что ему действительно нужно.</div>
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);font-size:15px;font-weight:600;color:var(--foreground);">Оренбург уже на 22,4% — рядом с нормой. Отраслевая норма — 30%: не менее 30% клиентов 40+ должны уходить с прогрессивом или офисной линзой, а не со склада.</div>
+      </div>
+
+      <div class="card grow" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px 24px;">
+
+        <div style="font-size:60px;font-weight:700;color:var(--poor-text);line-height:1;">90 из 100</div>
+        <div style="font-size:15px;color:var(--foreground);margin-top:8px;font-weight:600;">уходят без прогрессивной или офисной линзы</div>
+
+        <div style="display:flex;align-items:center;gap:14px;margin-top:22px;">
+          <div style="text-align:center;">
+            <div style="font-size:12px;color:var(--muted-foreground);">Сейчас</div>
+            <div style="font-size:21px;font-weight:700;color:var(--foreground);margin-top:3px;">10,5%</div>
+          </div>
+          <div style="font-size:16px;color:var(--border-strong);">→</div>
+          <div style="text-align:center;">
+            <div style="font-size:12px;color:var(--muted-foreground);">Оренбург</div>
+            <div style="font-size:21px;font-weight:700;color:var(--foreground);margin-top:3px;">22,4%</div>
+          </div>
+          <div style="font-size:16px;color:var(--border-strong);">→</div>
+          <div style="text-align:center;">
+            <div style="font-size:12px;color:var(--muted-foreground);">Норма отрасли</div>
+            <div style="font-size:21px;font-weight:700;color:var(--chart-1);margin-top:3px;">30%</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);text-align:center;">
+          <div style="font-size:13px;color:var(--muted-foreground);">Разница в чеке</div>
+          <div style="display:flex;align-items:baseline;gap:10px;justify-content:center;margin-top:5px;">
+            <span style="font-size:22px;font-weight:700;color:var(--chart-1);">41 175 ₽</span>
+            <span style="font-size:18px;color:var(--border-strong);">—</span>
+            <span style="font-size:22px;font-weight:700;color:var(--foreground);">9 489 ₽</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+  <div class="footnote">Источник: заказы из вашей системы, прогрессивы и офисные линзы по бренду в позициях · окт 2025 — авг 2026 · 13 салонов</div>
+  <div class="slide-no">10</div>
+</section>
+
+<section class="slide" style="padding-bottom:84px">
+  <div class="eyebrow">Вторая точка потерь · Цена разрыва</div>
+  <h1>До нормы — ~15,6 млн ₽ валовой прибыли в год</h1>
+  <hr class="rule">
+  <div class="body">
+
+    <div style="display:inline-flex;align-self:flex-start;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--foreground);background:var(--muted);border-radius:9px;padding:7px 14px;margin-bottom:10px;">Норма — 50% (у лучших врачей сети уже 55–60%) · сейчас — 32%</div>
+
+    <div class="row grow">
+
+      <div class="card grow" style="padding:22px 26px;display:flex;flex-direction:column;justify-content:center;">
+
+        <div style="display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-size:14px;color:var(--muted-foreground);">Заказов в месяц</span>
+          <span style="font-size:20px;font-weight:700;color:var(--foreground);">627</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;">
+          <span style="font-size:14px;color:var(--muted-foreground);">Заказов с ВТЛ при норме 50%</span>
+          <span style="font-size:20px;font-weight:700;color:var(--chart-1);">314</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;">
+          <span style="font-size:14px;color:var(--muted-foreground);">Подтверждено сейчас (32%)</span>
+          <span style="font-size:20px;font-weight:700;color:var(--foreground);">201</span>
+        </div>
+
+        <div style="height:1px;background:var(--border);margin:14px 0;"></div>
+
+        <div style="display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-size:14.5px;font-weight:600;color:var(--foreground);">Разрыв в заказах</span>
+          <span style="font-size:24px;font-weight:700;color:var(--poor-text);">113/мес</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;">
+          <span style="font-size:14.5px;font-weight:600;color:var(--foreground);">× разница чека линз</span>
+          <span style="font-size:24px;font-weight:700;color:var(--foreground);">17 708 ₽</span>
+        </div>
+
+        <div style="margin-top:18px;padding:12px 14px;background:var(--muted);border-radius:9px;font-size:12px;line-height:1.5;color:var(--muted-foreground);">Норма 50% — допущение, не измерение: часть заказов и правда не нуждается в технологичной линзе. Пересекается с прогрессивами 40+ (слайд 10) — не отдельные деньги поверх общего итога, а более широкий взгляд на ту же причину.</div>
+      </div>
+
+      <div class="card grow" style="padding:24px 28px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;">
+
+        <div style="font-size:14px;color:var(--muted-foreground);">Потенциал по выручке</div>
+        <div style="font-size:32px;font-weight:700;color:var(--foreground);margin-top:4px;">24,0 млн ₽ <span style="font-size:16px;font-weight:500;color:var(--muted-foreground);">в год</span></div>
+
+        <div style="width:100%;height:1px;background:var(--border);margin:18px 0;"></div>
+
+        <div style="font-size:14px;color:var(--muted-foreground);">Потенциал по валовой прибыли</div>
+        <div style="font-size:11.5px;color:var(--muted-foreground);margin-top:3px;max-width:230px;line-height:1.4;">ориентир ~65% — средняя рентабельность рынка оптики, не расчёт по вашим закупочным ценам</div>
+        <div style="font-size:60px;font-weight:700;color:var(--chart-1);line-height:1;margin-top:12px;">15,6 млн ₽</div>
+        <div style="font-size:14.5px;color:var(--foreground);margin-top:6px;font-weight:600;">в год — если довести ВТЛ до нормы</div>
+      </div>
+
+    </div>
+
+  </div>
+  <div class="footnote">Источник: заказы из вашей системы · достоверная выборка — окт 2025 — авг 2026 · 13 салонов</div>
+  <div class="slide-no">11</div>
+</section>
+
+<section class="slide" style="padding-bottom:84px">
+  <div class="eyebrow">Точка потерь поменьше · Скидка</div>
+  <h1>Цена выросла на 22%, в кассе — только на 17%</h1>
+  <hr class="rule">
+  <div class="body">
+
+    <div class="row grow">
+
+      <div class="card grow" style="flex:1.1;padding:20px 24px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+
+        <div style="display:flex;align-items:center;gap:22px;">
+          <div style="text-align:center;">
+            <div style="font-size:13px;font-weight:700;color:var(--muted-foreground);margin-bottom:8px;">2025, янв—сен</div>
+            <div style="font-size:12px;color:var(--muted-foreground);">до скидки</div>
+            <div style="font-size:19px;font-weight:700;color:var(--foreground);">14 648 ₽</div>
+            <div style="font-size:11.5px;color:var(--poor-text);margin-top:3px;">скидка 11,8%</div>
+            <div style="height:1px;background:var(--border);margin:7px 0;"></div>
+            <div style="font-size:12px;color:var(--muted-foreground);">в кассе</div>
+            <div style="font-size:23px;font-weight:700;color:var(--foreground);">12 926 ₽</div>
+          </div>
+          <div style="font-size:20px;color:var(--border-strong);">→</div>
+          <div style="text-align:center;">
+            <div style="font-size:13px;font-weight:700;color:var(--muted-foreground);margin-bottom:8px;">2026, янв—сен</div>
+            <div style="font-size:12px;color:var(--muted-foreground);">до скидки</div>
+            <div style="font-size:19px;font-weight:700;color:var(--chart-1);">17 868 ₽</div>
+            <div style="font-size:11.5px;color:var(--poor-text);margin-top:3px;">скидка 15,5%</div>
+            <div style="height:1px;background:var(--border);margin:7px 0;"></div>
+            <div style="font-size:12px;color:var(--muted-foreground);">в кассе</div>
+            <div style="font-size:23px;font-weight:700;color:var(--chart-1);">15 098 ₽</div>
+          </div>
+        </div>
+
+        <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:20px;">
+          <div style="text-align:center;">
+            <div style="font-size:11.5px;color:var(--muted-foreground);">Рост цены</div>
+            <div style="font-size:19px;font-weight:700;color:var(--foreground);">+22,0%</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:11.5px;color:var(--muted-foreground);">Рост в кассе</div>
+            <div style="font-size:19px;font-weight:700;color:var(--foreground);">+16,8%</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:11.5px;color:var(--muted-foreground);">Скидка съела</div>
+            <div style="font-size:19px;font-weight:700;color:var(--poor-text);">33%</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="card grow" style="padding:14px 20px;display:flex;flex-direction:column;justify-content:center;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+          <div style="font-size:14px;font-weight:600;">Скидка от цены, по месяцам</div>
+          <div style="font-size:11px;color:var(--muted-foreground);">шкала 5–20</div>
+        </div>
+        <svg viewBox="0 0 300 190" style="width:100%;height:188px;display:block;">
+          <line x1="18" y1="117.8" x2="282" y2="117.8" stroke="var(--border-strong)" stroke-dasharray="4 3"/>
+          <polyline points="18.0,117.8 31.9,106.2 45.8,78.1 59.7,81.4 73.6,88.8 87.5,97.1 101.4,95.4 115.3,98.7 129.2,92.1 143.1,80.6 156.9,96.3 170.8,78.9 184.7,71.5 198.6,73.9 212.5,62.4 226.4,73.9 240.3,67.3 254.2,71.5 268.1,55.8 282.0,50.8" fill="none" stroke="var(--poor)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="18" cy="117.8" r="3.4" fill="var(--poor)"/>
+          <circle cx="282" cy="50.8" r="3.4" fill="var(--poor)"/>
+          <text x="18" y="134.8" font-size="13" font-weight="700" fill="var(--poor)">8,9%</text>
+          <text x="282" y="41.8" font-size="13" font-weight="700" fill="var(--poor)" text-anchor="end">17%</text>
+          <text x="18" y="172" font-size="11" fill="var(--muted-foreground)">янв 25</text>
+          <text x="282" y="172" font-size="11" fill="var(--muted-foreground)" text-anchor="end">авг 26</text>
+        </svg>
+      </div>
+
+    </div>
+
+    <div class="calc">14 648 ₽ <span class="eq">→</span> 17 868 ₽ <span class="eq">=</span> цена <b>+22,0%</b>, а в кассе — только <b>+16,8%</b>: скидка съела 1 048 ₽ из 3 220 прироста.</div>
+    <div class="meaning">Скидка росла каждый месяц двадцать месяцев подряд — это не разовая акция, а тренд, который сам не остановится. Разброс большой: в Бузулуке скидка — 6,5%, у большинства остальных — 15–18%. Это решение каждого салона, а не общая политика.</div>
+
+  </div>
+  <div class="footnote">Источник: заказы из вашей системы · чек: январь—сентябрь 2025 к 2026 · скидка по месяцам: янв 2025 — авг 2026 · 13 салонов</div>
+  <div class="slide-no">12</div>
+</section>
+
+<section class="slide" style="padding-bottom:84px">
+  <div class="eyebrow">Точка потерь поменьше · Оправа</div>
+  <h1>В Оренбурге 22% заказов — без оправы вообще</h1>
+  <hr class="rule">
+  <div class="body">
+
+    <div style="display:inline-flex;align-self:flex-start;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--foreground);background:var(--muted);border-radius:9px;padding:7px 14px;margin-bottom:10px;">Заказы с очками · достоверная выборка — окт 2025 — авг 2026 · 13 салонов</div>
+
+    <div class="row grow">
+
+      <div class="card grow" style="padding:18px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <div style="font-size:13px;font-weight:600;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:0.03em;">Доля заказов без оправы вообще</div>
+        <div style="display:flex;align-items:center;gap:26px;margin-top:14px;">
+          <div style="text-align:center;">
+            <div style="font-size:14px;color:var(--muted-foreground);">Оренбург</div>
+            <div style="font-size:44px;font-weight:700;color:var(--poor-text);line-height:1;margin-top:6px;">22%</div>
+          </div>
+          <div style="font-size:18px;color:var(--border-strong);">vs</div>
+          <div style="text-align:center;">
+            <div style="font-size:14px;color:var(--muted-foreground);">В среднем по сети</div>
+            <div style="font-size:44px;font-weight:700;color:var(--foreground);line-height:1;margin-top:6px;">12,4%</div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:var(--muted-foreground);margin-top:14px;">почти вдвое выше сетевого уровня</div>
+      </div>
+
+      <div class="card grow" style="padding:18px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <div style="font-size:13px;font-weight:600;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:0.03em;">Средний чек оправы, у кого она есть</div>
+        <div style="display:flex;align-items:center;gap:26px;margin-top:14px;">
+          <div style="text-align:center;">
+            <div style="font-size:14px;color:var(--muted-foreground);">Оренбург</div>
+            <div style="font-size:44px;font-weight:700;color:var(--chart-1);line-height:1;margin-top:6px;">5 516 ₽</div>
+          </div>
+          <div style="font-size:18px;color:var(--border-strong);">vs</div>
+          <div style="text-align:center;">
+            <div style="font-size:14px;color:var(--muted-foreground);">В среднем по сети</div>
+            <div style="font-size:44px;font-weight:700;color:var(--foreground);line-height:1;margin-top:6px;">3 851 ₽</div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:var(--muted-foreground);margin-top:14px;">выше всех по сети — на 43%</div>
+      </div>
+
+    </div>
+
+  </div>
+  <div class="footnote">Источник: заказы из вашей системы · достоверная выборка — окт 2025 — авг 2026 · 13 салонов</div>
+  <div class="slide-no">13</div>
+</section>
+
+<section class="slide" style="padding-bottom:84px">
+  <div class="eyebrow">Итог аудита</div>
+  <h1>Вместе — 44,1 млн ₽ в год, и это не всё</h1>
+  <hr class="rule">
+  <div class="body">
+    <div class="row grow">
+
+      <div class="card grow" style="flex:1.7;display:flex;flex-direction:column;justify-content:center;gap:14px;">
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;">
+            <span style="font-size:15px;font-weight:600;">Конверсия до нормы 80%<span style="font-size:11px;font-weight:500;color:var(--muted-foreground);margin-left:9px;">со слайда 7</span></span>
+            <span style="font-size:17px;font-weight:700;white-space:nowrap;">2 142 тыс ₽</span>
+          </div>
+          <div style="height:17px;background:var(--muted);border-radius:4px;"><div style="width:100%;height:100%;border-radius:4px;background:var(--primary);"></div></div>
+          <div style="font-size:13px;color:var(--muted-foreground);margin-top:4px;">224 заказа разрыва в месяц <span class="eq">×</span> 14 676 ₽ · норма 80% — допущение, не измерение</div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;">
+            <span style="font-size:15px;font-weight:600;">ВТЛ по заказам до нормы 50%<span style="font-size:11px;font-weight:500;color:var(--muted-foreground);margin-left:9px;">со слайда 11</span></span>
+            <span style="font-size:17px;font-weight:700;white-space:nowrap;">1 300 тыс ₽</span>
+          </div>
+          <div style="height:17px;background:var(--muted);border-radius:4px;"><div style="width:60.7%;height:100%;border-radius:4px;background:var(--chart-1);"></div></div>
+          <div style="font-size:13px;color:var(--muted-foreground);margin-top:4px;">113 заказов разрыва в месяц <span class="eq">×</span> 17 708 ₽ · включает прогрессивы 40+ (слайд 10)</div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;">
+            <span style="font-size:15px;font-weight:600;">Чек оправы до среднего<span style="font-size:11px;font-weight:500;color:var(--muted-foreground);margin-left:9px;">со слайда 13</span></span>
+            <span style="font-size:17px;font-weight:700;white-space:nowrap;">197 тыс ₽</span>
+          </div>
+          <div style="height:17px;background:var(--muted);border-radius:4px;"><div style="width:9.2%;height:100%;border-radius:4px;background:var(--chart-1);"></div></div>
+          <div style="font-size:13px;color:var(--muted-foreground);margin-top:4px;">отстающие салоны подтягиваются до среднего по сети (3 851 ₽)</div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;">
+            <span style="font-size:15px;font-weight:600;">Скидка выше, чем у половины салонов<span style="font-size:11px;font-weight:500;color:var(--muted-foreground);margin-left:9px;">со слайда 12</span></span>
+            <span style="font-size:17px;font-weight:700;white-space:nowrap;">40 тыс ₽</span>
+          </div>
+          <div style="height:17px;background:var(--muted);border-radius:4px;"><div style="width:1.9%;height:100%;border-radius:4px;background:var(--chart-1);"></div></div>
+          <div style="font-size:13px;color:var(--muted-foreground);margin-top:4px;">избыток над медианой салонов 15,6% на их обороте</div>
+        </div>
+      </div>
+
+      <div class="card grow" style="padding:22px 26px;display:flex;flex-direction:column;justify-content:center;">
+        <div style="font-size:13px;color:var(--muted-foreground);margin-bottom:10px;">Как распределяется сумма</div>
+        <div style="display:flex;height:17px;border-radius:4px;overflow:hidden;">
+          <div style="width:58.22%;background:var(--primary);"></div>
+          <div style="width:35.33%;background:var(--chart-2);"></div>
+          <div style="width:5.35%;background:var(--chart-3);"></div>
+          <div style="width:1.09%;background:var(--chart-5);"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px 14px;margin-top:11px;font-size:12.5px;color:var(--foreground);">
+          <div style="display:flex;align-items:center;gap:7px;"><span style="width:8px;height:8px;border-radius:2px;background:var(--primary);flex:0 0 auto;"></span>Конверсия · 58%</div>
+          <div style="display:flex;align-items:center;gap:7px;"><span style="width:8px;height:8px;border-radius:2px;background:var(--chart-2);flex:0 0 auto;"></span>ВТЛ · 35%</div>
+          <div style="display:flex;align-items:center;gap:7px;"><span style="width:8px;height:8px;border-radius:2px;background:var(--chart-3);flex:0 0 auto;"></span>Оправы · 5%</div>
+          <div style="display:flex;align-items:center;gap:7px;"><span style="width:8px;height:8px;border-radius:2px;background:var(--chart-5);flex:0 0 auto;"></span>Скидка · 1%</div>
+        </div>
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);text-align:center;">
+          <div style="font-size:38px;font-weight:700;color:var(--chart-1);line-height:1;">44,1 млн ₽<span class="rel">оценка</span></div>
+          <div style="font-size:13px;color:var(--foreground);margin-top:8px;font-weight:600;">в год · 3 679 тыс ₽ в месяц · 283 тыс на салон</div>
+        </div>
+      </div>
+
+    </div>
+    <div class="calc">2 142 <span class="eq">+</span> 1 300 <span class="eq">+</span> 197 <span class="eq">+</span> 40 <span class="eq">=</span> <b>3 679 тыс ₽ в месяц</b></div>
+    <div class="meaning" style="font-size:22px;line-height:1.5;"><b>«Кто это закроет?»</b><br>Дальше — как Оптимайзер помогает команде закрывать именно эти разрывы, рычаг за рычагом.</div>
+  </div>
+  <div class="footnote">Источник: заказы и приёмы из вашей системы · окт 2025 — авг 2026</div>
+  <div class="slide-no">14</div>
+</section>
+
+<section class="slide" style="padding-bottom:84px">
+  <div class="eyebrow">За счёт чего растим конверсию</div>
+  <h1>До заказа доходят не все</h1>
+  <hr class="rule">
+  <div class="body">
+
+    <div class="card" style="padding:16px 22px;display:flex;align-items:center;gap:22px;">
+      <div style="flex:0 0 auto;">
+        <div style="font-size:12.5px;color:var(--muted-foreground);">Теряем каждый месяц</div>
+        <div style="font-size:30px;font-weight:700;color:var(--poor-text);line-height:1.15;margin-top:3px;white-space:nowrap;">−2 142 тыс ₽/мес</div>
+      </div>
+      <div style="width:1px;align-self:stretch;background:var(--border);"></div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:7px;">
+        <div style="font-size:13.5px;line-height:1.45;color:var(--foreground);"><b>Врач</b> — не называет клиенту, чем обернётся отказ от очков.</div>
+        <div style="font-size:13.5px;line-height:1.45;color:var(--foreground);"><b>Консультант</b> — не отрабатывает возражение и упускает человека.</div>
+      </div>
+    </div>
+
+    <div class="row grow" style="margin-top:12px;align-items:stretch;gap:0;">
+      <div class="card grow" style="padding:16px 18px;">
+        <div style="font-size:12px;font-weight:700;color:var(--chart-1);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:9px;">Что даёт Оптимайзер</div>
+        <div style="display:flex;gap:7px;font-size:13px;line-height:1.5;color:var(--foreground);"><span style="color:var(--muted-foreground);">•</span><span>Каждый день анализирует уходы без заказа, видит, у какого врача или консультанта клиент ушёл и почему.</span></div>
+        <div style="display:flex;gap:7px;font-size:13px;line-height:1.5;color:var(--foreground);margin-top:9px;"><span style="color:var(--muted-foreground);">•</span><span>Передаёт сигнал и задачу — разобрать случай, либо фиксирует, что РОП сигнал проигнорировал.</span></div>
+      </div>
+      <div style="flex:0 0 28px;display:flex;align-items:center;justify-content:center;color:var(--border-strong);font-size:17px;">→</div>
+      <div class="card grow" style="padding:16px 18px;">
+        <div style="font-size:12px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:9px;">Что делает РОП</div>
+        <div style="display:flex;gap:7px;font-size:13px;line-height:1.5;color:var(--foreground);"><span style="color:var(--muted-foreground);">•</span><span>Разбирает сигнал по плану Оптимайзера: с врачом — назвал ли риски отказа, с консультантом — как отрабатывалось возражение.</span></div>
+        <div style="display:flex;gap:7px;font-size:13px;line-height:1.5;color:var(--foreground);margin-top:9px;"><span style="color:var(--muted-foreground);">•</span><span>Договаривается, что будет делать дальше, ставит контрольную точку и проверяет.</span></div>
+      </div>
+      <div style="flex:0 0 28px;display:flex;align-items:center;justify-content:center;color:var(--border-strong);font-size:17px;">→</div>
+      <div class="card grow" style="padding:16px 18px;display:flex;flex-direction:column;">
+        <div style="font-size:12px;font-weight:700;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:9px;">Что получает компания</div>
+        <div style="font-size:13px;line-height:1.5;color:var(--foreground);">По опыту клиентов Оптимайзера такой системный ежедневный разбор сигналов позволяет растить долю доходящих до заказа управляемо, салон за салоном.</div>
+        <div style="text-align:center;margin-top:auto;padding-top:12px;">
+          <div style="font-size:16px;color:var(--muted-foreground);">↓</div>
+          <div style="font-size:24px;font-weight:700;color:var(--good-text);margin-top:2px;">+2 142 тыс ₽/мес</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footnote">Норма 80% — допущение, не измерение · причины — база знаний Оптимайзера · деньги — со слайда «разрыв до нормы», окт 2025 — авг 2026</div>
+  <div class="slide-no">15</div>
+</section>
+
+<section class="slide" style="padding-bottom:84px">
+  <div class="eyebrow">За счёт чего растим долю ВТЛ</div>
+  <h1>Доля ВТЛ в заказах низкая</h1>
+  <hr class="rule">
+  <div class="body">
+
+    <div class="card" style="padding:16px 22px;display:flex;align-items:center;gap:22px;">
+      <div style="flex:0 0 auto;">
+        <div style="font-size:12.5px;color:var(--muted-foreground);">Теряем каждый месяц</div>
+        <div style="font-size:30px;font-weight:700;color:var(--poor-text);line-height:1.15;margin-top:3px;white-space:nowrap;">−1 300 тыс ₽/мес</div>
+      </div>
+      <div style="width:1px;align-self:stretch;background:var(--border);"></div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:7px;">
+        <div style="font-size:13.5px;line-height:1.45;color:var(--foreground);"><b>Врач</b> — называет линзу, а не решает проблему клиента.</div>
+        <div style="font-size:13.5px;line-height:1.45;color:var(--foreground);"><b>Консультант</b> — слышит «дорого» и сразу предлагает то, что на складе.</div>
+      </div>
+    </div>
+
+    <div class="row grow" style="margin-top:12px;align-items:stretch;gap:0;">
+      <div class="card grow" style="padding:16px 18px;">
+        <div style="font-size:12px;font-weight:700;color:var(--chart-1);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:9px;">Что даёт Оптимайзер</div>
+        <div style="display:flex;gap:7px;font-size:13px;line-height:1.5;color:var(--foreground);"><span style="color:var(--muted-foreground);">•</span><span>Каждый день анализирует приёмы и продажи, видит, у какого врача или консультанта просела доля ВТЛ и почему.</span></div>
+        <div style="display:flex;gap:7px;font-size:13px;line-height:1.5;color:var(--foreground);margin-top:9px;"><span style="color:var(--muted-foreground);">•</span><span>Передаёт сигнал и задачу — разобрать случай, либо фиксирует, что РОП сигнал проигнорировал.</span></div>
+      </div>
+      <div style="flex:0 0 28px;display:flex;align-items:center;justify-content:center;color:var(--border-strong);font-size:17px;">→</div>
+      <div class="card grow" style="padding:16px 18px;">
+        <div style="font-size:12px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:9px;">Что делает РОП</div>
+        <div style="display:flex;gap:7px;font-size:13px;line-height:1.5;color:var(--foreground);"><span style="color:var(--muted-foreground);">•</span><span>Разбирает сигналы по плану Оптимайзера: с врачом — как давалась рекомендация, с консультантом — как отрабатывалось «дорого».</span></div>
+        <div style="display:flex;gap:7px;font-size:13px;line-height:1.5;color:var(--foreground);margin-top:9px;"><span style="color:var(--muted-foreground);">•</span><span>Договаривается, что будет делать дальше, ставит контрольную точку и проверяет.</span></div>
+      </div>
+      <div style="flex:0 0 28px;display:flex;align-items:center;justify-content:center;color:var(--border-strong);font-size:17px;">→</div>
+      <div class="card grow" style="padding:16px 18px;display:flex;flex-direction:column;">
+        <div style="font-size:12px;font-weight:700;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:9px;">Что получает компания</div>
+        <div style="font-size:13px;line-height:1.5;color:var(--foreground);">По опыту клиентов Оптимайзера такой системный ежедневный разбор сигналов по доле ВТЛ позволяет растить её управляемо, не теряя доходимость до заказа.</div>
+        <div style="text-align:center;margin-top:auto;padding-top:12px;">
+          <div style="font-size:16px;color:var(--muted-foreground);">↓</div>
+          <div style="font-size:24px;font-weight:700;color:var(--good-text);margin-top:2px;">+1 300 тыс ₽/мес</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footnote">Причины — база знаний Оптимайзера · сигналы и контроль — алгоритм Оптимайзера · деньги — со слайда «До нормы — валовая прибыль», окт 2025 — авг 2026</div>
+  <div class="slide-no">16</div>
+</section>
+
+<section class="slide" style="padding-bottom:84px">
+  <div class="eyebrow">За счёт чего растим чек оправы</div>
+  <h1>Чек оправы низкий</h1>
+  <hr class="rule">
+  <div class="body">
+
+    <div class="card" style="padding:16px 22px;display:flex;align-items:center;gap:22px;">
+      <div style="flex:0 0 auto;">
+        <div style="font-size:12.5px;color:var(--muted-foreground);">Теряем каждый месяц</div>
+        <div style="font-size:30px;font-weight:700;color:var(--poor-text);line-height:1.15;margin-top:3px;white-space:nowrap;">−197 тыс ₽/мес</div>
+      </div>
+      <div style="width:1px;align-self:stretch;background:var(--border);"></div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:7px;">
+        <div style="font-size:13.5px;line-height:1.45;color:var(--foreground);"><b>Консультант</b> — не выясняет образ жизни и стиль, сразу даёт скидку на «дорого».</div>
+      </div>
+    </div>
+
+    <div class="row grow" style="margin-top:12px;align-items:stretch;gap:0;">
+      <div class="card grow" style="padding:16px 18px;">
+        <div style="font-size:12px;font-weight:700;color:var(--chart-1);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:9px;">Что даёт Оптимайзер</div>
+        <div style="display:flex;gap:7px;font-size:13px;line-height:1.5;color:var(--foreground);"><span style="color:var(--muted-foreground);">•</span><span>Каждый день анализирует чек и скидку каждого продавца, видит, у кого они ниже обычного уровня и почему.</span></div>
+        <div style="display:flex;gap:7px;font-size:13px;line-height:1.5;color:var(--foreground);margin-top:9px;"><span style="color:var(--muted-foreground);">•</span><span>Передаёт сигнал и задачу — разобрать случай, либо фиксирует, что РОП сигнал проигнорировал.</span></div>
+      </div>
+      <div style="flex:0 0 28px;display:flex;align-items:center;justify-content:center;color:var(--border-strong);font-size:17px;">→</div>
+      <div class="card grow" style="padding:16px 18px;">
+        <div style="font-size:12px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:9px;">Что делает РОП</div>
+        <div style="display:flex;gap:7px;font-size:13px;line-height:1.5;color:var(--foreground);"><span style="color:var(--muted-foreground);">•</span><span>Разбирает сигнал по плану Оптимайзера: где продавец не спросил про образ жизни, где сразу дал скидку.</span></div>
+        <div style="display:flex;gap:7px;font-size:13px;line-height:1.5;color:var(--foreground);margin-top:9px;"><span style="color:var(--muted-foreground);">•</span><span>Договаривается, что будет делать дальше, ставит контрольную точку и проверяет.</span></div>
+      </div>
+      <div style="flex:0 0 28px;display:flex;align-items:center;justify-content:center;color:var(--border-strong);font-size:17px;">→</div>
+      <div class="card grow" style="padding:16px 18px;display:flex;flex-direction:column;">
+        <div style="font-size:12px;font-weight:700;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:9px;">Что получает компания</div>
+        <div style="font-size:13px;line-height:1.5;color:var(--foreground);">По опыту клиентов Оптимайзера такой системный ежедневный разбор сигналов по чеку оправы позволяет растить его управляемо, не теряя доходимость до заказа.</div>
+        <div style="text-align:center;margin-top:auto;padding-top:12px;">
+          <div style="font-size:16px;color:var(--muted-foreground);">↓</div>
+          <div style="font-size:24px;font-weight:700;color:var(--good-text);margin-top:2px;">+197 тыс ₽/мес</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footnote">Причины — база знаний Оптимайзера · сигналы и контроль — алгоритм Оптимайзера · деньги — со слайда финмодели, окт 2025 — авг 2026</div>
+  <div class="slide-no">17</div>
+</section>
+
+<section class="slide" style="padding-bottom:84px">
+  <div class="eyebrow">Это уже работало</div>
+  <h1>У трёх сетей вашего размера это сработало</h1>
+  <hr class="rule">
+  <div class="row grow" style="align-items:stretch;">
+    <div class="card grow" style="display:flex;flex-direction:column;justify-content:center;">
+      <div style="font-size:17px;font-weight:700;">Надин</div>
+      <div style="font-size:13px;color:var(--muted-foreground);margin-bottom:10px;">Ульяновск · сен—окт 2026</div>
+      <div class="kpi-label">Конверсия молодого врача</div>
+      <div class="kpi-value" style="font-size:34px;color:var(--excellent-text);">44% → 76%</div>
+      <div style="font-size:12.5px;color:var(--muted-foreground);margin-top:8px;">средний чек при этом не просел</div>
+    </div>
+    <div class="card grow" style="display:flex;flex-direction:column;justify-content:center;">
+      <div style="font-size:17px;font-weight:700;">Сфера</div>
+      <div style="font-size:13px;color:var(--muted-foreground);margin-bottom:10px;">сеть оптик, клиент Оптимайзера</div>
+      <div class="kpi-label">Средний чек</div>
+      <div class="kpi-value" style="font-size:34px;color:var(--excellent-text);">+32%</div>
+      <div style="font-size:12.5px;color:var(--muted-foreground);margin-top:8px;">доходят до заказа — не меньше, чем раньше</div>
+    </div>
+    <div class="card grow" style="display:flex;flex-direction:column;justify-content:center;">
+      <div style="font-size:17px;font-weight:700;">ОДВ</div>
+      <div style="font-size:13px;color:var(--muted-foreground);margin-bottom:10px;">сеть оптик, клиент Оптимайзера</div>
+      <div class="kpi-label">Выручка год к году</div>
+      <div class="kpi-value" style="font-size:34px;color:var(--excellent-text);">+15%</div>
+      <div style="font-size:12.5px;color:var(--muted-foreground);margin-top:8px;">чек +10%, доходят до заказа +3 п.п.</div>
+    </div>
+  </div>
+  <div class="meaning">Все три сети разрешили рассказать о результате. Телефоны собственников дадим — позвоните и спросите сами, без нас.</div>
+  <div class="footnote">Результаты сетей, работающих с Оптимайзером · по данным самих сетей</div>
+  <div class="slide-no">18</div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">Как это возвращается</div>
+  <h1>Финмодель</h1>
+  <hr class="rule">
+  <div class="body" style="gap:10px;">
+
+    <div class="row" style="gap:16px;align-items:stretch;">
+
+      <div class="card" style="flex:1.35;padding:14px 18px;display:flex;flex-direction:column;">
+        <div style="font-size:13px;color:var(--muted-foreground);margin-bottom:8px;">Считаем по <b style="color:var(--foreground);">13 салонам</b> — вот где они сейчас</div>
+        <table class="t salons" style="font-size:11px;width:100%;table-layout:fixed;">
+          <thead>
+            <tr>
+              <th style="padding:0 4px 5px;white-space:nowrap;">Филиал</th>
+              <th style="padding:0 4px 5px;width:98px;line-height:1.2;">ВТЛ по всем заказам</th>
+              <th style="padding:0 4px 5px;white-space:nowrap;width:74px;">Чек оправы</th>
+              <th style="padding:0 4px 5px;white-space:nowrap;width:68px;">Конверсия</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="padding:2.5px 4px;white-space:nowrap;">Пролетарская</td><td style="padding:2.5px 4px;">60,0%</td><td style="padding:2.5px 4px;">4 189 ₽</td><td style="padding:2.5px 4px;">47,8%</td></tr>
+            <tr><td style="padding:2.5px 4px;white-space:nowrap;">Гаранькина</td><td style="padding:2.5px 4px;">58,1%</td><td style="padding:2.5px 4px;">4 662 ₽</td><td style="padding:2.5px 4px;">32,3%</td></tr>
+            <tr><td style="padding:2.5px 4px;white-space:nowrap;">Чайка</td><td style="padding:2.5px 4px;">50,2%</td><td style="padding:2.5px 4px;">3 867 ₽</td><td style="padding:2.5px 4px;">51,7%</td></tr>
+            <tr><td style="padding:2.5px 4px;white-space:nowrap;">Оренбург</td><td style="padding:2.5px 4px;">42,3%</td><td style="padding:2.5px 4px;">5 516 ₽</td><td style="padding:2.5px 4px;">54,7%</td></tr>
+            <tr><td style="padding:2.5px 4px;white-space:nowrap;">Орск</td><td style="padding:2.5px 4px;">38,7%</td><td style="padding:2.5px 4px;">3 701 ₽</td><td style="padding:2.5px 4px;">37,3%</td></tr>
+            <tr><td style="padding:2.5px 4px;white-space:nowrap;">Абдулино</td><td style="padding:2.5px 4px;">24,5%</td><td style="padding:2.5px 4px;">2 731 ₽</td><td style="padding:2.5px 4px;">48,1%</td></tr>
+            <tr><td style="padding:2.5px 4px;white-space:nowrap;">Соль-Илецк</td><td style="padding:2.5px 4px;">24,2%</td><td style="padding:2.5px 4px;">3 794 ₽</td><td style="padding:2.5px 4px;">76,3%</td></tr>
+            <tr><td style="padding:2.5px 4px;white-space:nowrap;">Бузулук</td><td style="padding:2.5px 4px;">23,1%</td><td style="padding:2.5px 4px;">4 172 ₽</td><td style="padding:2.5px 4px;">65,7%</td></tr>
+            <tr><td style="padding:2.5px 4px;white-space:nowrap;">Кумертау</td><td style="padding:2.5px 4px;">20,9%</td><td style="padding:2.5px 4px;">3 708 ₽</td><td style="padding:2.5px 4px;">56,1%</td></tr>
+            <tr><td style="padding:2.5px 4px;white-space:nowrap;">Новосергиевка</td><td style="padding:2.5px 4px;">19,2%</td><td style="padding:2.5px 4px;">2 895 ₽</td><td style="padding:2.5px 4px;">70,1%</td></tr>
+            <tr><td style="padding:2.5px 4px;white-space:nowrap;">Сорочинск</td><td style="padding:2.5px 4px;">17,0%</td><td style="padding:2.5px 4px;">3 282 ₽</td><td style="padding:2.5px 4px;">59,0%</td></tr>
+            <tr><td style="padding:2.5px 4px;white-space:nowrap;">Саракташ</td><td style="padding:2.5px 4px;">16,3%</td><td style="padding:2.5px 4px;">2 308 ₽</td><td style="padding:2.5px 4px;">64,9%</td></tr>
+            <tr><td style="padding:2.5px 4px;white-space:nowrap;">Гай</td><td style="padding:2.5px 4px;">13,5%</td><td style="padding:2.5px 4px;">2 713 ₽</td><td style="padding:2.5px 4px;">67,7%</td></tr>
+            <tr style="border-top:1.5px solid var(--border-strong);"><td style="padding:4px 4px;font-weight:700;white-space:nowrap;">По сети</td><td style="padding:4px 4px;font-weight:700;">32,0%</td><td style="padding:4px 4px;font-weight:700;">3 851 ₽</td><td style="padding:4px 4px;font-weight:700;">51,7%</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="flex:1;padding:14px 18px;display:flex;flex-direction:column;">
+        <div style="font-size:13px;font-weight:600;color:var(--foreground);margin-bottom:6px;">Куда хотим прийти</div>
+        <div style="font-size:12px;color:var(--muted-foreground);margin-bottom:8px;">Сценарий: <b id="fmScenario" style="color:var(--chart-1);">ВТЛ 50% · чек оправы 5 516 ₽ · конверсия 80%</b></div>
+
+        <div id="fmSteps" style="display:flex;gap:5px;margin-bottom:8px;">
+          <button type="button" class="fm-step" data-i="0" style="flex:1;padding:5px 2px;font-size:10.5px;font-weight:600;border-radius:7px;border:1.5px solid var(--border-strong);background:var(--card);color:var(--foreground);cursor:pointer;">Сейчас</button>
+          <button type="button" class="fm-step" data-i="1" style="flex:1;padding:5px 2px;font-size:10.5px;font-weight:600;border-radius:7px;border:1.5px solid var(--border-strong);background:var(--card);color:var(--foreground);cursor:pointer;">Шаг 1</button>
+          <button type="button" class="fm-step" data-i="2" style="flex:1;padding:5px 2px;font-size:10.5px;font-weight:600;border-radius:7px;border:1.5px solid var(--border-strong);background:var(--card);color:var(--foreground);cursor:pointer;">Шаг 2</button>
+          <button type="button" class="fm-step" data-i="3" style="flex:1;padding:5px 2px;font-size:10.5px;font-weight:600;border-radius:7px;border:1.5px solid var(--border-strong);background:var(--card);color:var(--foreground);cursor:pointer;">Шаг 3</button>
+          <button type="button" class="fm-step" data-i="4" style="flex:1;padding:5px 2px;font-size:10.5px;font-weight:700;border-radius:7px;border:1.5px solid var(--chart-1);background:var(--chart-1);color:#fff;cursor:pointer;">Норма</button>
+        </div>
+        <div style="font-size:10.5px;color:var(--muted-foreground);margin-bottom:10px;line-height:1.4;">Каждая ступень двигает все три показателя разом — или тяните ползунки отдельно.</div>
+
+        <div style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;">
+            <span style="font-size:12px;color:var(--muted-foreground);">Конверсия подбор → заказ · сейчас 52%</span>
+            <span id="fmKonvVal" style="font-size:14px;font-weight:700;color:var(--chart-1);">80%</span>
+          </div>
+          <input id="fmKonvSlider" type="range" min="52" max="80" value="80" step="1" style="width:100%;margin-top:4px;accent-color:var(--chart-1);">
+          <div style="font-size:10px;color:var(--muted-foreground);margin-top:2px;">деньги — норма 80%, допущение (слайд 7)</div>
+        </div>
+
+        <div style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;">
+            <span style="font-size:12px;color:var(--muted-foreground);">Доля ВТЛ по всем заказам · сейчас 32%</span>
+            <span id="fmVtlVal" style="font-size:14px;font-weight:700;color:var(--chart-1);">50%</span>
+          </div>
+          <input id="fmVtlSlider" type="range" min="32" max="50" value="50" step="1" style="width:100%;margin-top:4px;accent-color:var(--chart-1);">
+          <div style="font-size:10px;color:var(--muted-foreground);margin-top:2px;">норма 50% — у лучших врачей сети уже 55–60%</div>
+        </div>
+
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;">
+            <span style="font-size:12px;color:var(--muted-foreground);">Средний чек на оправу · сейчас 3 851 ₽</span>
+            <span id="fmOprVal" style="font-size:14px;font-weight:700;color:var(--chart-1);">5 516 ₽</span>
+          </div>
+          <input id="fmOprSlider" type="range" min="3851" max="5516" value="5516" step="1" style="width:100%;margin-top:4px;accent-color:var(--chart-1);">
+          <div style="font-size:10px;color:var(--muted-foreground);margin-top:2px;">уровень лучшего салона в сегодняшних ценах</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="row" style="gap:16px;align-items:stretch;margin-top:4px;">
+      <div class="card" style="flex:0 0 190px;padding:12px 16px;display:flex;flex-direction:column;justify-content:center;">
+        <div style="font-size:11.5px;color:var(--muted-foreground);">Прирост валовой в месяц</div>
+        <div id="fmGrossMonth" style="font-size:24px;font-weight:700;color:var(--chart-1);line-height:1.1;margin-top:3px;">3 054 тыс ₽</div>
+        <div id="fmGrossYear" style="font-size:11px;color:var(--good-text);margin-top:2px;">в год +36,6 млн ₽</div>
+      </div>
+      <div class="card" style="flex:0 0 190px;padding:12px 16px;display:flex;flex-direction:column;justify-content:center;">
+        <div style="font-size:11.5px;color:var(--muted-foreground);">Ставка Оптимайзера в месяц</div>
+        <div id="fmFee" style="font-size:24px;font-weight:700;color:var(--foreground);line-height:1.1;margin-top:3px;">390 тыс ₽</div>
+        <div id="fmFeeNote" style="font-size:11px;color:var(--muted-foreground);margin-top:2px;white-space:nowrap;">на шаге «Норма»</div>
+      </div>
+      <div class="card" style="flex:1;padding:12px 18px;display:flex;flex-direction:column;justify-content:center;gap:6px;">
+        <div style="display:flex;gap:8px;align-items:baseline;">
+          <span style="flex:0 0 52px;font-size:10px;font-weight:700;color:var(--chart-1);background:var(--muted);border-radius:5px;padding:2px 6px;text-align:center;">ЛИНЗЫ</span>
+          <span style="font-size:11.5px;line-height:1.4;color:var(--foreground);">Врач связывает рекомендацию ВТЛ с проблемой клиента, а не называет линзу саму по себе. Конверсия при этом держится.</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:baseline;">
+          <span style="flex:0 0 52px;font-size:10px;font-weight:700;color:var(--chart-1);background:var(--muted);border-radius:5px;padding:2px 6px;text-align:center;">ОПРАВЫ</span>
+          <span style="font-size:11.5px;line-height:1.4;color:var(--foreground);">Меньше скидок, и следить, какую оправу предлагает продавец — к уровню, что уже даёт лучший салон.</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="footnote">Источник: заказы и приёмы из вашей системы · окт 2025 — авг 2026 · 13 салонов</div>
+  <div class="slide-no">19</div>
+</section>
+
+<script>
+(function(){
+  var oprSalons = [
+    [2730.57, 346.0],[4172.25, 386.0],[2713.30, 225.0],[4662.18, 620.0],[3708.49, 550.0],
+    [2895.26, 349.0],[5516.19, 872.0],[3700.99, 148.0],[4188.91, 236.0],[2308.43, 392.0],
+    [3793.59, 652.0],[3282.44, 782.0],[3867.17, 487.0]
+  ];
+  var M = 11, ЧЕК_ВТЛ_РАЗН = 17708, ЧЕК_ЗАКАЗ = 14676, МАРЖА = 0.65;
+  var СТАВКА_МИН = 195, СТАВКА_МАКС = 390;
+
+  var steps = [
+    {конв:52, втл:32,   опр:3851, label:"Сейчас"},
+    {конв:59, втл:36.5, опр:4266, label:"Шаг 1"},
+    {конв:66, втл:41,   опр:4682, label:"Шаг 2"},
+    {конв:73, втл:45.5, опр:5097, label:"Шаг 3"},
+    {конв:80, втл:50,   опр:5516, label:"Норма"}
+  ];
+
+  function fmt(n){ return Math.round(n).toLocaleString('ru-RU'); }
+
+  function vtlMoney(targetPct){
+    // сетевой сдвиг, как на слайде «До нормы» и в общем расчёте — не по салонам
+    var заказовМес = 627;
+    var заказовСейчас = Math.round(заказовМес*0.32);
+    var заказовНорма = Math.round(заказовМес*targetPct/100);
+    var разрыв = заказовНорма - заказовСейчас;
+    return разрыв*ЧЕК_ВТЛ_РАЗН*МАРЖА;
+  }
+  function oprMoney(target){
+    var sum = 0;
+    for (var i=0;i<oprSalons.length;i++){ var gap = target - oprSalons[i][0]; if (gap>0) sum += gap*oprSalons[i][1]; }
+    return sum/M;
+  }
+  function konvMoney(targetPct){
+    return Math.max(0,(754*targetPct/100 - 379))*ЧЕК_ЗАКАЗ*МАРЖА;
+  }
+  // на шаге «Сейчас» (конв 52 · втл 32 · опр 3851) формулы сами по себе не дают ровно 0 —
+  // оправы считают подтяжку отстающих до среднего (она есть уже сегодня), а не прирост от нуля.
+  // поэтому прирост считаем относительно этой же точки, чтобы «Сейчас» всегда показывал 0.
+  var БАЗА = vtlMoney(32) + oprMoney(3851) + konvMoney(52);
+
+  var konvSlider = document.getElementById('fmKonvSlider');
+  var vtlSlider = document.getElementById('fmVtlSlider');
+  var oprSlider = document.getElementById('fmOprSlider');
+
+  function render(){
+    var konv = parseFloat(konvSlider.value);
+    var vtl = parseFloat(vtlSlider.value);
+    var opr = parseFloat(oprSlider.value);
+
+    document.getElementById('fmKonvVal').textContent = konv + '%';
+    document.getElementById('fmVtlVal').textContent = vtl + '%';
+    document.getElementById('fmOprVal').textContent = fmt(opr) + ' ₽';
+    document.getElementById('fmScenario').textContent = 'ВТЛ ' + vtl + '% · чек оправы ' + fmt(opr) + ' ₽ · конверсия ' + konv + '%';
+
+    var vm = vtlMoney(vtl), om = oprMoney(opr), km = konvMoney(konv);
+    var total = (vm+om+km) - БАЗА;
+    document.getElementById('fmGrossMonth').textContent = fmt(total/1000) + ' тыс ₽';
+    document.getElementById('fmGrossYear').textContent = 'в год +' + (total*12/1e6).toFixed(1).replace('.',',') + ' млн ₽';
+
+    // прогресс 0..1 по трём ползункам относительно диапазона [сейчас, норма]
+    var pk = (konv-52)/(80-52), pv = (vtl-32)/(50-32), po = (opr-3851)/(5516-3851);
+    var progress = (pk+pv+po)/3;
+    var fee = СТАВКА_МИН + progress*(СТАВКА_МАКС-СТАВКА_МИН);
+    document.getElementById('fmFee').textContent = fmt(fee) + ' тыс ₽';
+  }
+
+  function applyStep(i){
+    var s = steps[i];
+    konvSlider.value = s.конв; vtlSlider.value = s.втл; oprSlider.value = s.опр;
+    document.getElementById('fmFeeNote').textContent = 'на шаге «' + s.label + '»';
+    render();
+    document.querySelectorAll('.fm-step').forEach(function(btn, idx){
+      if (idx === i) { btn.style.background='var(--chart-1)'; btn.style.color='#fff'; btn.style.borderColor='var(--chart-1)'; }
+      else { btn.style.background='var(--card)'; btn.style.color='var(--foreground)'; btn.style.borderColor='var(--border-strong)'; }
+    });
+  }
+
+  document.querySelectorAll('.fm-step').forEach(function(btn){
+    btn.addEventListener('click', function(){ applyStep(parseInt(btn.dataset.i)); });
+  });
+  [konvSlider, vtlSlider, oprSlider].forEach(function(sl){ sl.addEventListener('input', render); });
+
+  applyStep(0);
+})();
+</script>
+
+<section class="slide" style="padding-bottom:84px">
+  <div class="eyebrow">Условия внедрения Оптимайзера за KPI</div>
+  <h1>Сначала растёт ваша выручка, потом наша ставка</h1>
+  <hr class="rule">
+  <div class="body">
+    <div class="card grow" style="display:flex;flex-direction:column;justify-content:center;">
+      <div class="gbars">
+        <div class="lbl" style="font-size:13px;color:var(--muted-foreground);align-self:end;padding-bottom:28px;">Прирост выручки / наша ставка<br>тыс ₽ в месяц</div>
+        <div class="gcell">
+          <div class="gbar"><div class="v" style="color:var(--muted-foreground)">0</div><div class="b" style="height:3px;background:var(--border-strong)"></div></div>
+          <div class="gbar" style="width:24px;"><div class="v" style="color:var(--muted-foreground)">195</div><div class="b" style="height:9px;background:var(--border-strong)"></div></div>
+        </div>
+        <div class="gcell">
+          <div class="gbar"><div class="v" style="color:var(--chart-1)">1 208</div><div class="b" style="height:32px;background:var(--chart-1)"></div></div>
+          <div class="gbar" style="width:24px;"><div class="v" style="color:var(--muted-foreground)">234</div><div class="b" style="height:11px;background:var(--border-strong)"></div></div>
+        </div>
+        <div class="gcell">
+          <div class="gbar"><div class="v" style="color:var(--chart-1)">2 217</div><div class="b" style="height:59px;background:var(--chart-1)"></div></div>
+          <div class="gbar" style="width:24px;"><div class="v" style="color:var(--muted-foreground)">273</div><div class="b" style="height:13px;background:var(--border-strong)"></div></div>
+        </div>
+        <div class="gcell">
+          <div class="gbar"><div class="v" style="color:var(--chart-1)">3 426</div><div class="b" style="height:91px;background:var(--chart-1)"></div></div>
+          <div class="gbar" style="width:24px;"><div class="v" style="color:var(--muted-foreground)">312</div><div class="b" style="height:15px;background:var(--border-strong)"></div></div>
+        </div>
+        <div class="gcell">
+          <div class="gbar"><div class="v" style="color:var(--chart-1)">4 435</div><div class="b" style="height:118px;background:var(--chart-1)"></div></div>
+          <div class="gbar" style="width:24px;"><div class="v" style="color:var(--muted-foreground)">351</div><div class="b" style="height:16px;background:var(--border-strong)"></div></div>
+        </div>
+        <div class="gcell">
+          <div class="gbar"><div class="v" style="color:var(--chart-1)">5 643</div><div class="b" style="height:150px;background:var(--chart-1)"></div></div>
+          <div class="gbar" style="width:24px;"><div class="v" style="color:var(--muted-foreground)">390</div><div class="b" style="height:18px;background:var(--border-strong)"></div></div>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--border);margin:8px 0 2px;"></div>
+      <div class="grow-row" style="padding:5px 0;">
+        <div class="lbl">ROI · валовая к ставке</div>
+        <div class="vl" style="font-weight:700;color:var(--muted-foreground);">0%</div>
+        <div class="vl" style="font-weight:700;color:var(--good-text);">335%</div>
+        <div class="vl" style="font-weight:700;color:var(--good-text);">528%</div>
+        <div class="vl" style="font-weight:700;color:var(--good-text);">714%</div>
+        <div class="vl" style="font-weight:700;color:var(--good-text);">821%</div>
+        <div class="vl" style="font-weight:700;color:var(--good-text);">941%</div>
+      </div>
+      <div class="grow-row" style="padding:5px 0;">
+        <div class="lbl">Заказы с технологичной линзой</div>
+        <div class="vl" style="font-weight:700;color:var(--foreground);">32%</div>
+        <div class="vl" style="font-weight:700;color:var(--foreground);">38%</div>
+        <div class="vl" style="font-weight:700;color:var(--foreground);">43%</div>
+        <div class="vl" style="font-weight:700;color:var(--foreground);">49%</div>
+        <div class="vl" style="font-weight:700;color:var(--foreground);">54%</div>
+        <div class="vl" style="font-weight:700;color:var(--foreground);">60%</div>
+      </div>
+      <div class="grow-row" style="padding:5px 0;">
+        <div class="lbl">Доходят от приёма до заказа</div>
+        <div class="vl" style="font-weight:700;color:var(--foreground);">52%</div>
+        <div class="vl" style="font-weight:700;color:var(--foreground);">57%</div>
+        <div class="vl" style="font-weight:700;color:var(--foreground);">61%</div>
+        <div class="vl" style="font-weight:700;color:var(--foreground);">66%</div>
+        <div class="vl" style="font-weight:700;color:var(--foreground);">70%</div>
+        <div class="vl" style="font-weight:700;color:var(--foreground);">75%</div>
+      </div>
+      <div class="grow-row" style="border-top:1px solid var(--border);padding:5px 0;">
+        <div></div>
+        <div class="vl" style="font-size:11px;color:var(--muted-foreground);">Старт</div>
+        <div class="vl" style="font-size:11px;color:var(--muted-foreground);">Ступень 1</div>
+        <div class="vl" style="font-size:11px;color:var(--muted-foreground);">Ступень 2</div>
+        <div class="vl" style="font-size:11px;color:var(--muted-foreground);">Ступень 3</div>
+        <div class="vl" style="font-size:11px;color:var(--muted-foreground);">Ступень 4</div>
+        <div class="vl" style="font-size:11px;color:var(--muted-foreground);">Полная цена</div>
+      </div>
+      <div style="text-align:center;font-size:11px;font-style:italic;color:var(--muted-foreground);margin-top:4px;">Ставка — с первого месяца, сразу половина цены · Ступень 1 — четвёртый месяц · дальше по мере достижения, не быстрее раза в квартал</div>
+    </div>
+    <div class="calc">Ступень 1 — конверсия +5 пунктов, ВТЛ +6 пунктов: <b>+1 208 тыс ₽ выручки в месяц</b><span class="rel">оценка</span> при росте ставки на 39 тыс</div>
+    <div class="meaning">С первого месяца вы платите половину цены. Дальше ставка поднимается только после того, как показатели сдвинулись и принесли деньги.</div>
+  </div>
+  <div class="footnote">Прирост — ориентир при текущем числе приёмов и заказов, не обещание · ставка за 13 салонов · суммы в обороте · ROI — по валовой прибыли, не по выручке</div>
+  <div class="slide-no">20</div>
+</section>
+
+<section class="slide" style="padding-bottom:84px">
+  <div class="eyebrow">План</div>
+  <h1>Сначала учёт, потом три месяца на все 13 салонов</h1>
+  <hr class="rule">
+  <div class="body">
+
+    <div class="card" style="padding:14px 20px;display:flex;align-items:center;gap:18px;margin-bottom:14px;">
+      <div style="flex:0 0 auto;font-size:13px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.03em;white-space:nowrap;">Сначала</div>
+      <div style="width:1px;align-self:stretch;background:var(--border);"></div>
+      <div style="flex:1;font-size:13.5px;line-height:1.5;color:var(--foreground);">Без регулярной выгрузки из 1С Оптимайзер не подключится ни к одному салону. Берём на себя: <b>отдаём вам ТЗ для настройки 1С</b> — делаете своими силами, или <b>наш специалист настраивает всё сам и сразу делает выгрузку</b> — ≈20 тыс ₽ разово. Дальше — три месяца.</div>
+    </div>
+
+    <div class="row grow" style="align-items:stretch;gap:16px;">
+
+      <div class="card grow" style="padding:16px 20px;">
+        <div style="font-size:14px;font-weight:700;color:var(--foreground);margin-bottom:11px;">Месяц 1 — ведём мы</div>
+        <div style="display:flex;gap:7px;font-size:12.5px;line-height:1.5;color:var(--foreground);"><span style="color:var(--muted-foreground);">•</span><span>Подключаем Оптимайзер к 1С и ставим аудиобейджи</span></div>
+        <div style="display:flex;gap:7px;font-size:12.5px;line-height:1.5;color:var(--foreground);margin-top:8px;"><span style="color:var(--muted-foreground);">•</span><span>Каждый день РОП смотрит, кто из продавцов как сработал</span></div>
+        <div style="display:flex;gap:7px;font-size:12.5px;line-height:1.5;color:var(--foreground);margin-top:8px;"><span style="color:var(--muted-foreground);">•</span><span>Раз в неделю КД и РОП разбирают план продаж по цифрам</span></div>
+        <div style="display:flex;gap:7px;font-size:12.5px;line-height:1.5;color:var(--foreground);margin-top:8px;"><span style="color:var(--muted-foreground);">•</span><span>Планёрки пишем на диктофон, задачи и итоги записываем</span></div>
+        <div style="display:flex;gap:7px;font-size:12.5px;line-height:1.5;color:var(--foreground);margin-top:8px;"><span style="color:var(--muted-foreground);">•</span><span>Слушаем записи: как продавец объясняет клиенту сложную линзу</span></div>
+        <div style="display:flex;gap:7px;font-size:12.5px;line-height:1.5;color:var(--foreground);margin-top:8px;"><span style="color:var(--muted-foreground);">•</span><span>Учим команду работать в Оптимайзере, помогаем на первых порах</span></div>
+      </div>
+
+      <div class="card grow" style="padding:16px 20px;">
+        <div style="font-size:14px;font-weight:700;color:var(--foreground);margin-bottom:11px;">Месяц 2 — проверяем</div>
+        <div style="display:flex;gap:7px;font-size:12.5px;line-height:1.5;color:var(--foreground);"><span style="color:var(--muted-foreground);">•</span><span>Встречу готовит и ведёт уже ваш руководитель</span></div>
+        <div style="display:flex;gap:7px;font-size:12.5px;line-height:1.5;color:var(--foreground);margin-top:8px;"><span style="color:var(--muted-foreground);">•</span><span>Мы смотрим со стороны и говорим, что поправить</span></div>
+        <div style="display:flex;gap:7px;font-size:12.5px;line-height:1.5;color:var(--foreground);margin-top:8px;"><span style="color:var(--muted-foreground);">•</span><span>Разбираем заказы, где сложную линзу даже не предложили</span></div>
+        <div style="display:flex;gap:7px;font-size:12.5px;line-height:1.5;color:var(--foreground);margin-top:8px;"><span style="color:var(--muted-foreground);">•</span><span>Четыре упущенных заказа — поимённо, с записями</span></div>
+        <div style="display:flex;gap:7px;font-size:12.5px;line-height:1.5;color:var(--foreground);margin-top:8px;"><span style="color:var(--muted-foreground);">•</span><span>Неделя 6: письменно оцениваем, что получается</span></div>
+        <div style="display:flex;gap:7px;font-size:12.5px;line-height:1.5;color:var(--foreground);margin-top:8px;"><span style="color:var(--muted-foreground);">•</span><span>Недели 7–8: подключаем остальные смены</span></div>
+      </div>
+
+      <div class="card grow" style="padding:16px 20px;">
+        <div style="font-size:14px;font-weight:700;color:var(--foreground);margin-bottom:11px;">Месяц 3 — передаём</div>
+        <div style="display:flex;gap:7px;font-size:12.5px;line-height:1.5;color:var(--foreground);"><span style="color:var(--muted-foreground);">•</span><span>Выходим из текучки — встречи команда ведёт сама</span></div>
+        <div style="display:flex;gap:7px;font-size:12.5px;line-height:1.5;color:var(--foreground);margin-top:8px;"><span style="color:var(--muted-foreground);">•</span><span>Неделя 11: проверяем по списку, готова ли команда</span></div>
+        <div style="display:flex;gap:7px;font-size:12.5px;line-height:1.5;color:var(--foreground);margin-top:8px;"><span style="color:var(--muted-foreground);">•</span><span>Считаем результат год к году сразу по всем 13 салонам</span></div>
+        <div style="display:flex;gap:7px;font-size:12.5px;line-height:1.5;color:var(--foreground);margin-top:8px;"><span style="color:var(--muted-foreground);">•</span><span>Неделя 12: итоговая встреча, договариваемся о работе дальше</span></div>
+        <div style="display:flex;gap:7px;font-size:12.5px;line-height:1.5;color:var(--foreground);margin-top:8px;"><span style="color:var(--muted-foreground);">•</span><span>Отдаём порядок еженедельных встреч команде</span></div>
+        <div style="display:flex;gap:7px;font-size:12.5px;line-height:1.5;color:var(--foreground);margin-top:8px;"><span style="color:var(--muted-foreground);">•</span><span>Фиксируем, что меняется в ставке и работе с четвёртого месяца</span></div>
+      </div>
+
+    </div>
+  </div>
+  <div class="footnote">Сроки ориентировочные · отсчёт с момента подключения учёта · все 13 салонов с первого месяца</div>
+  <div class="slide-no">21</div>
+</section>
+
+</div></div>
+
+<button class="arrownav prev" id="prevBtn" aria-label="Предыдущий слайд">‹</button>
+<button class="arrownav next" id="nextBtn" aria-label="Следующий слайд">›</button>
+<div class="nav" id="navDots"></div>
+
+<script>
+// slide navigation — one slide visible at a time, scaled to fit the viewport
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const stage = document.querySelector('.stage');
+  const dots = document.getElementById('navDots');
+  dots.innerHTML = slides.map((_,i)=>`<button data-i="${i}" aria-label="Слайд ${i+1}"></button>`).join('');
+  const dotEls = Array.from(dots.children);
+  let current = 0;
+
+  function fitStage() {
+    const vv = window.visualViewport;
+    const w = Math.min(window.innerWidth || 1e9, document.documentElement.clientWidth || 1e9, vv ? vv.width : 1e9);
+    const h = Math.min(window.innerHeight || 1e9, document.documentElement.clientHeight || 1e9, vv ? vv.height : 1e9);
+    const scale = Math.min(w / 1280, h / 720) * 0.94;
+    stage.style.transform = `scale(${scale})`;
+    // высота документа равна реальной высоте кадра, иначе снизу остаётся пустота
+    document.querySelector('.viewport').style.minHeight = Math.ceil(720 * scale + 16) + 'px';
+  }
+
+  function render() {
+    slides.forEach((s,i)=>s.classList.toggle('active', i===current));
+    dotEls.forEach((d,idx)=>d.classList.toggle('active', idx===current));
+  }
+  function goTo(i) {
+    current = Math.max(0, Math.min(slides.length-1, i));
+    render();
+  }
+  document.getElementById('prevBtn').addEventListener('click', ()=>goTo(current-1));
+  document.getElementById('nextBtn').addEventListener('click', ()=>goTo(current+1));
+  dotEls.forEach(d=>d.addEventListener('click', ()=>goTo(parseInt(d.dataset.i))));
+  window.addEventListener('keydown', (e)=>{
+    if (e.target && e.target.tagName==='INPUT') return;
+    if (e.key==='ArrowRight' || e.key==='PageDown' || e.key===' ') goTo(current+1);
+    if (e.key==='ArrowLeft' || e.key==='PageUp') goTo(current-1);
+  });
+  window.addEventListener('resize', fitStage);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', fitStage);
+  requestAnimationFrame(fitStage);
+  fitStage();
+  render();
+
+</script>
