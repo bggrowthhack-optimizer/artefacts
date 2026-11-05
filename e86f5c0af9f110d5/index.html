@@ -1,0 +1,1215 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Челны-Оптика — мотивация команды</title><style>/* Общий "движок" калькуляторов мотивации — вёрстка, слайдеры, дельта, подсказки.
+   Формулы и конфигурация — за пределами этого файла, в client.js каждого клиента.
+
+   Токены цвета/радиуса/тени скопированы из дизайн-системы Оптимайзера
+   (optics_summary/frontend/src/styles/design-tokens.css), чтобы калькулятор
+   выглядел как часть того же продукта, а не отдельная поделка:
+   OKLCH-палитра, Inter, приглушённые границы, парные статусные цвета
+   (заливка *-й и текст *-text — насыщенный жёлтый/зелёный не даёт AA-контраст
+   как текст на белом, поэтому у read-only текста своя, более тёмная версия). */
+
+:root {
+  --background: oklch(0.975 0.004 264);
+  --foreground: oklch(0.18 0.02 264);
+  --card: oklch(1 0 0);
+  --muted: oklch(0.97 0.006 264);
+  --muted-foreground: oklch(0.52 0.015 264);
+  --border: oklch(0.90 0.010 264);
+  --primary: oklch(0.55 0.22 264);
+  --primary-dark: oklch(0.65 0.22 264); /* используется только в тёмной теме, если клиент не задал свой accentDark */
+  --primary-foreground: oklch(0.99 0.002 264);
+
+  --excellent: oklch(0.62 0.18 150);
+  --excellent-text: oklch(0.54 0.18 150);
+  --good: oklch(0.75 0.16 70);
+  --good-text: oklch(0.57 0.16 70);
+  --poor: oklch(0.58 0.22 25);
+  --poor-text: oklch(0.58 0.22 25);
+  --info: oklch(0.62 0.16 230);
+  --info-text: oklch(0.545 0.16 230);
+
+  --radius-lg: 0.75rem;  /* поля, кнопки, слайдер */
+  --radius-xl: 1rem;     /* карточки */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --background: oklch(0.12 0.02 264);
+    --foreground: oklch(0.96 0.003 264);
+    --card: oklch(0.175 0.018 264);
+    --muted: oklch(0.20 0.018 264);
+    --muted-foreground: oklch(0.68 0.015 264);
+    --border: oklch(0.30 0.016 264);
+    --primary: var(--primary-dark);
+    --primary-foreground: oklch(0.12 0.02 264);
+
+    --excellent: oklch(0.68 0.18 150);
+    --excellent-text: var(--excellent);
+    --good: oklch(0.75 0.18 70);
+    --good-text: var(--good);
+    --poor: oklch(0.62 0.20 25);
+    --poor-text: var(--poor);
+    --info: oklch(0.68 0.18 230);
+    --info-text: var(--info);
+
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.40);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.50), 0 2px 4px -2px rgb(0 0 0 / 0.50);
+  }
+}
+
+:root[data-theme="dark"] {
+  --background: oklch(0.12 0.02 264);
+  --foreground: oklch(0.96 0.003 264);
+  --card: oklch(0.175 0.018 264);
+  --muted: oklch(0.20 0.018 264);
+  --muted-foreground: oklch(0.68 0.015 264);
+  --border: oklch(0.30 0.016 264);
+  --primary: var(--primary-dark);
+  --primary-foreground: oklch(0.12 0.02 264);
+
+  --excellent: oklch(0.68 0.18 150);
+  --excellent-text: var(--excellent);
+  --good: oklch(0.75 0.18 70);
+  --good-text: var(--good);
+  --poor: oklch(0.62 0.20 25);
+  --poor-text: var(--poor);
+  --info: oklch(0.68 0.18 230);
+  --info-text: var(--info);
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.40);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.50), 0 2px 4px -2px rgb(0 0 0 / 0.50);
+}
+
+* { box-sizing: border-box; }
+
+/* Многие компоненты ниже задают свой display (flex/inline-flex) — без этого
+   правила [hidden] перестаёт скрывать их, т.к. авторский display побеждает
+   display:none из UA-стиля для [hidden] при равной специфичности. */
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.mono {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.app {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 32px 20px 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.hero { display: flex; flex-direction: column; gap: 6px; }
+
+.eyebrow {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.5rem; /* text-2xl — как заголовок страницы в Оптимайзере */
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.lede { margin: 0; max-width: 62ch; color: var(--muted-foreground); font-size: 0.875rem; }
+
+/* Шапка «прилипает» к верху окна — при скролле длинного списка полей видно,
+   какая роль выбрана и какая сейчас зарплата, не возвращаясь наверх. */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 10px;
+  padding: 10px 0;
+  background: var(--background);
+}
+.topbar.stuck {
+  box-shadow: 0 6px 16px -12px rgb(0 0 0 / 0.5);
+  border-bottom: 1px solid var(--border);
+}
+
+.topbar-total {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  white-space: nowrap;
+  padding: 4px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+}
+.topbar-total .lbl {
+  font-size: 0.625rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+}
+.topbar-total .mono { font-size: 1rem; font-weight: 600; }
+/* Одна роль — переключателя нет, итог занимает всю ширину шапки. */
+.topbar.single-role .topbar-total {
+  flex: 1;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.role-switch {
+  flex: 1 1 220px;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 4px;
+  gap: 4px;
+}
+.role-switch[hidden] { display: none; }
+
+.role-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--muted-foreground);
+  font: inherit;
+  font-weight: 500;
+  font-size: 0.875rem;
+  padding: 9px 12px;
+  border-radius: calc(var(--radius-lg) - 4px);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.role-btn.active { background: var(--card); color: var(--foreground); box-shadow: var(--shadow-sm); }
+
+.role-btn:focus-visible,
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.panel-grid { display: grid; grid-template-columns: 1fr; gap: 18px; }
+
+@media (min-width: 860px) {
+  .panel-grid { grid-template-columns: 1fr 1fr; align-items: stretch; }
+  .result-card { position: sticky; top: 76px; } /* ниже прилипшей .topbar */
+  /* При сгруппированной панели колонка ввода намного выше карточки итога —
+     не тянем итог на её высоту (иначе половина карточки — пустота), пусть
+     будет своей высоты и «липнет» при скролле. Для простых калькуляторов
+     (одна .inputs без групп) оставляем прежнее выравнивание по высоте. */
+  .panel-grid.has-groups { align-items: start; }
+}
+
+.inputs {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease;
+}
+
+/* Роль с группами полей: панель — просто контейнер, каждая группа — своя
+   карточка. Так длинный список (врач Надин — ~20 полей) распадается на
+   «твои рычаги» / «отработка» / «разовые за месяц», и сотруднику видно,
+   что двигать. */
+.inputs.grouped {
+  background: none;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+  gap: 14px;
+}
+
+.group-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.group-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+}
+.group-card:not(.collapsed) .group-head { border-bottom: 1px solid var(--border); }
+.group-head[role="button"] { cursor: pointer; user-select: none; }
+.group-head[role="button"]:hover { background: var(--muted); }
+.group-head[role="button"]:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
+
+.group-title-block { min-width: 0; }
+.group-title { margin: 0; font-size: 0.9375rem; font-weight: 600; }
+.group-note { margin: 3px 0 0; font-size: 0.75rem; color: var(--muted-foreground); line-height: 1.45; }
+
+.group-head-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.group-sum {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.group-toggle {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  color: var(--muted-foreground);
+  font-size: 0.7rem;
+  line-height: 20px;
+  text-align: center;
+}
+.group-toggle::before { content: "–"; }
+.group-card.collapsed .group-toggle::before { content: "+"; }
+
+.group-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* Подпись — всегда отдельной строкой сверху, независимо от длины (как
+   Label над Input у Оптимайзера). Строка со слайдером и числом всегда стоит
+   на том же месте у всех полей — раньше, когда подпись была рядом со
+   значением, длинный текст переносился на две строки и сдвигал поле вниз
+   только у этого показателя, вся колонка выглядела неровной. */
+.field-label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--foreground);
+  margin-bottom: 10px;
+}
+
+.field-control {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.field-control input[type="range"] { flex: 1; min-width: 0; }
+
+/* Поле без слайдера (суммы-доплаты) — тянем поле ввода на всю ширину,
+   чтобы столбец не выглядел «дырявым» рядом с полями со слайдером. */
+.field-control.no-slider .value-input-wrap { flex: 1; }
+.field-control.no-slider .value-input { width: 100%; }
+
+/* Подзаголовок-разделитель внутри списка полей (type:'heading') —
+   мельче и тише подписи поля, с воздухом сверху. */
+.field-group {
+  margin: 6px 0 -4px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+}
+.field-group:first-child { margin-top: 0; }
+
+/* Галочка да/нет (type:'checkbox') — подпись сразу справа от квадратика,
+   отдельной .field-label тут нет. */
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--foreground);
+  cursor: pointer;
+}
+.field-checkbox {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+/* Выбор из списка (type:'select') — та же геометрия, что у поля ввода числа. */
+.field-select {
+  width: 100%;
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--background);
+  color: var(--foreground);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.field-select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 20%, transparent);
+}
+
+/* Значение показателя — не просто текст, а редактируемое поле: сотрудник может
+   и тащить слайдер, и вписать точное число (например, из отчёта iTigris/AMO). */
+.value-input-wrap { position: relative; flex-shrink: 0; }
+.value-input {
+  width: 108px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--background);
+  color: var(--foreground);
+  font: inherit;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  -moz-appearance: textfield;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.value-input::-webkit-outer-spin-button,
+.value-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.value-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 20%, transparent);
+}
+.value-input.has-unit { padding-right: 28px; }
+.value-unit {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+  pointer-events: none;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(to right, var(--primary) var(--fill, 50%), var(--muted) var(--fill, 50%));
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 3px solid var(--card);
+  box-shadow: 0 0 0 1px var(--primary), 0 1px 3px rgba(0,0,0,.2);
+  cursor: pointer;
+  margin-top: -1px;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 3px solid var(--card);
+  box-shadow: 0 0 0 1px var(--primary);
+  cursor: pointer;
+}
+
+input[type="range"]::-moz-range-track { height: 6px; border-radius: 999px; background: transparent; }
+
+/* Подсказка "за счёт чего вырасти" — заметный чип под слайдером, а не серая
+   строчка: это главная механика калькулятора, сотрудник должен её видеть. */
+.marginal {
+  margin: 10px 0 0;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  background: color-mix(in oklab, var(--primary) 8%, var(--card));
+  border-radius: var(--radius-lg);
+  padding: 8px 10px;
+  line-height: 1.5;
+}
+.marginal .mono { color: var(--primary); font-weight: 600; }
+
+.result-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+/* Подпись может быть длинной и переноситься на две строки (например,
+   "Надбавка KPI 2 (порог 1 (3 000 ₽))") — но само число переноситься не
+   должно никогда: разорванное посередине "3 000" / "₽" выглядит как баг,
+   а не как перенос текста. */
+.result-row > span:first-child { flex: 1 1 auto; min-width: 0; }
+.result-row > span:last-child { flex: 0 0 auto; white-space: nowrap; }
+
+.result-row .mono { color: var(--foreground); font-size: 0.9375rem; font-weight: 500; }
+
+.result-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.result-total .label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+
+.result-total .mono { font-size: 1.5rem; font-weight: 600; }
+
+.delta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Заливка 10% от статусного цвета + текстовый вариант с AA-контрастом —
+   тот же паттерн, что у Badge/text-excellent в Оптимайзере. */
+.delta-pill.positive { background: color-mix(in oklab, var(--excellent) 12%, var(--card)); color: var(--excellent-text); }
+.delta-pill.negative { background: color-mix(in oklab, var(--poor) 12%, var(--card)); color: var(--poor-text); }
+.delta-pill.neutral { background: var(--muted); color: var(--muted-foreground); }
+
+.tip {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+  background: color-mix(in oklab, var(--info) 10%, var(--card));
+  border-radius: var(--radius-lg);
+  padding: 10px 12px;
+  line-height: 1.5;
+}
+
+.tip strong { color: var(--foreground); }
+
+/* flex-wrap — запасной вариант для очень узких экранов: если обеим кнопкам
+   не хватает места даже в одну строку, вторая уходит на новую строку целиком,
+   а не переносит текст посередине слова. */
+/* margin-top:auto прижимает кнопки (и подпись под ними) к низу карточки —
+   когда stretch делает карточку итога выше её собственного контента (чтобы
+   сравняться по высоте с карточкой ввода), эта группа занимает освободившееся
+   место снизу, а не оставляет пустой разрыв где-то посередине карточки. */
+.baseline-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
+
+.baseline-controls button {
+  font: inherit;
+  font-weight: 500;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+  transition: box-shadow 0.15s ease, background 0.15s ease, transform 0.1s ease;
+}
+
+/* Основная кнопка забирает всё свободное место в строке (текст длиннее),
+   вторая — по размеру своего текста. Ни одна не сжимается ниже ширины
+   своей надписи (браузер по умолчанию не даёт flex-item сжаться меньше
+   min-content, поэтому именно на 0 0 auto надёжнее, чем flex:1 у обеих). */
+.baseline-controls button.primary {
+  flex: 1 1 auto;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+.baseline-controls button:not(.primary) { flex: 0 0 auto; }
+.baseline-controls button.primary:hover { box-shadow: var(--shadow-md); }
+.baseline-controls button:active { transform: scale(0.98); }
+.baseline-controls button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.baseline-note { margin: 0; font-size: 0.75rem; color: var(--muted-foreground); }
+.baseline-note .mono { color: var(--foreground); }
+
+footer.formula { font-size: 0.75rem; color: var(--muted-foreground); border-top: 1px solid var(--border); padding-top: 16px; line-height: 1.6; }
+footer.formula p { margin: 4px 0; }
+footer.formula strong { color: var(--foreground); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+
+
+[hidden]{display:none!important}.draft-banner,.scenario-bar{max-width:1160px;margin:20px auto;padding:16px 24px;border-radius:12px;background:#fff4d6;color:#563d05;font:15px/1.6 system-ui}.scenario-bar{background:#edf3ff;color:#183151}.scenario-bar button{margin:5px;padding:10px 15px;border:1px solid #c2d2f0;border-radius:9px;cursor:pointer;background:white;color:#183151;font:inherit}.scenario-bar p{margin:5px}input:focus-visible,button:focus-visible,[role=button]:focus-visible{outline:3px solid #2563eb;outline-offset:3px}hr{border:0;border-top:1px solid #cbd5e1;margin:14px 0}@media(max-width:600px){.draft-banner,.scenario-bar{margin:10px;padding:12px}.scenario-bar button{font-size:13px}}@media print{.scenario-bar,button,input[type=range],.group-toggle{display:none!important}.topbar{position:static!important}.group-body[hidden]{display:block!important}.inputs[hidden]{display:none!important}.panel-grid{display:block!important}.result-card{position:static!important;break-inside:avoid}.draft-banner{background:white;border:1px solid #777}}
+</style></head><body><div class="draft-banner"><strong>Черновик для проверки руководителем · 05.11.2026.</strong> Ставки и нормы предварительные. Примеры не заменяют расчёт по фактическим данным сотрудников.</div><div class="scenario-bar"><strong>Проверить примеры консультанта</strong><br><button type="button" data-scenario="weak">Слабый · 70 тыс.</button><button type="button" data-scenario="normal">Обычный · 100 тыс.</button><button type="button" data-scenario="strong">Сильный · 140 тыс.</button><button type="button" id="print">Печать / PDF</button><p id="scenario-note" aria-live="polite">Кнопки загружают расчётные сценарии и сбрасывают настройки консультанта.</p></div><div id="app"></div><script>/* Draft 2026-11-05. Percentages in inputs use 0..100, rates in output 0..1. */
+(function (root) {
+  'use strict';
+  const clip = (x,a,b) => Math.max(a,Math.min(b,x));
+  const planAdjustment = p => .01 * (p <= 100 ? clip((p-100)/20,-1,0) : clip((p-100)/10,0,1));
+  const qualityAdjustment = (x,t) => .005*clip((x/t-1)/.1,-1,1);
+  function compute(role,s) {
+    const errors=[];
+    const required=['hours','hourlyRate','baseRate','plan','check','checkNorm','conversion','convNorm','revenue','returns'];
+    if(s.compare) required.push('currentPay');
+    for(const k of required) {
+      if(s[k]===null || s[k]===undefined || !Number.isFinite(s[k])) errors.push('поле «'+k+'» не заполнено');
+      else if(s[k]<0) errors.push('поле «'+k+'» не может быть отрицательным');
+    }
+    if(errors.length) return {valid:false,errors};
+    if(s.baseRate<1.25 || s.baseRate>98.75) errors.push('базовый процент должен быть от 1,25 до 98,75');
+    if(s.checkNorm<=0) errors.push('норма среднего чека должна быть больше нуля');
+    if(s.convNorm<=0 || s.convNorm>100) errors.push('норма конверсии должна быть больше 0 и не выше 100%');
+    if(s.returns>s.revenue) errors.push('возвраты превышают выручку; нужен отдельный расчёт переноса');
+    if(s.conversion>100) errors.push('конверсия не может превышать 100%');
+    const conversion=s.conversion;
+    if(errors.length) return {valid:false,errors};
+    const dp=planAdjustment(s.plan)*.5, dc=qualityAdjustment(s.check,s.checkNorm), dv=qualityAdjustment(conversion,s.convNorm)*.5;
+    const rate=clip(s.baseRate/100+dp+dc+dv,Math.max(0,s.baseRate/100-.0125),Math.min(1,s.baseRate/100+.0125));
+    const netRevenue=s.revenue-s.returns;
+    const fixed=s.hours*s.hourlyRate, bonus=netRevenue*rate, total=fixed+bonus;
+    return {valid:true,dp,dc,dv,rate,conversion,netRevenue,fixed,bonus,total,
+      salaryShare:netRevenue>0?total/netRevenue:null,
+      difference:s.compare?total-s.currentPay:null,
+      rows:[{label:'Оклад · '+s.hours+' ч × '+s.hourlyRate+' ₽',value:fixed},{label:'База · '+s.baseRate+'% личных продаж',value:netRevenue*s.baseRate/100},{label:'KPI 1 · план филиала',value:netRevenue*dp},{label:'KPI 2 · средний чек',value:netRevenue*dc},{label:'KPI 3 · конверсия',value:netRevenue*dv}]};
+  }
+  const defaults={hours:160,hourlyRate:250,baseRate:5,plan:100,check:20000,checkNorm:20000,conversion:80,convNorm:80,revenue:1200000,returns:0,currentPay:0,compare:false};
+  const scenarios={weak:{revenue:800000,plan:80,check:18000,conversion:72},normal:{revenue:1200000,plan:100,check:20000,conversion:80},strong:{revenue:1600000,plan:110,check:22000,conversion:88}};
+  const api={compute,defaults,scenarios,planAdjustment,qualityAdjustment};
+  if(typeof module!=='undefined') module.exports=api;
+  else root.ChelnyModel=api;
+})(typeof window!=='undefined'?window:globalThis);
+
+/**
+ * Общий движок калькуляторов мотивации.
+ *
+ * Что общее у всех клиентов (живёт здесь): переключатель ролей, группы полей
+ * (в т.ч. сворачиваемые), поля ввода (слайдер+число, выбор из списка, галочка),
+ * механика "зафиксировать сейчас → живая дельта", подсказки, вёрстка и тема.
+ *
+ * Что своё у каждого клиента (живёт в index.html каждой папки): набор полей
+ * и функция compute(state) — сама формула расчёта зарплаты может быть какой
+ * угодно, движок про неё ничего не знает и не навязывает форму расчёта.
+ *
+ * Конфиг, который принимает MotivationCalculator.init(config):
+ * {
+ *   title, eyebrow, lede, favicon,
+ *   theme: { accent: '#hex', accentDark: '#hex' },  // необязательно
+ *   footnotes: [string, ...],
+ *   roles: [
+ *     {
+ *       id, label,
+ *
+ *       // ── поля роли: либо плоский список fields, либо groups ────────────
+ *       fields: [ ...поля... ],           // простой вариант, одна безымянная группа
+ *       // ИЛИ
+ *       groups: [
+ *         {
+ *           title: 'Продажи линз — твои рычаги',   // необязательно
+ *           note: 'Что растёт от твоей работы',    // необязательно, строка под заголовком
+ *           collapsible: true,                     // необязательно — группу можно свернуть
+ *           collapsed: true,                       // необязательно — стартует свёрнутой
+ *           sum: 'money' | (state) => number,      // необязательно — показывать в шапке
+ *                                                  //   группы её вклад: 'money' = сумма
+ *                                                  //   money-полей группы; функция = что
+ *                                                  //   угодно (напр. с учётом ставок/долей)
+ *           fields: [ ...поля... ]
+ *         },
+ *         ...
+ *       ],
+ *
+ *       compute: (state) => ({ rows: [{label, value}], total }),
+ *       tip: (computed, state) => htmlString      // необязательно
+ *     }
+ *   ]
+ * }
+ *
+ * Поле (элемент fields):
+ *   (нет type) / type:'range' — число со слайдером.
+ *     { id, label, unit: 'count'|'money'|'percent', min, max, step, default,
+ *       slider: false,        // убрать ползунок, оставить только поле ввода
+ *       marginalLabel, marginal }
+ *   type:'select'   — { id, label, type:'select', default, options: ['A',{value,label}] }
+ *   type:'checkbox' — { id, label, type:'checkbox', default: false }
+ *   type:'heading'  — подзаголовок внутри группы, без значения. { label, type:'heading' }
+ *
+ *   marginal(state) → number  (рендерится "{marginalLabel} ≈ +{n} ₽/мес")
+ *                   → string  (html как есть — для ступенчатых/пороговых формул)
+ *   key: true — если хотя бы у одного поля роли стоит, в строке "База: …"
+ *     под итогом показываются только key-поля (иначе все).
+ *
+ * Если ролей всего одна — переключатель ролей скрывается автоматически.
+ */
+(function (global) {
+  function fmtMoney(n) {
+    return Math.round(n).toLocaleString('ru-RU') + ' ₽';
+  }
+
+  function optValue(o) { return (o && typeof o === 'object') ? o.value : o; }
+  function optLabel(o) { return (o && typeof o === 'object') ? (o.label != null ? o.label : o.value) : o; }
+
+  function formatFieldValue(field, value) {
+    if (field.type === 'checkbox') return value ? 'да' : 'нет';
+    if (field.type === 'select') {
+      var opt = (field.options || []).filter(function (o) { return optValue(o) === value; })[0];
+      return opt ? optLabel(opt) : String(value);
+    }
+    if (field.unit === 'money') return fmtMoney(value);
+    if (field.unit === 'percent') return value + '%';
+    return String(value);
+  }
+
+  function applyTheme(theme) {
+    if (!theme) return;
+    var root = document.documentElement;
+    if (theme.accent) root.style.setProperty('--primary', theme.accent);
+    if (theme.accentDark) root.style.setProperty('--primary-dark', theme.accentDark);
+  }
+
+  function unitSuffix(field) {
+    if (field.unit === 'money') return '₽';
+    if (field.unit === 'percent') return '%';
+    return '';
+  }
+
+  function formatGrouped(n) {
+    return Number(n).toLocaleString('ru-RU');
+  }
+
+  function parseGroupedNumber(raw) {
+    var cleaned = String(raw).replace(/[\s ]/g, '').replace(',', '.');
+    var v = parseFloat(cleaned);
+    return isNaN(v) ? null : v;
+  }
+
+  function setFavicon(emoji) {
+    if (!emoji) return;
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
+      '<text y="0.9em" font-size="90">' + emoji + '</text></svg>';
+    var link = document.querySelector('link[rel="icon"]') || document.createElement('link');
+    link.rel = 'icon';
+    link.href = 'data:image/svg+xml,' + encodeURIComponent(svg);
+    document.head.appendChild(link);
+  }
+
+  function el(tag, attrs, children) {
+    var node = document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (k) {
+      if (k === 'class') node.className = attrs[k];
+      else if (k === 'html') node.innerHTML = attrs[k];
+      else if (k === 'text') node.textContent = attrs[k];
+      else node.setAttribute(k, attrs[k]);
+    });
+    (children || []).forEach(function (c) { if (c) node.appendChild(c); });
+    return node;
+  }
+
+  function groupsOf(role) {
+    if (role.groups && role.groups.length) return role.groups;
+    return [{ fields: role.fields || [] }];
+  }
+
+  function valueFields(role) {
+    var out = [];
+    groupsOf(role).forEach(function (g) {
+      (g.fields || []).forEach(function (f) { if (f.type !== 'heading') out.push(f); });
+    });
+    return out;
+  }
+
+  function init(config) {
+    applyTheme(config.theme);
+    setFavicon(config.favicon);
+    if (config.title) document.title = config.title;
+
+    var app = document.getElementById('app') || document.body;
+    app.innerHTML = '';
+
+    var hero = el('div', { class: 'hero' }, [
+      config.eyebrow ? el('p', { class: 'eyebrow', text: config.eyebrow }) : null,
+      el('h1', { text: config.title || 'Калькулятор зарплаты' }),
+      config.lede ? el('p', { class: 'lede', html: config.lede }) : null
+    ]);
+
+    var roleSwitch = el('div', { class: 'role-switch', role: 'tablist' });
+    var topTotal = el('span', { class: 'mono' });
+    var topbar = el('div', { class: 'topbar' }, [
+      roleSwitch,
+      el('div', { class: 'topbar-total' }, [
+        el('span', { class: 'lbl', text: 'Итого в месяц' }),
+        topTotal
+      ])
+    ]);
+    var panelGrid = el('main', { class: 'panel-grid' });
+    var resultCard = el('aside', { class: 'result-card' });
+    var resBody = el('div', { class: 'result-body' });
+    var deltaPill = el('div', { class: 'delta-pill neutral', hidden: 'hidden' });
+    var tipBox = el('p', { class: 'tip' });
+    var btnSet = el('button', { class: 'primary', type: 'button', text: 'Зафиксировать как «сейчас»' });
+    var btnReset = el('button', { type: 'button', text: 'Сбросить', disabled: 'disabled' });
+    var baselineNote = el('p', { class: 'baseline-note' });
+
+    resultCard.appendChild(resBody);
+    resultCard.appendChild(deltaPill);
+    resultCard.appendChild(tipBox);
+    resultCard.appendChild(el('div', { class: 'baseline-controls' }, [btnSet, btnReset]));
+    resultCard.appendChild(baselineNote);
+
+    var panels = {};
+    var slots = {};       // roleId -> fieldId -> slot
+    var groupSums = {};    // roleId -> [{ group, el }]
+    var state = {};
+    var baselines = {};
+
+    function renderField(roleId, field, container) {
+      if (field.type === 'heading') {
+        container.appendChild(el('p', { class: 'field-group', text: field.label }));
+        return;
+      }
+
+      var fieldId = 'f-' + roleId + '-' + field.id;
+      var slot = { field: field };
+      var margEl = field.marginal ? el('p', { class: 'marginal' }) : null;
+      var fieldWrap = el('div', { class: 'field' });
+
+      if (field.type === 'checkbox') {
+        var cb = el('input', { type: 'checkbox', id: fieldId, class: 'field-checkbox' });
+        cb.checked = !!field.default;
+        fieldWrap.appendChild(el('label', { class: 'checkbox-row', for: fieldId }, [
+          cb, el('span', { text: field.label })
+        ]));
+        cb.addEventListener('change', function () {
+          state[roleId][field.id] = cb.checked;
+          render();
+        });
+        slot.checkbox = cb;
+
+      } else if (field.type === 'select') {
+        fieldWrap.appendChild(el('label', { for: fieldId, text: field.label, class: 'field-label' }));
+        var sel = el('select', { id: fieldId, class: 'field-select' });
+        (field.options || []).forEach(function (o) {
+          sel.appendChild(el('option', { value: optValue(o), text: optLabel(o) }));
+        });
+        sel.value = field.default;
+        fieldWrap.appendChild(sel);
+        sel.addEventListener('change', function () {
+          state[roleId][field.id] = sel.value;
+          render();
+        });
+        slot.select = sel;
+
+      } else {
+        fieldWrap.appendChild(el('label', { for: fieldId, text: field.label, class: 'field-label' }));
+        var suffix = unitSuffix(field);
+        var hasSlider = field.slider !== false;
+
+        var numberInput = el('input', {
+          type: 'text',
+          inputmode: 'decimal',
+          class: 'value-input mono' + (suffix ? ' has-unit' : ''),
+          id: fieldId,
+          value: field.default
+        });
+        var valueWrap = el('div', { class: 'value-input-wrap' }, [
+          numberInput,
+          suffix ? el('span', { class: 'value-unit', text: suffix }) : null
+        ]);
+        var controlChildren = [valueWrap];
+        var rangeInput = null;
+        if (hasSlider) {
+          rangeInput = el('input', {
+            type: 'range',
+            'aria-label': field.label,
+            min: field.min,
+            max: field.max,
+            step: field.step,
+            value: field.default
+          });
+          controlChildren.push(rangeInput);
+          rangeInput.addEventListener('input', function () {
+            state[roleId][field.id] = Number(rangeInput.value);
+            render();
+          });
+        }
+        fieldWrap.appendChild(el('div', { class: 'field-control' + (hasSlider ? '' : ' no-slider') }, controlChildren));
+
+        numberInput.addEventListener('focus', function () {
+          numberInput.value = String(state[roleId][field.id]);
+          numberInput.select();
+        });
+        numberInput.addEventListener('input', function () {
+          var v = parseGroupedNumber(numberInput.value);
+          state[roleId][field.id] = v;
+          render();
+        });
+        numberInput.addEventListener('blur', function () {
+          var v = parseGroupedNumber(numberInput.value);
+          
+          state[roleId][field.id] = v;
+          render();
+        });
+
+        slot.input = rangeInput;
+        slot.numberInput = numberInput;
+      }
+
+      if (margEl) {
+        slot.margEl = margEl;
+        fieldWrap.appendChild(margEl);
+      }
+      container.appendChild(fieldWrap);
+      slots[roleId][field.id] = slot;
+    }
+
+    config.roles.forEach(function (role, idx) {
+      state[role.id] = {};
+      valueFields(role).forEach(function (f) { state[role.id][f.id] = f.default; });
+      baselines[role.id] = null;
+      slots[role.id] = {};
+      groupSums[role.id] = [];
+
+      var btn = el('button', {
+        class: 'role-btn' + (idx === 0 ? ' active' : ''),
+        role: 'tab',
+        'aria-selected': idx === 0 ? 'true' : 'false',
+        'data-role': role.id,
+        type: 'button',
+        text: role.label
+      });
+      btn.addEventListener('click', function () { switchRole(role.id); });
+      roleSwitch.appendChild(btn);
+
+      var groups = groupsOf(role);
+      var grouped = groups.length > 1 || groups[0].title || groups[0].collapsible;
+      if (grouped) panelGrid.classList.add('has-groups');
+      var panel = el('section', { class: 'inputs' + (grouped ? ' grouped' : ''), id: 'panel-' + role.id });
+      if (idx !== 0) panel.hidden = true;
+
+      groups.forEach(function (group) {
+        var container = panel;
+
+        if (grouped) {
+          var card = el('div', { class: 'group-card' + (group.collapsed ? ' collapsed' : '') });
+          var sumEl = group.collapsible && group.sum
+            ? el('span', { class: 'group-sum' })
+            : null;
+          var titleBlock = el('div', { class: 'group-title-block' }, [
+            group.title ? el('p', { class: 'group-title', text: group.title }) : null,
+            group.note ? el('p', { class: 'group-note', text: group.note }) : null
+          ]);
+          var headChildren = [titleBlock];
+          if (sumEl || group.collapsible) {
+            headChildren.push(el('div', { class: 'group-head-right' }, [
+              sumEl,
+              group.collapsible ? el('span', { class: 'group-toggle', 'aria-hidden': 'true' }) : null
+            ]));
+          }
+          var head = el('div', { class: 'group-head' }, headChildren);
+          var body = el('div', { class: 'group-body' });
+          if (group.collapsed) body.hidden = true;
+
+          if (group.collapsible) {
+            head.setAttribute('role', 'button');
+            head.setAttribute('tabindex', '0');
+            head.setAttribute('aria-expanded', group.collapsed ? 'false' : 'true');
+            var toggle = function () {
+              var nowCollapsed = card.classList.toggle('collapsed');
+              body.hidden = nowCollapsed;
+              head.setAttribute('aria-expanded', nowCollapsed ? 'false' : 'true');
+            };
+            head.addEventListener('click', toggle);
+            head.addEventListener('keydown', function (e) {
+              if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+            });
+          }
+
+          card.appendChild(head);
+          card.appendChild(body);
+          panel.appendChild(card);
+          container = body;
+
+          if (sumEl) {
+            var moneyIds = (group.fields || [])
+              .filter(function (f) { return f.unit === 'money'; })
+              .map(function (f) { return f.id; });
+            groupSums[role.id].push({
+              compute: typeof group.sum === 'function'
+                ? group.sum
+                : function (st) { return moneyIds.reduce(function (a, id) { return a + (Number(st[id]) || 0); }, 0); },
+              el: sumEl
+            });
+          }
+        }
+
+        (group.fields || []).forEach(function (field) {
+          renderField(role.id, field, container);
+        });
+      });
+
+      panels[role.id] = panel;
+      panelGrid.appendChild(panel);
+    });
+
+    panelGrid.appendChild(resultCard);
+
+    var currentRole = config.roles[0].id;
+
+    function switchRole(roleId) {
+      currentRole = roleId;
+      Array.prototype.forEach.call(roleSwitch.children, function (b) {
+        var active = b.getAttribute('data-role') === roleId;
+        b.classList.toggle('active', active);
+        b.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      Object.keys(panels).forEach(function (id) { panels[id].hidden = id !== roleId; });
+      render();
+    }
+
+    function fillPct(input) {
+      var pct = (input.value - input.min) / (input.max - input.min) * 100;
+      input.style.setProperty('--fill', pct + '%');
+    }
+
+    function snapshotFields(role) {
+      var all = valueFields(role);
+      var keyed = all.filter(function (f) { return f.key; });
+      return keyed.length ? keyed : all;
+    }
+
+    function describeSnapshot(role, snapshot) {
+      return snapshotFields(role).map(function (f) {
+        return f.label + ': ' + formatFieldValue(f, snapshot[f.id]);
+      }).join(' · ');
+    }
+
+    function render() {
+      var role = config.roles.filter(function (r) { return r.id === currentRole; })[0];
+      var s = state[role.id];
+
+      valueFields(role).forEach(function (field) {
+        var slot = slots[role.id][field.id];
+        if (!slot) return;
+
+        if (slot.checkbox) {
+          slot.checkbox.checked = !!s[field.id];
+        } else if (slot.select) {
+          slot.select.value = s[field.id];
+        } else {
+          if (slot.input) {
+            slot.input.value = s[field.id];
+            fillPct(slot.input);
+          }
+          if (slot.numberInput && document.activeElement !== slot.numberInput) {
+            slot.numberInput.value = s[field.id] == null ? '' : formatGrouped(s[field.id]);
+          }
+        }
+
+        if (slot.margEl && field.marginal) {
+          var m = field.marginal(s);
+          if (typeof m === 'number') {
+            slot.margEl.innerHTML = (field.marginalLabel || 'Изменение') + ' ≈ <span class="mono">+' + fmtMoney(m) + '/мес</span>';
+          } else {
+            slot.margEl.innerHTML = m;
+          }
+        }
+      });
+
+      (groupSums[role.id] || []).forEach(function (gs) {
+        var sum = gs.compute(s);
+        // Пусто, а не "—", когда группа ничего не добавляет — чтобы в шапке
+        // свёрнутой группы не стояли рядом два значка ("—" и "+").
+        gs.el.textContent = sum ? fmtMoney(sum) : '';
+      });
+
+      var computed = role.compute(s);
+      resBody.innerHTML = '';
+      if (computed.valid === false) {
+        resBody.appendChild(el('p', {text: 'Недостаточно данных: ' + computed.errors.join('; ')}));
+        topTotal.textContent = 'Нет расчёта';
+        tipBox.textContent = 'Заполните или исправьте выделенные по смыслу показатели. Пустое поле не считается нулём.';
+        tipBox.hidden = false; deltaPill.hidden = true; btnSet.disabled = true; btnReset.disabled = !baselines[role.id];
+        return;
+      }
+      btnSet.disabled = false;
+      computed.rows.forEach(function (row) {
+        resBody.appendChild(el('div', { class: 'result-row' }, [
+          el('span', { text: row.label }),
+          el('span', { class: 'mono', html: fmtMoney(row.value) })
+        ]));
+      });
+      resBody.appendChild(el('div', { class: 'result-total' }, [
+        el('span', { class: 'label', text: 'Итого в месяц' }),
+        el('span', { class: 'mono', html: fmtMoney(computed.total) })
+      ]));
+      topTotal.textContent = fmtMoney(computed.total);
+
+      if (role.tip) {
+        tipBox.innerHTML = role.tip(computed, s);
+        tipBox.hidden = false;
+      } else {
+        tipBox.hidden = true;
+      }
+
+      var baseline = baselines[role.id];
+      if (!baseline) {
+        deltaPill.hidden = true;
+        btnReset.disabled = true;
+        baselineNote.innerHTML = 'Точка отсчёта ещё не задана — выставь свои реальные цифры и нажми «Зафиксировать».';
+      } else {
+        btnReset.disabled = false;
+        var diff = computed.total - baseline.total;
+        var pct = baseline.total > 0 ? Math.round((diff / baseline.total) * 100) : 0;
+        deltaPill.hidden = false;
+        deltaPill.className = 'delta-pill ' + (diff > 0 ? 'positive' : diff < 0 ? 'negative' : 'neutral');
+        if (diff === 0) {
+          deltaPill.textContent = 'Без изменений от точки отсчёта';
+        } else {
+          var sign = diff > 0 ? '+' : '−';
+          deltaPill.textContent = sign + fmtMoney(Math.abs(diff)) + ' (' + sign + Math.abs(pct) + '%)';
+        }
+        baselineNote.innerHTML = 'База: <span class="mono">' + describeSnapshot(role, baseline.snapshot) +
+          '</span> → <span class="mono">' + fmtMoney(baseline.total) + '</span>';
+      }
+    }
+
+    btnSet.addEventListener('click', function () {
+      var role = config.roles.filter(function (r) { return r.id === currentRole; })[0];
+      var snapshot = Object.assign({}, state[role.id]);
+      var computed = role.compute(snapshot);
+      baselines[role.id] = { snapshot: snapshot, total: computed.total };
+      render();
+    });
+
+    btnReset.addEventListener('click', function () {
+      var role = config.roles.filter(function (r) { return r.id === currentRole; })[0];
+      var baseline = baselines[role.id];
+      if (!baseline) return;
+      state[role.id] = Object.assign({}, baseline.snapshot);
+      render();
+    });
+
+    if (config.roles.length < 2) {
+      roleSwitch.hidden = true;
+      topbar.classList.add('single-role');
+    }
+
+    app.appendChild(el('div', { class: 'app' }, [
+      hero,
+      topbar,
+      panelGrid,
+      config.footnotes ? el('footer', {
+        class: 'formula',
+        html: config.footnotes.map(function (t) { return '<p>' + t + '</p>'; }).join('')
+      }) : null
+    ]));
+
+    // Тень под прилипшей шапкой — только когда она реально «приклеилась» к верху.
+    var onScroll = function () {
+      topbar.classList.toggle('stuck', topbar.getBoundingClientRect().top <= 0.5);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    render();
+    return {
+      setState: function (roleId, values) { Object.assign(state[roleId], values); switchRole(roleId); },
+      getState: function (roleId) { return Object.assign({}, state[roleId]); },
+      switchRole: switchRole
+    };
+  }
+
+  global.MotivationCalculator = { init: init, util: { fmtMoney: fmtMoney } };
+})(window);
+
+
+(function(){
+ const M=ChelnyModel,money=n=>Math.round(n).toLocaleString('ru-RU')+' ₽';
+ const labels={hours:'Отработано часов',hourlyRate:'Ставка за час',baseRate:'Базовый процент от личных продаж',revenue:'Личные продажи очков',returns:'Возвраты, ещё не вычтенные из продаж',plan:'Выполнение плана филиала',check:'Средний чек очков',checkNorm:'Норма среднего чека',conversion:'Личная конверсия в заказ',convNorm:'Норма конверсии',currentPay:'Начислено по текущей схеме'};
+ function f(id,unit,max,step,extra){return Object.assign({id,label:labels[id],unit,min:0,max,step:step||1,default:M.defaults[id]},extra||{});}
+ const roles=['consultant','optometrist'].map(role=>{
+  const opt=role==='optometrist';
+  const check=f('check','money',100000,100),norm=f('checkNorm','money',100000,100),conv=f('conversion','percent',100,.1),revenue=f('revenue','money',5000000,1000);
+  if(opt){check.label='Средний чек очковых линз';check.default=10000;norm.label='Норма чека очковых линз';norm.default=10000;conv.label='Конверсия в целевое действие: очки или «орто»';revenue.label='Личные продажи очковых линз';}
+  const groups=[
+   {title:'KPI 1 · выполнение плана филиала',note:'Общий план закреплённого филиала. Предлагаемая поправка: от −0,5 до +0,5 п.п.',fields:[f('plan','percent',200,1)]},
+   {title:opt?'KPI 2 · средний чек линз':'KPI 2 · средний чек очков',note:'Личный показатель. Предлагаемая поправка: от −0,5 до +0,5 п.п.',fields:[check]},
+   {title:opt?'KPI 3 · конверсия в целевое действие':'KPI 3 · конверсия в заказ',note:opt?'Приём завершается заказом очков либо подтверждённым переходом на «орто». Один пациент с двумя действиями считается один раз.':'Личная конверсия. Предлагаемая поправка: от −0,25 до +0,25 п.п.',fields:[conv]},
+   {title:'Личные продажи и часы',fields:[revenue,f('hours','count',400,.5),f('returns','money',5000000,1000,{slider:false})]},
+   {title:'Сравнение с текущей оплатой',collapsible:true,collapsed:true,fields:[{id:'compare',label:'Текущая зарплата известна',type:'checkbox',default:false},f('currentPay','money',500000,1000,{slider:false})]},
+   {title:'Нормы и ставки · предварительные',note:'Ставка часа, базовый процент и нормы KPI. Настройки каждой роли независимы; начальные значения — примеры для проверки.',collapsible:true,collapsed:true,fields:[f('hourlyRate','money',3000,10),f('baseRate','percent',20,.25,{min:1.25}),norm,f('convNorm','percent',100,.1,{min:.1})]}
+  ];
+  return {id:role,label:opt?'Оптометрист':'Консультант',groups,compute:s=>{let c=M.compute(role,s);if(!c.valid)c.errors=c.errors.map(e=>e.replace(/«([^»]+)»/g,(_,k)=>'«'+(labels[k]||k)+'»'));return c;},tip:(c,s)=>{
+   let t='<strong>Итоговый процент: '+(c.rate*100).toFixed(2)+'%</strong><br>База '+s.baseRate+'%';
+   for(const [name,x] of [['KPI 1 · план',c.dp],['KPI 2 · чек',c.dc],['KPI 3 · конверсия',c.dv]])t+='<br>'+name+': '+(x>=0?'+':'')+(x*100).toFixed(2)+' п.п.';
+   t+='<hr>Оклад: '+s.hours+' ч × '+money(s.hourlyRate)+' = '+money(c.fixed);
+   t+='<br>Вся зарплата / личные продажи после возвратов: '+(c.salaryShare===null?'не определяется':(c.salaryShare*100).toFixed(2)+'%');
+   if(c.difference!==null)t+='<br>К текущей оплате: '+(c.difference>=0?'+':'−')+money(Math.abs(c.difference));
+   t+='<hr>Ставка часа, базовый процент, нормы и размеры поправок — предлагаемые настройки, не утверждённая схема оплаты.';
+   return t;
+  }};
+ });
+ const ui=MotivationCalculator.init({title:'Мотивация команды',eyebrow:'Челны-Оптика · оклад + личные продажи + 3 KPI',lede:'Оклад = отработанные часы × ставка часа. К нему прибавляется процент от личных продаж, изменённый тремя KPI. У каждой роли свой расчёт.',roles,footnotes:[
+ '<strong>Формула:</strong> часы × ставка часа + (личные продажи − возвраты) × (базовый процент + поправка KPI 1 + поправка KPI 2 + поправка KPI 3).',
+ '<strong>Предлагаемые настройки для калибровки:</strong> 250 ₽/ч, базовая ставка 5%. KPI 1: план 80% → −0,5 п.п., 100% → 0, 110% → +0,5 п.п. KPI 2: чек 90% нормы → −0,5 п.п., на норме → 0, 110% нормы → +0,5 п.п. KPI 3: конверсия 90% нормы → −0,25 п.п., на норме → 0, 110% нормы → +0,25 п.п. Между точками изменение плавное. Это предложение для обсуждения; размеры поправок не были утверждены на встрече.',
+ '<strong>Три KPI консультанта:</strong> выполнение плана филиала, средний чек очков, личная конверсия в заказ. <strong>Три KPI оптометриста:</strong> выполнение плана филиала, средний чек линз, конверсия приёма в целевое действие — очки или «орто».',
+ 'Чек 20 000 / 10 000 и конверсия 80% в начальных настройках — демонстрационные нормы. Числитель, знаменатель конверсии и период учёта должны совпадать с отчётом. Дополнительные показатели работы не добавлены в модель.',
+ 'Для оптометриста начальные ставки — технический пример; его зарплатные ориентиры не установлены. Общая конверсия не гарантирует сохранение потока «орто»; отдельный норматив не вводился.',
+ 'Примеры консультанта при 160 ч × 250 ₽: 800 тыс. × 3,75% + 40 тыс. = 70 тыс.; 1,2 млн × 5% + 40 тыс. = 100 тыс.; 1,6 млн × 6,25% + 40 тыс. = 140 тыс. Нормальный объём 1,2 млн и ставка часа предложены для настройки, не получены из ведомости.',
+ 'Если возвраты уже вычтены в отчёте, поставьте в поле возвратов 0. Пустые обязательные поля блокируют расчёт. Ввод выполняется локально; перезагрузка сбрасывает значения. Результат можно напечатать.'
+ ]});
+ document.querySelectorAll('[data-scenario]').forEach(b=>b.onclick=()=>{ui.setState('consultant',{...M.defaults,...M.scenarios[b.dataset.scenario]});document.getElementById('scenario-note').textContent='Расчётный пример консультанта: '+b.textContent+'. Часы, ставки и нормы консультанта сброшены на демонстрационные.';});
+ document.getElementById('print').onclick=()=>window.print();window.calculator=ui;
+ function openRole(){const role=location.hash.slice(1);if(role==='consultant'||role==='optometrist')ui.switchRole(role);}
+ window.addEventListener('hashchange',openRole);openRole();
+})();
+</script></body></html>
