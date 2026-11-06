@@ -1,0 +1,202 @@
+<meta charset="utf-8">
+<!DOCTYPE html><html lang="ru"><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><title>ОДВ × ВИЖУ — пилот на 7 салонов</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"><style>
+  :root {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    --background: #F5F7F9;
+    --card: #FFFFFF;
+    --foreground: #0D121B;
+    --muted: #F3F5F9;
+    --muted-foreground: #646972;
+    --primary: #2B62EF;
+    --border: #DBDEE5;
+    --border-strong: #BFC4CD;
+    --excellent: #00A245;  --excellent-text: #00892C;  --excellent-bg: #E6F6EC;
+    --good: #ED990E;       --good-text: #B16100;       --good-bg: #FDF5E7;
+    --poor: #DF202E;       --poor-text: #DF202E;       --poor-bg: #FCE9EA;
+    --info: #0095D3;       --info-text: #007DBA;       --info-bg: #E6F4FB;
+    --chart-1: #4076F5; --chart-2: #00A68A; --chart-3: #A46BF5;
+    --chart-4: #59B842; --chart-5: #FC8C45;
+    --radius-card: 16px;
+    --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --slide-w: 1280px;
+    --slide-h: 720px;
+    --slide-pad: 48px;
+    --gap: 24px;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    background: #2b2e33;
+    font-family: var(--font-sans);
+    color: var(--foreground);
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+  .viewport {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .stage {
+    position: relative;
+    width: var(--slide-w);
+    height: var(--slide-h);
+    flex-shrink: 0;
+    transform-origin: center center;
+  }
+  .slide {
+    width: var(--slide-w);
+    height: var(--slide-h);
+    background: var(--background);
+    position: absolute;
+    inset: 0;
+    padding: var(--slide-pad);
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.35);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .slide.active { display: flex; }
+  .eyebrow {
+    font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--primary); margin-bottom: 8px;
+  }
+  .slide h1 {
+    font-size: 34px; font-weight: 700; line-height: 1.2; letter-spacing: -0.025em;
+    margin: 0 0 10px; color: var(--foreground); max-width: 100%; white-space: nowrap;
+  }
+  .slide .sub {
+    font-size: 19px; font-weight: 400; color: var(--muted-foreground); margin: 0 0 24px;
+    line-height: 1.4; max-width: 100%; white-space: nowrap;
+  }
+  .rule { border: none; border-top: 1px solid var(--border); margin: 0 0 24px; }
+  .body { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+  .footnote {
+    position: absolute; left: var(--slide-pad); right: 120px; bottom: 20px;
+    font-size: 14px; color: var(--muted-foreground);
+  }
+  .slide-no {
+    position: absolute; right: var(--slide-pad); bottom: 20px;
+    font-size: 14px; color: var(--muted-foreground); font-variant-numeric: tabular-nums;
+  }
+  .num { font-variant-numeric: tabular-nums; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card); padding: 24px;
+  }
+  .row { display: flex; flex-direction: row; gap: var(--gap); }
+  .col { display: flex; flex-direction: column; gap: var(--gap); }
+  .grow { flex: 1; min-width: 0; }
+
+  .kpi-label { font-size: 14px; color: var(--muted-foreground); margin-bottom: 8px; }
+  .kpi-value { font-size: 44px; font-weight: 700; color: var(--foreground); font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .kpi-compare { font-size: 14px; margin-top: 10px; display: flex; align-items: center; gap: 6px; }
+  .kpi-stripe { height: 3px; width: calc(100% + 48px); border-radius: 3px 3px 0 0; margin: -24px -24px 20px; }
+
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 9999px; font-size: 13px; font-weight: 500; }
+  .pill.excellent { background: var(--excellent-bg); color: var(--excellent-text); }
+  .pill.poor { background: var(--poor-bg); color: var(--poor-text); }
+  .pill.info { background: var(--info-bg); color: var(--info-text); }
+  .pill.good { background: var(--good-bg); color: var(--good-text); }
+
+  svg.ico { width: 16px; height: 16px; stroke-width: 2; vertical-align: -3px; }
+
+  /* bar chart */
+  .bars { display: flex; align-items: flex-end; gap: 10px; height: 220px; }
+  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+  .bar-val { font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--foreground); font-variant-numeric: tabular-nums; }
+  .bar { width: 100%; border-radius: 4px 4px 0 0; background: var(--chart-1); }
+  .bar.dim { background: #C9D6FB; }
+  .bar.dashed-wrap { background: transparent; border: 2px dashed var(--border-strong); border-bottom: none; }
+  .bar-label { margin-top: 10px; font-size: 13px; color: var(--muted-foreground); }
+
+  table.t { width: 100%; border-collapse: collapse; font-size: 15px; }
+  table.t th { text-align: left; font-size: 12px; font-weight: 600; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.03em; padding: 0 12px 10px; border-bottom: 1px solid var(--border); }
+  table.t td { padding: 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  table.t th:not(:first-child), table.t td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+  table.t tbody tr:last-child td { border-bottom: none; }
+  table.t tr.total td { font-weight: 700; border-top: 2px solid var(--border-strong); border-bottom: none; }
+
+  .nav { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 10; }
+  .nav button { width: 9px; height: 9px; border-radius: 50%; border: none; background: rgba(255,255,255,0.3); cursor: pointer; padding: 0; }
+  .nav button.active { background: #fff; }
+  .arrownav { position: fixed; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; border: none; background: rgba(255,255,255,0.08); color: #fff; font-size: 18px; cursor: pointer; z-index: 10; }
+  .arrownav:hover { background: rgba(255,255,255,0.18); }
+  .arrownav.prev { left: 18px; } .arrownav.next { right: 18px; }
+
+  .cover { justify-content: center; align-items: flex-start; }
+  .cover .mark { width: 40px; height: 40px; border-radius: 10px; background: var(--primary); margin-bottom: 32px; }
+  .cover .eyebrow { margin-bottom: 20px; }
+  .cover h1 { font-size: 46px; max-width: none; white-space: nowrap; margin-bottom: 20px; }
+  .cover .sub { font-size: 21px; max-width: 100%; white-space: nowrap; margin-bottom: 0; }
+  .cover .meta { margin-top: 56px; font-size: 14px; color: var(--muted-foreground); display: flex; gap: 24px; }
+
+  /* grouped bars: client gain vs our rate */
+  .gbars { display:grid; grid-template-columns: 120px repeat(6, 1fr); align-items:end; height:150px; gap:12px; }
+  .gcell { display:flex; align-items:flex-end; justify-content:center; gap:8px; height:100%; }
+  .gbar { width:46px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
+  .gbar .v { font-size:13px; font-weight:700; margin-bottom:5px; font-variant-numeric: tabular-nums; white-space:nowrap; }
+  .gbar .b { width:100%; border-radius:4px 4px 0 0; }
+  .gbar .b.gain { background: var(--excellent); }
+  .gbar .b.rate { background: var(--chart-1); }
+  .gbar .cap { font-size:11px; color:var(--muted-foreground); text-align:center; line-height:1.2; margin-bottom:4px; white-space:nowrap; }
+  .grows { display:grid; grid-template-columns: 120px repeat(6, 1fr); gap:10px 12px; margin-top:10px; font-size:14px; }
+  .grows .lab { color: var(--muted-foreground); font-size:13px; }
+  .grows .val { text-align:center; font-variant-numeric: tabular-nums; font-weight:600; }
+  .grows .val.dim { color: var(--muted-foreground); font-weight:500; }
+  .legend { display:flex; gap:20px; font-size:13px; color:var(--muted-foreground); margin-bottom:10px; }
+  .legend span { display:flex; align-items:center; gap:6px; }
+  .legend i { width:10px; height:10px; border-radius:3px; display:inline-block; }
+  /* finmodel */
+  .fm-row { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; }
+  .fm-row .k { font-size:14px; color:var(--muted-foreground); }
+  .fm-row .n { font-size:22px; font-weight:700; font-variant-numeric: tabular-nums; }
+  input[type=range] { width:100%; accent-color: var(--primary); margin: 2px 0 18px; }
+  .preset { display:flex; gap:8px; flex-wrap:wrap; margin-top:4px; }
+  .preset button { border:1px solid var(--border); background:var(--card); border-radius:9999px; padding:6px 12px; font-size:13px; cursor:pointer; font-family:inherit; color:var(--foreground); }
+  .preset button.on { background:var(--primary); color:#fff; border-color:var(--primary); }
+  .kpi-mini { padding:18px 20px; }
+  .kpi-mini .kpi-value { font-size:24px; white-space:nowrap; }
+  .divider { justify-content:center; }
+  .divider h1 { font-size:40px; }
+  .step3 { display:grid; grid-template-columns: 1fr 24px 1fr 24px 1fr; gap:8px; align-items:stretch; }
+  .step3 .arr { display:flex; align-items:center; justify-content:center; color:var(--border-strong); font-size:22px; }
+  .step3 ul { margin:8px 0 0; padding-left:18px; font-size:14px; line-height:1.5; color:var(--foreground); }
+  .step3 .card { padding:18px 20px; }
+
+  .dts { display:grid; grid-template-columns: repeat(7, 1fr); gap:10px; flex:1; align-content:start; }
+  .dt { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 14px 12px; }
+  .dt .nm { font-size:13px; color:var(--muted-foreground); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:6px; }
+  .dt .vv { font-size:22px; font-weight:700; font-variant-numeric: tabular-nums; white-space:nowrap; }
+  .dt .now { color:var(--muted-foreground); font-weight:500; }
+  .dt .need { color:var(--excellent-text); }
+  table.t.salons td { padding: 7px 12px; }
+  table.t.salons th { padding: 0 12px 8px; }
+
+html,body{background:var(--background)}.slide{padding-bottom:66px;box-shadow:none;border-radius:0}.slide h1{font-size:36px}.sub{margin-bottom:20px!important}.eyebrow{margin-bottom:10px}.footnote{font-size:13px;line-height:1.35}.nav{bottom:10px}.nav button{background:var(--border-strong);width:10px;height:10px}.nav button.active{background:var(--primary)}.arrownav{top:auto;bottom:9px;transform:none;background:var(--card);color:var(--primary);border:1px solid var(--border);width:36px;height:36px}.arrownav.prev{left:18px}.arrownav.next{right:18px}.card p{font-size:17px;line-height:1.5;margin:10px 0}.card h2{font-size:21px;margin:0 0 12px}.lead{font-size:22px;line-height:1.5}.muted{color:var(--muted-foreground)}.blue{color:var(--primary)}.big{font-size:66px;font-weight:700;letter-spacing:-.035em;line-height:1.1}.hero-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:24px;flex:1}.scope{display:grid;grid-template-columns:1fr 1fr;gap:12px}.scope div{padding:12px 16px;background:var(--muted);border-radius:8px;font-size:16px}.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}.metric-grid table{font-size:17px}table.t th{font-size:13px}table.t td{padding:13px 10px}.meaning{margin-top:20px;padding:16px 20px;border-left:3px solid var(--primary);background:var(--card);font-size:18px;line-height:1.4}.process{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.process .card{padding:22px}.step-label{font-size:13px;color:var(--primary);font-weight:600;margin-bottom:24px}.process p{font-size:16px}.quote{margin-top:24px;border-top:1px solid var(--border);padding-top:20px;font-size:18px;line-height:1.5}.quote b{color:var(--primary)}.model{display:grid;grid-template-columns:380px 1fr;gap:20px;flex:1;min-height:0}.controls{padding:18px}.preset{margin:0 0 14px;gap:6px}.preset button{font-size:14px;padding:7px 10px}.month-input{display:grid;grid-template-columns:1fr 85px 85px;align-items:center;gap:10px;margin:8px 0;font-size:15px}.month-input.header{font-size:13px;color:var(--muted-foreground)}input[type=number]{width:100%;height:34px;border:1px solid var(--border-strong);border-radius:8px;padding:5px 8px;font:inherit;font-variant-numeric:tabular-nums;background:white;color:var(--foreground)}input[type=range]{margin:5px 0 12px}.control-label{display:flex;justify-content:space-between;align-items:center;font-size:15px}.control-label output{font-size:18px;font-weight:600}.tariff{font-size:13px;line-height:1.45;color:var(--muted-foreground);margin-top:6px}.results{display:flex;flex-direction:column;gap:12px;min-height:0}.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.kpis .card{padding:15px 12px}.kpis .kpi-value{font-size:26px}.kpis .kpi-label{font-size:13px;line-height:1.3;min-height:34px;margin-bottom:5px}.chartbox{padding:16px 20px;flex:1;min-height:0}.chartbox svg{width:100%;height:180px;display:block}.modelnote{font-size:14px;line-height:1.45;margin:0;color:var(--muted-foreground)}.calc{font-size:17px;font-weight:600;margin:10px 0 4px}.mini{font-size:13px;color:var(--muted-foreground)}.decision{display:grid;grid-template-columns:1fr 1fr;gap:24px}.decision ul{padding-left:20px;font-size:18px;line-height:1.7;margin:12px 0}.strip{display:flex;gap:28px;margin-top:22px;padding:20px 24px;background:var(--muted);border-radius:12px;font-size:17px}.sourcebox{font-size:15px;line-height:1.5}.sourcebox a{color:var(--primary)}.method{display:none}.method.open{display:block;position:fixed;inset:8%;overflow:auto;background:white;border:1px solid var(--border);border-radius:16px;padding:32px;z-index:30;font-size:16px;line-height:1.6;box-shadow:0 8px 40px #0d121b22}.method button{float:right;font:inherit;padding:6px 16px}.method h2{margin-top:0}.methodlink{border:0;background:none;color:var(--primary);font:inherit;cursor:pointer;padding:0;text-decoration:underline}.print-link{position:fixed;right:68px;bottom:14px;border:0;background:none;color:var(--muted-foreground);font:13px var(--font-sans);cursor:pointer;z-index:12}@media print{html,body{overflow:visible;height:auto}.viewport{position:static;display:block}.stage{height:auto;transform:none!important}.slide{position:relative;display:flex!important;break-after:page}.nav,.arrownav,.print-link{display:none}.method{display:none!important}@page{size:1280px 720px;margin:0}}
+</style></head><body><div class="viewport"><div class="stage"><section class="slide slide-frame active" id="s1"><div class="eyebrow">Оптимайзер × ОДВ · пилот ВИЖУ</div><h1 class="slide-title">Рост ВТЛ создаёт новые заказы для ОДВ</h1><p class="sub slide-subtitle">Семь салонов · три месяца · дополнительный объём линз направляем на завод</p><hr class="rule"><div class="body"><div class="hero-grid"><div class="card"><div class="kpi-label">Потенциал поставок ОДВ за три месяца · расчёт</div><div class="big blue">557–841 <span style="font-size:30px">тыс. ₽</span></div><p class="lead">При закупочной цене <b>4 700 ₽ за пару</b><br>и выполнении одного из двух сценариев.</p><div class="meaning">Исходные заказы ВТЛ остаются у прежних поставщиков. ОДВ получает только прирост.</div></div><div class="card"><h2>Семь салонов в работе</h2><div class="scope"><div>Гаранькина Оренбург</div><div>Пролетарская, 288 Б</div><div>Орск</div><div>Бузулук</div><div>Кумертау</div><div>Сорочинск</div><div>Соль-Илецк</div></div><p class="muted">Подготовка учёта — до старта.<br>Рабочий период: декабрь — февраль.</p></div></div></div><div class="footnote">Плановый сценарий · один дополнительный заказ — одна пара · 4 700 ₽ — принятое допущение</div><div class="slide-no">1 / 5</div></section><section class="slide slide-frame " id="s2"><div class="eyebrow">Цели пилота</div><h1 class="slide-title">Два темпа роста, одна точка старта</h1><p class="sub slide-subtitle">Ускоренный сценарий быстрее увеличивает долю ВТЛ; конверсия растёт одинаково</p><hr class="rule"><div class="body"><div class="metric-grid"><div class="card"><h2>Конверсия приём — заказ</h2><table class="t"><thead><tr><th>Период</th><th>Оба сценария</th></tr></thead><tbody><tr><td>Точка А</td><td>49,4%</td></tr><tr><td>Первый месяц</td><td>54,4%</td></tr><tr><td>Второй месяц</td><td>59,4%</td></tr><tr class="total"><td>Третий месяц</td><td class="blue">64,4%</td></tr></tbody></table></div><div class="card"><h2>Доля заказов с ВТЛ</h2><table class="t"><thead><tr><th>Период</th><th>Базовый</th><th>Ускоренный</th></tr></thead><tbody><tr><td>Точка А</td><td>31,3%</td><td>31,3%</td></tr><tr><td>Первый месяц</td><td>34,3%</td><td>37,3%</td></tr><tr><td>Второй месяц</td><td>37,3%</td><td>42,3%</td></tr><tr class="total"><td>Третий месяц</td><td>40,3%</td><td class="blue">48,3%</td></tr></tbody></table></div></div><div class="meaning">Цели считаем от собственной базы каждого салона. Данные сверяем до запуска; исправление учёта не считаем ростом.</div></div><div class="footnote">Точка А: октябрь 2025 — август 2026 · групповые цели при постоянных весах салонов</div><div class="slide-no">2 / 5</div></section><section class="slide slide-frame " id="s3"><div class="eyebrow">Работа команды</div><h1 class="slide-title">Показатели растут через работу с сотрудниками</h1><p class="sub slide-subtitle">Наставники ОДВ уже используют этот цикл; в ВИЖУ закрепляем роли и регулярность</p><hr class="rule"><div class="body"><div class="process"><div class="card"><div class="step-label">01 · ПОКАЗАТЕЛЬ</div><h2>Оптимайзер</h2><p>Выделяет отклонения по салону и сотруднику.</p><p class="muted">Кого и что разбирать в первую очередь.</p></div><div class="card"><div class="step-label">02 · ПРИЧИНА</div><h2>Марат и Ксения</h2><p>Проверяют данные в 1С и работу сотрудника по записям.</p><p class="muted">Показатель задаёт направление проверки.</p></div><div class="card"><div class="step-label">03 · ДЕЙСТВИЕ</div><h2>Ксения</h2><p>Разбирает консультацию, обучает и ставит конкретную задачу.</p><p class="muted">Врач и консультант работают вместе.</p></div><div class="card"><div class="step-label">04 · ПРОВЕРКА</div><h2>Команда пилота</h2><p>Проверяет применение и изменение показателя.</p><p class="muted">Наша команда сопровождает цикл.</p></div></div><div class="quote"><b>Из обратной связи наставников ОДВ:</b> показатели помогают выбрать сотрудника для работы; причины уточняются по 1С и камерам; задачи и выполнение удобно контролировать.</div><div class="meaning">На старте: выделяем время Ксении, подтверждаем данные и запускаем еженедельный разбор с Маратом.</div></div><div class="footnote">Отзывы наставников ОДВ · 26–27 октября 2026 · пересказ без персональных данных</div><div class="slide-no">3 / 5</div></section><section class="slide slide-frame " id="s4"><div class="eyebrow">Интерактивный расчёт</div><h1 class="slide-title">Весь прирост ВТЛ может получить ОДВ</h1><p class="sub slide-subtitle">Меняйте цели, цену пары и долю завода; поставки и бюджет пересчитываются вместе</p><hr class="rule"><div class="body"><div class="model"><div class="card controls"><div class="preset"><button id="base" class="on">Базовый</button><button id="fast">Ускоренный</button><button id="custom">Свой</button></div><div class="month-input header"><span>Прирост к точке А</span><span>Конв., п.п.</span><span>ВТЛ, п.п.</span></div><div class="month-input"><span>Месяц 1</span><input aria-label="Прирост конверсии, месяц 1" id="c0" type="number" min="0" max="30" step="0.5"><input aria-label="Прирост ВТЛ, месяц 1" id="v0" type="number" min="0" max="35" step="0.5"></div><div class="month-input"><span>Месяц 2</span><input aria-label="Прирост конверсии, месяц 2" id="c1" type="number" min="0" max="30" step="0.5"><input aria-label="Прирост ВТЛ, месяц 2" id="v1" type="number" min="0" max="35" step="0.5"></div><div class="month-input"><span>Месяц 3</span><input aria-label="Прирост конверсии, месяц 3" id="c2" type="number" min="0" max="30" step="0.5"><input aria-label="Прирост ВТЛ, месяц 3" id="v2" type="number" min="0" max="35" step="0.5"></div><hr class="rule" style="margin:15px 0"><label class="control-label" for="price">Цена пары ОДВ<output id="priceout"></output></label><input id="price" type="range" min="2000" max="10000" step="100" value="4700"><label class="control-label" for="share">Доля ОДВ в приросте<output id="shareout"></output></label><input id="share" type="range" min="0" max="100" step="5" value="100"><div class="tariff">Старт: 15 тыс. ₽ за салон. Шаг: +3 тыс. ₽ после подтверждения обеих целей. Ставка меняется со следующего месяца.</div><button class="methodlink" id="methodBtn" style="font-size:13px;margin-top:8px">Формулы и условия расчёта</button></div><div class="results"><div class="kpis"><div class="card"><div class="kpi-label">Дополнительные<br>пары ОДВ</div><div class="kpi-value" id="pairs"></div></div><div class="card"><div class="kpi-label">Поставки ОДВ<br>за пилот, тыс. ₽</div><div class="kpi-value blue" id="supplies"></div></div><div class="card"><div class="kpi-label">Компенсация<br>пилота, тыс. ₽</div><div class="kpi-value" id="fees"></div></div><div class="card"><div class="kpi-label">Оборот /<br>компенсация</div><div class="kpi-value" id="multiple"></div></div></div><div class="card chartbox"><div class="legend"><span><i style="background:var(--chart-1)"></i>Поставки ОДВ</span><span><i style="background:var(--chart-2)"></i>Компенсация · тыс. ₽</span></div><svg id="chart" viewBox="0 0 690 180" role="img" aria-label="Поставки и компенсация по месяцам"></svg><div class="calc" id="formula"></div><div class="mini" id="runrate"></div></div><p class="modelnote">Исходные продажи ВТЛ остаются у прежних поставщиков. ОДВ получает указанную долю прироста. Один заказ — одна пара. Оборот не равен прибыли.</p></div></div></div><div class="footnote">Расчёт по семи салонам с сезонностью · округление только при показе · итог ставки после подтверждения целей</div><div class="slide-no">4 / 5</div></section><section class="slide slide-frame " id="s5"><div class="eyebrow">Решение о запуске</div><h1 class="slide-title">Согласуем пилот и проверяем результат</h1><p class="sub slide-subtitle">Три месяца финансирования; итог — по продажам и фактическим поставкам завода</p><hr class="rule"><div class="body"><div class="decision"><div class="card"><h2>Что закрепляем до старта</h2><ul><li>Семь салонов и ответственные.</li><li>Бюджет: 336 или 378 тыс. ₽ по сценарию.</li><li>Ассортимент ОДВ под прирост ВТЛ.</li><li>Цена пары 4 700 ₽ как база модели.</li><li>Правила подтверждения тарифных ступеней.</li></ul></div><div class="card"><h2>Что сверяем каждый месяц</h2><ul><li>Конверсию и долю ВТЛ по салонам.</li><li>Дополнительные пары ОДВ.</li><li>Фактические закупки и условия поставок.</li><li>Применение задач сотрудниками.</li><li>Результат после закрытия окна 30 дней.</li></ul></div></div><div class="strip"><b>После пилота</b><span>При удержании показателей дополнительный объём поставок может сохраняться после окончания компенсации.</span></div></div><div class="footnote">Плановый результат требует проверки · срок поставки и оплаты может отличаться от месяца продажи</div><div class="slide-no">5 / 5</div></section></div></div><button class="arrownav prev" id="prevBtn" aria-label="Предыдущий слайд">‹</button><button class="arrownav next" id="nextBtn" aria-label="Следующий слайд">›</button><div class="nav" id="navDots"></div><button class="print-link" onclick="window.print()">Печать / PDF</button><div class="method" id="method" role="dialog" aria-label="Методика расчёта"><button id="closeMethod">Закрыть</button><h2>Как посчитана модель</h2><p><b>Прирост ВТЛ по салону</b> = дополнительные заказы очков × исходная доля ВТЛ + все прогнозные заказы очков × прирост доли ВТЛ. Дополнительные заказы очков = сезонные приёмы × прирост конверсии. Все приросты — к собственной точке А салона.</p><p><b>Поставки ОДВ</b> = прирост заказов ВТЛ × доля ОДВ в приросте × 4 700 ₽ за пару (или выбранная цена). Один заказ принят за одну пару. Исходные заказы ВТЛ не передаются ОДВ. Контроль миопии входит в ВТЛ; возможность обеспечить весь прирост ассортиментом завода нужно подтвердить. Ограничение можно учесть долей ОДВ.</p><p><b>Компенсация</b>: 15 тыс. ₽ за салон в первый месяц. Следующий месяц — по подтверждённой ступени предыдущего: прирост конверсии/ВТЛ +5/+6, +9/+11, +14/+17, +18/+22, +23/+28 п.п. Ставки 18/21/24/27/30 тыс. ₽ за салон. В модели подтверждение своевременное; закрытие 30-дневного окна может отложить переход. Дополнительные расходы настройки не включены.</p><p><b>База:</b> аудит ВИЖУ, октябрь 2025 — август 2026. Сезонные объёмы — декабрь 2025, январь–февраль 2026; Орск — соответствующие месяцы 2025. Доля ВТЛ применяется ко всем заказам очков. Конверсия считается по покупке клиента в течение 30 дней после приёма. Контрольные и МКЛ-приёмы исторически не разделены; часть филиалов назначена косвенно. Точку А необходимо сверить до запуска.</p><p>4 700 ₽ — прямо принятое расчётное допущение для пары, не подтверждённая цена поставки. Поставки означают потребность в линзах для проданных заказов; остатки, срок изготовления и оплаты могут сдвинуть фактическую отгрузку. Соотношение оборота и компенсации не является ROI. Продолжение месячного темпа после пилота условно, годовой прогноз не строится.</p></div><script>
+const DATA=[{"name": "Гаранькина Оренбург", "c": 0.3243243243243243, "v": 0.5805084745762712, "a": [146, 133, 135], "q": [58, 56, 56], "check": 20295.593827683617, "gap": 16644.65292830986}, {"name": "Пролетарская, 288 Б", "c": 0.4813559322033898, "v": 0.5977443609022557, "a": [32, 39, 40], "q": [14, 23, 19], "check": 18950.74060150376, "gap": 15032.95662140716}, {"name": "Орск", "c": 0.3728222996515679, "v": 0.3870967741935484, "a": [41, 73, 50], "q": [24, 29, 23], "check": 14025.796967741937, "gap": 10887.061403508773}, {"name": "Бузулук", "c": 0.6568421052631579, "v": 0.2311320754716981, "a": [20, 27, 39], "q": [22, 31, 46], "check": 17119.639433962264, "gap": 21060.07130712408}, {"name": "Кумертау", "c": 0.5609756097560976, "v": 0.2091917591125198, "a": [101, 77, 77], "q": [59, 49, 51], "check": 11423.16798732171, "gap": 17268.510004858203}, {"name": "Сорочинск", "c": 0.5897920604914934, "v": 0.1694537346711259, "a": [36, 31, 53], "q": [75, 48, 94], "check": 10138.560200668897, "gap": 9646.515657011658}, {"name": "Соль-Илецк", "c": 0.7631133671742809, "v": 0.2424242424242424, "a": [53, 48, 55], "q": [62, 61, 62], "check": 13989.624372294371, "gap": 16622.255238095237}];
+const $=id=>document.getElementById(id), fmt=(n,d=0)=>n.toLocaleString('ru-RU',{maximumFractionDigits:d,minimumFractionDigits:d});
+let selected='base';
+const presets={base:{c:[5,10,15],v:[3,6,9]},fast:{c:[5,10,15],v:[6,11,17]}};
+function stageFor(c,v){let s=0;[[5,6],[9,11],[14,17],[18,22],[23,28]].forEach((t,i)=>{if(c>=t[0]&&v>=t[1])s=i+1});return s}
+function calculate(cs,vs,price,share){return cs.map((c,m)=>{let q=0,retail=0;DATA.forEach(d=>{const dc=Math.max(0,Math.min(c/100,1-d.c)),dv=Math.max(0,Math.min(vs[m]/100,1-d.v)),add=d.a[m]*dc; q+=add*d.v+(d.q[m]+add)*dv;retail+=add*d.check+d.a[m]*(d.c+dc)*dv*d.gap});const fee=7*(15000+3000*(m?stageFor(cs[m-1],vs[m-1]):0));return{pairs:q*share/100,rev:q*share/100*price,fee,retail}})}
+function getInputs(){return{c:[0,1,2].map(i=>Math.max(0,Math.min(30,Number($('c'+i).value)||0))),v:[0,1,2].map(i=>Math.max(0,Math.min(35,Number($('v'+i).value)||0))),price:Number($('price').value),share:Number($('share').value)}}
+function setPreset(k){selected=k;[0,1,2].forEach(i=>{$('c'+i).value=presets[k].c[i];$('v'+i).value=presets[k].v[i]});$('price').value=4700;$('share').value=100;update()}
+function update(){const a=getInputs(),r=calculate(a.c,a.v,a.price,a.share),sum=k=>r.reduce((n,x)=>n+x[k],0);['base','fast','custom'].forEach(k=>$(k).classList.toggle('on',k===selected));$('priceout').textContent=fmt(a.price)+' ₽';$('shareout').textContent=fmt(a.share)+'%';$('pairs').textContent=fmt(sum('pairs'));$('supplies').textContent=fmt(sum('rev')/1000);$('fees').textContent=fmt(sum('fee')/1000);$('multiple').textContent=fmt(sum('rev')/sum('fee'),2)+'×';$('formula').textContent=fmt(sum('pairs'),1)+' пары × '+fmt(a.price)+' ₽ = '+fmt(sum('rev')/1000)+' тыс. ₽';$('runrate').textContent='Месяц 3: '+fmt(r[2].pairs,1)+' пары · '+fmt(r[2].rev/1000)+' тыс. ₽ поставок';draw(r);window.modelResult=r;return r}
+function draw(rows){const max=Math.max(100,...rows.flatMap(x=>[x.rev/1000,x.fee/1000]));const ceiling=Math.ceil(max/100)*100;let s='';for(let i=0;i<4;i++){let y=145-i*40,v=ceiling*i/3;s+=`<line x1="48" y1="${y}" x2="685" y2="${y}" stroke="#DBDEE5"/><text x="38" y="${y+4}" text-anchor="end" font-size="12" fill="#646972">${fmt(v)}</text>`}rows.forEach((r,i)=>{let x=110+i*210;[r.rev/1000,r.fee/1000].forEach((v,j)=>{let h=v/ceiling*120;s+=`<rect x="${x+j*62}" y="${145-h}" width="44" height="${h}" rx="3" fill="${j?'#00A68A':'#4076F5'}"/><text x="${x+j*62+22}" y="${137-h}" text-anchor="middle" font-size="14" font-weight="600" fill="#0D121B">${fmt(v)}</text>`});s+=`<text x="${x+52}" y="172" text-anchor="middle" font-size="14" fill="#646972">Месяц ${i+1}</text>`});$('chart').innerHTML=s}
+['base','fast'].forEach(k=>$(k).onclick=()=>setPreset(k));$('custom').onclick=()=>{selected='custom';update()};document.querySelectorAll('.controls input').forEach(el=>el.addEventListener('input',()=>{selected='custom';update()}));$('methodBtn').onclick=()=>$('method').classList.add('open');$('closeMethod').onclick=()=>$('method').classList.remove('open');setPreset('base');
+const slides=Array.from(document.querySelectorAll('.slide')),stage=document.querySelector('.stage');$('navDots').innerHTML=slides.map((_,i)=>`<button aria-label="Слайд ${i+1}" data-i="${i}"></button>`).join('');let current=0;
+function fitStage(){stage.style.transform=`scale(${Math.min(innerWidth/1280,(innerHeight-44)/720)*.98})`}
+function goTo(i){current=Math.max(0,Math.min(slides.length-1,i));slides.forEach((s,j)=>s.classList.toggle('active',j===current));[...$('navDots').children].forEach((d,j)=>d.classList.toggle('active',j===current));history.replaceState(null,'','#'+(current+1))}
+$('prevBtn').onclick=()=>goTo(current-1);$('nextBtn').onclick=()=>goTo(current+1);[...$('navDots').children].forEach(d=>d.onclick=()=>goTo(Number(d.dataset.i)));window.addEventListener('keydown',e=>{if(['INPUT','BUTTON'].includes(e.target.tagName))return;if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();goTo(current+1)}if(e.key==='ArrowLeft'||e.key==='PageUp')goTo(current-1);if(e.key==='Escape')$('method').classList.remove('open')});window.addEventListener('resize',fitStage);fitStage();goTo(Number(location.hash.slice(1)||1)-1);
+function audit(){let issues=[];const keep=current;slides.forEach((s,i)=>{goTo(i);let h=s.querySelector('h1'),sub=s.querySelector('.sub');if(h.scrollWidth>h.clientWidth+1)issues.push('title '+i);if(h.textContent.length>52)issues.push('title length '+i);if(sub.scrollWidth>sub.clientWidth+1)issues.push('subtitle '+i);if(s.scrollHeight>s.clientHeight+1)issues.push('slide overflow '+i);const box=s.getBoundingClientRect();s.querySelectorAll('.body *').forEach(el=>{const r=el.getBoundingClientRect();if(r.width&&r.height&&r.bottom>box.bottom-45*box.width/1280)issues.push('bottom '+i+' '+el.tagName)})});goTo(keep);return [...new Set(issues)]}
+window.audit=audit;window.calculate=calculate;
+if(new URLSearchParams(location.search).has('qa')){const b=calculate([5,10,15],[3,6,9],4700,100),f=calculate([5,10,15],[6,11,17],4700,100),sum=(r,k)=>r.reduce((a,x)=>a+x[k],0),errs=[];if(Math.abs(sum(b,'rev')-556891.833485)>1)errs.push('base revenue');if(Math.abs(sum(f,'rev')-841342.883486)>1)errs.push('fast revenue');if(sum(b,'fee')!==336000||sum(f,'fee')!==378000)errs.push('fees');if(calculate([0,0,0],[0,0,0],4700,100).some(x=>x.rev!==0))errs.push('zero');if(calculate([5,10,15],[6,11,17],4700,0).some(x=>x.rev!==0))errs.push('share zero');if(Math.abs(sum(calculate([5,10,15],[3,6,9],9400,100),'rev')-2*sum(b,'rev'))>1)errs.push('price linearity');setTimeout(()=>{const pre=document.createElement('pre');pre.id='qa-result';pre.style.display='none';pre.textContent=JSON.stringify({errors:errs.concat(audit()),base:sum(b,'rev'),fast:sum(f,'rev'),viewport:[innerWidth,innerHeight]});document.body.append(pre)},1000)}
+</script></body></html>
