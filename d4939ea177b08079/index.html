@@ -263,16 +263,12 @@ table.t{font-size:16px}table.t th{font-size:14px;line-height:1.4;text-transform:
 <div class="eyebrow">ОДВ · Вижу · Оптимайзер</div><h1>Растут продажи ОДВ и валовая прибыль «Вижу»</h1><p class="sub">Три уровня результата на 7 салонах. Все суммы на графике — за одинаковые 3 месяца</p><hr class="rule"/>
 <div class="body"><div class="card grow"><div class="legend"><span><i style="background:var(--chart-1)"></i>Доп. продажи ОДВ</span><span><i style="background:var(--chart-2)"></i>Прирост валовой «Вижу»</span><span><i style="background:var(--chart-3)"></i>Стоимость сопровождения</span></div><div class="three-wins-chart" id="ladderBars"></div><div id="ladderRows"></div><div class="callout factory-readout" id="factoryReadout"></div></div></div><div class="footnote">7 пилотных салонов · Расчётные примеры, не календарный план. Склад: 225/300/375 пар. Конверсия: +5/+10/+15 п.п. Оплата помесячная.</div><div class="slide-no">8</div>
 </section><section class="slide">
-<div class="eyebrow">ОДВ · Вижу · Оптимайзер</div><h1>Продлеваем пилот по итогам каждого месяца</h1><p class="sub">Каждый месяц Руслан отчитывается перед Михаилом и «Вижу». Оплата помесячная</p><hr class="rule"/>
+<div class="eyebrow">ОДВ · Вижу · Оптимайзер</div><h1>Пилот на три месяца с проверкой прогресса</h1><p class="sub">Ежемесячный разбор помогает видеть потенциал и корректировать работу</p><hr class="rule"/>
 <div class="body">
-<div class="three monthly-cycle">
-<div class="card"><div class="cycle-step">1. Отчёт Руслана за месяц</div><h2>Сверяем план и факт</h2><ul><li>Переводы склада и конверсия.</li><li>Пары и закупки ОДВ.</li><li>Выручка и валовая «Вижу».</li></ul></div>
-<div class="card"><div class="cycle-step">2. Разбор с Михаилом и «Вижу»</div><h2>Оцениваем эффект</h2><p>Сравниваем с базой, разбираем отклонения и сохранение прежних продаж.</p><p><strong>Решение каждого месяца:</strong> продолжить, скорректировать работу или завершить пилот.</p></div>
-<div class="card"><div class="cycle-step">3. Следующий месяц</div><h2>Согласуем продолжение</h2><p>Следующий месяц оплачиваем после решения о продолжении.</p><p>Ставку повышаем после подтверждения обоих KPI по каждому салону.</p></div>
-</div>
+<div class="three monthly-cycle"><div class="card"><div class="cycle-step">Что меняется в продажах</div><h2>Опережающие показатели</h2><ul><li>Доля подходящих клиентов с рекомендацией ОДВ.</li><li>Доля рекомендаций, переданных консультанту.</li><li>Конверсия рекомендации в заказ.</li></ul></div><div class="card"><div class="cycle-step">Отчёт Руслана каждый месяц</div><h2>Совместный разбор</h2><p>Вместе с Михаилом и «Вижу» смотрим прогресс: показатели, пары и закупки ОДВ, валовую оптики.</p><p>Уточняем действия на следующий месяц и оцениваем потенциал дальнейшего роста.</p></div><div class="card"><div class="cycle-step">Горизонт пилота: 3 месяца</div><h2>Горизонт результата</h2><p>Результат может нарастать неравномерно и проявиться к концу пилота.</p><p>При отсутствии прогресса и потенциала можем совместно остановить работу.</p></div></div>
 <div class="monthly-budget"><div><span class="budget-label">Стартовая оплата за 7 салонов</span><strong>105 тыс. ₽ / месяц</strong></div><p><strong>315 тыс. ₽</strong> — бюджет трёх месяцев по стартовой ставке. Оплату вносим по месяцам.</p></div>
 <p class="monthly-management"><strong>Марат и РОП каждую неделю:</strong> проверяют рекомендации и продажи сотрудников, разбирают отказы.</p>
-</div><div class="footnote">7 пилотных салонов · Поддержка ОДВ в первые 3 месяца. Далее — оплата «Вижу» при продолжении. При откате KPI: месяц на восстановление, второй без восстановления — снижение ставки.</div><div class="slide-no">9</div>
+</div><div class="footnote">7 салонов · Первые 3 месяца — поддержка ОДВ, далее «Вижу» при продолжении. Рост ставки после двух KPI. При откате: месяц на восстановление, второй без восстановления — снижение.</div><div class="slide-no">9</div>
 </section></div></div>
 <div class="toolbar"><button id="appendixBtn">Подробный расчёт</button><button id="fullscreenBtn">Во весь экран</button></div>
 <button aria-label="Предыдущий слайд" class="arrownav prev" id="prevBtn">‹</button><button aria-label="Следующий слайд" class="arrownav next" id="nextBtn">›</button><div class="nav" id="navDots"></div>
@@ -379,7 +375,7 @@ function update(){
  ['ОДВ · всего закупки по сети',money(m.three.totalNetwork),money(m.six.totalNetwork)],
  ['«Вижу» · прирост валовой, 7 салонов',money(m.three.gp),money(m.six.gp)]],'econ-table');
  document.getElementById('economicReadout').textContent='7 салонов, в среднем за месяц: '+nf(m.three.basePilot/3/1000)+' тыс. ₽ базовых закупок ОДВ и '+nf(m.three.totalPilot/3/1000)+' тыс. ₽ с пилотом. Дополнительные закупки — сверх сохраняемой базы.';
- document.getElementById('baseMarginReadout').textContent='Оплата помесячная. Старт 105 тыс. ₽ за 7 салонов. Бюджет 315 тыс. ₽ предполагает продолжение все 3 месяца. Решение принимаем по итогам каждого месяца.';
+ document.getElementById('baseMarginReadout').textContent='Оплата помесячная. Старт 105 тыс. ₽ за 7 салонов. Бюджет 315 тыс. ₽ — за 3 месяца по стартовой ставке. Ежемесячно сверяем прогресс и корректируем работу.';
  for(let i=0;i<3;i++)document.getElementById('c'+i+'v').textContent=nf(state.conversion[i]);
  const series=[{key:'odv',color:'var(--chart-1)'},{key:'gp',color:'var(--chart-2)'},{key:'fee',color:'var(--chart-3)'}];
  const values=m.benchmarks.flatMap(v=>series.map(s=>v[s.key]/1000000));
