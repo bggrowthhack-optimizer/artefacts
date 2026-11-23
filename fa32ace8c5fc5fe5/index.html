@@ -24,7 +24,7 @@
 <div class="layout">
 <section class="card" id="conditions" aria-labelledby="conditionsTitle"><h2 id="conditionsTitle">Условия мотивации</h2>
 <table class="conditions"><thead><tr><th scope="col">Показатель</th><th scope="col">Результат / премия за месяц</th></tr></thead><tbody>
-<tr><td>Салоны с выполненным планом</td><td><div class="milestone"><span>3–5 салонов</span><b>10 000 ₽</b></div><div class="milestone"><span>6–9 салонов</span><b>20 000 ₽</b></div><div class="milestone"><span>10–12 салонов</span><b>30 000 ₽</b></div><div class="milestone"><span>13 салонов</span><b>40 000 ₽</b></div></td></tr>
+<tr><td>Салоны с выполненным планом</td><td><div class="milestone"><span>0–9 салонов</span><b>0 ₽</b></div><div class="milestone"><span>10–12 салонов</span><b>30 000 ₽</b></div><div class="milestone"><span>13 салонов</span><b>40 000 ₽</b></div></td></tr>
 <tr><td>Средний чек</td><td><div class="milestone"><span>от 17 000 ₽</span><b>10 000 ₽</b></div><div class="milestone"><span>от 20 000 ₽</span><b>20 000 ₽</b></div></td></tr>
 <tr><td>Конверсия диагностика → заказ</td><td><div class="milestone"><span>от 75%</span><b>10 000 ₽</b></div><div class="milestone"><span>от 85%</span><b>20 000 ₽</b></div></td></tr>
 </tbody></table>
@@ -33,7 +33,7 @@
 </section>
 <section class="card" id="economics" aria-labelledby="economicsTitle"><div class="calc-title"><h2 id="economicsTitle">Экономическое обоснование</h2><span class="tag">Расчётный пример</span></div><p class="sub">Выберите уровни KPI — зарплата и валовая прибыль пересчитаются.</p>
 <div class="target-form">
-<label class="field">Салоны с планом<select id="salonTier"><option value="0">0–2 салона</option><option value="3" selected>3–5 салонов</option><option value="6">6–9 салонов</option><option value="10">10–12 салонов</option><option value="13">13 салонов</option></select><small id="planBonus"></small></label>
+<label class="field">Салоны с планом<select id="salonTier"><option value="0" selected>0–9 салонов</option><option value="10">10–12 салонов</option><option value="13">13 салонов</option></select><small id="planBonus"></small></label>
 <label class="field">Средний чек<select id="targetCheck"><option value="current">Текущий</option><option value="17000" selected>17 000 ₽</option><option value="20000">20 000 ₽</option></select><small id="checkBonus"></small></label>
 <label class="field">Конверсия<select id="targetConversion"><option value="current">Текущая</option><option value="75" selected>75%</option><option value="85">85%</option></select><small id="conversionBonus"></small></label>
 </div>
@@ -59,17 +59,17 @@
 </div>
 <p><b>Данные для примера.</b> 754 диагностики — исторический ориентир по 13 салонам из аудита. Конверсия 50% и рентабельность 65% — допущения; чек 14 500 ₽ — предварительный ориентир на 10 ноября. Текущая зарплата неизвестна: 70 тыс. ₽ взяты для примера. Замените значения проверенными данными одного периода и одного набора салонов. При изменении охвата отдельно измените общий поток диагностик.</p>
 <p>ВП = диагностики × конверсия × средний чек × валовая рентабельность. Поток и рентабельность неизменны, учитываются только заказы после диагностики. Эффект после изменения ФОТ = прирост ВП − (новая зарплата − текущая зарплата) × (1 + доп. начисления / 100). Это эффект до остальных расходов, а не чистая прибыль.</p>
-<p>Премии за три KPI начисляются независимо по шкале Марата. Количество салонов с планом влияет на премию; отдельный финансовый эффект планов без их сумм не оценён. Вариант «Текущий» подставляет исходное значение выбранной метрики, в том числе значение ниже первого порога. При 0% начисления на ФОТ не учтены. База зарплаты «на руки / до удержаний» должна быть одинаковой в обоих периодах.</p>
+<p>Премии за три KPI начисляются независимо. Количество салонов с планом влияет на премию; отдельный финансовый эффект планов без их сумм не оценён. Вариант «Текущий» подставляет исходное значение выбранной метрики, в том числе значение ниже первого порога. При 0% начисления на ФОТ не учтены. База зарплаты «на руки / до удержаний» должна быть одинаковой в обоих периодах.</p>
 <p>Проект для согласования с Михаилом. Перед запуском проверить 1С, закрепить перечень салонов, состав заказов для среднего чека и правила связи диагностики с заказом. Пилот охватывает семь салонов, ответственность РОПа — 13; исходный пример относится к 13.</p>
 <div class="sources"><a href="https://bggrowthhack-optimizer.github.io/artefacts/948c6e5d6f99f211/" target="_blank" rel="noopener">Исторический аудит</a><a href="https://github.com/bggrowthhack-optimizer/optical-business/blob/main/clients/vizhu/projects/optimizer-implementation.md" target="_blank" rel="noopener">Проект</a><a href="https://github.com/bggrowthhack-optimizer/optical-business/blob/main/clients/vizhu/meetings/2026-11-19-growth-team.md" target="_blank" rel="noopener">Договорённости 19 ноября</a></div>
 </div></details>
 <div class="actions"><button class="plain" id="share" type="button">Ссылка с расчётом</button><button class="plain" id="print" type="button">Печать / PDF</button><span class="status" id="shareStatus" role="status"></span></div><input class="share-url" id="shareUrl" aria-label="Ссылка с расчётом" readonly hidden>
-<footer class="footer"><span>Рассчитано в Оптимайзере · Вижу</span><span>Проект для согласования · 22 ноября 2026</span></footer>
+<footer class="footer"><span>Рассчитано в Оптимайзере · Вижу</span><span>Проект для согласования · 23 ноября 2026</span></footer>
 </main>
 <script id="model">
 'use strict';
 const MotivationEconomics={
- salary(salons,check,conversion){const plan=salons>=13?40000:salons>=10?30000:salons>=6?20000:salons>=3?10000:0;const a=check>=20000?20000:check>=17000?10000:0;const c=conversion>=85?20000:conversion>=75?10000:0;return {plan,check:a,conversion:c,total:70000+plan+a+c};},
+ salary(salons,check,conversion){const plan=salons>=13?40000:salons>=10?30000:0;const a=check>=20000?20000:check>=17000?10000:0;const c=conversion>=85?20000:conversion>=75?10000:0;return {plan,check:a,conversion:c,total:70000+plan+a+c};},
  calculate(p,c1,a1){const pay=this.salary(p.salons,a1,c1);const gp0=p.d*p.c/100*p.a*p.m/100;const gp1=p.d*c1/100*a1*p.m/100;const deltaGp=gp1-gp0;const wageChange=pay.total-p.currentSalary;const payrollChange=wageChange*(1+p.burden/100);return {pay,gp0,gp1,deltaGp,wageChange,payrollChange,companyEffect:deltaGp-payrollChange};}
 };
 if(typeof window!=='undefined')window.MotivationEconomics=MotivationEconomics;
@@ -94,7 +94,7 @@ fields.forEach(id=>$(id).addEventListener('input',update));targets.forEach(id=>$
 $('print').addEventListener('click',()=>window.print());
 $('share').addEventListener('click',async()=>{const url=new URL(location.href);url.search='';url.hash='';[...targets,...fields].forEach(id=>url.searchParams.set(id,$(id).value));try{await navigator.clipboard.writeText(url.href);$('shareStatus').textContent='Ссылка скопирована.';$('shareUrl').hidden=true;}catch{$('shareUrl').value=url.href;$('shareUrl').hidden=false;$('shareUrl').focus();$('shareUrl').select();$('shareStatus').textContent='Скопируйте ссылку из поля ниже.';}});
 const query=new URLSearchParams(location.search);for(const id of targets){const v=query.get(id);if(v!==null&&Array.from($(id).options).some(o=>o.value===v))$(id).value=v;}
-if(!query.has('salonTier')&&query.has('salons')){const n=Number(query.get('salons'));if(Number.isFinite(n)&&n>=0&&n<=13)$('salonTier').value=n>=13?'13':n>=10?'10':n>=6?'6':n>=3?'3':'0';}
+const savedSalonCount=query.get('salonTier')??query.get('salons');if(savedSalonCount!==null&&savedSalonCount!==''){const n=Number(savedSalonCount);if(Number.isInteger(n)&&n>=0&&n<=13)$('salonTier').value=n>=13?'13':n>=10?'10':'0';}
 fields.forEach(id=>{if(!query.has(id))return;const el=$(id),old=el.value,v=query.get(id),n=Number(v);if(v!==''&&Number.isFinite(n)&&n>=+el.min&&n<=+el.max){el.value=v;if(!el.validity.valid)el.value=old;}});
 update();
 </script>
