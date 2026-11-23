@@ -14,7 +14,7 @@ function validate(op){
  if(!['archive','restore','check'].includes(op.type)||typeof op.itemId!=='string'||op.itemId.length>100)throw new Error('Неизвестное действие.');if(op.type==='check'&&typeof op.value!=='boolean')throw new Error('Некорректная отметка.');return op;
 }
 async function mutate(db,op){const now=Date.now(),q=[],guard=' AND NOT EXISTS(SELECT 1 FROM shopping_operations WHERE id=?)';
- if(op.type==='import')for(const item of op.items){q.push(itemStatement(db,{...item,edited_at:now},op.id));q.push(db.prepare('UPDATE shopping_items SET archived=?,checked=?,edited_at=? WHERE id=? AND edited_at=0'+guard).bind(+item.archived,+item.checked,now,item.id,op.id));}
+ if(op.type==='import')for(const item of op.items){q.push(itemStatement(db,{...item,edited_at:now},op.id));q.push(db.prepare("UPDATE shopping_items SET archived=CASE WHEN ?=1 THEN 1 ELSE archived END,checked=CASE WHEN ?=1 OR archived=1 THEN 0 ELSE MAX(checked,?) END,edited_at=? WHERE id=? AND (edited_at=0 OR (EXISTS(SELECT 1 FROM shopping_operations WHERE applied_at=shopping_items.edited_at AND id LIKE 'import-%') AND NOT EXISTS(SELECT 1 FROM shopping_operations WHERE applied_at=shopping_items.edited_at AND id NOT LIKE 'import-%')))"+guard).bind(+item.archived,+item.archived,+item.checked,now,item.id,op.id));}
  if(op.type==='add')q.push(itemStatement(db,{...op.item,edited_at:now},op.id));
  if(op.type==='check'){
   if(op.value)q.push(db.prepare('UPDATE shopping_items SET checked=0,edited_at=? WHERE alternative=1 AND id<>? AND EXISTS(SELECT 1 FROM shopping_items WHERE id=? AND alternative=1 AND archived=0)'+guard).bind(now,op.itemId,op.itemId,op.id));
@@ -23,10 +23,10 @@ async function mutate(db,op){const now=Date.now(),q=[],guard=' AND NOT EXISTS(SE
  if(op.type==='archive'||op.type==='restore')q.push(db.prepare('UPDATE shopping_items SET archived=?,checked=0,edited_at=? WHERE id=?'+guard).bind(+(op.type==='archive'),now,op.itemId,op.id));
  q.push(db.prepare('UPDATE shopping_meta SET revision=revision+1,updated_at=? WHERE id=1'+guard).bind(now,op.id));q.push(db.prepare('INSERT OR IGNORE INTO shopping_operations (id,applied_at) VALUES (?,?)').bind(op.id,now));await db.batch(q);
 }
-export default {async fetch(request,env){try{const url=new URL(request.url),path=url.pathname;
- if(path==='/style.css')return new Response(STYLE,{headers:{'Content-Type':'text/css; charset=utf-8',...headers}});
- if(path==='/app.js')return new Response(APP,{headers:{'Content-Type':'text/javascript; charset=utf-8',...headers}});
- if(path==='/core.js')return new Response(CORE_PUBLIC,{headers:{'Content-Type':'text/javascript; charset=utf-8',...headers}});
+async function handleRequest(request,env){try{const url=new URL(request.url),path=url.pathname;
+ if(path==='/style.css'||path==='/app/style.css')return new Response(STYLE,{headers:{'Content-Type':'text/css; charset=utf-8',...headers}});
+ if(path==='/app.js'||path==='/app/app.js')return new Response(APP,{headers:{'Content-Type':'text/javascript; charset=utf-8',...headers}});
+ if(path==='/core.js'||path==='/app/core.js')return new Response(CORE_PUBLIC,{headers:{'Content-Type':'text/javascript; charset=utf-8',...headers}});
  if(path==='/'||path==='/app/'||path==='/app')return new Response(HTML,{headers:{'Content-Type':'text/html; charset=utf-8',...headers,'Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'self' https://chatgpt.com; base-uri 'self'; form-action 'self'"}});
  if(path!=='/api/state'&&path!=='/api/actions'&&path!=='/shopping-list.md')return new Response('Не найдено',{status:404,headers});
  if(!authorized(request,env))return json({error:'Для доступа к списку нужна секретная ссылка.'},401);
@@ -34,7 +34,7 @@ export default {async fetch(request,env){try{const url=new URL(request.url),path
  await initialize(env.DB);
  if(path==='/api/actions'){
   if(request.method!=='POST')return json({error:'Метод не поддерживается.'},405);
-  if(!service(request,env)&&request.headers.get('Origin')!==url.origin)return json({error:'Недопустимый источник запроса.'},403);
+  if(!service(request,env)&&!allowedOrigin(request))return json({error:'Недопустимый источник запроса.'},403);
   const body=await request.text();if(body.length>500000)return json({error:'Слишком большой список.'},413);
   const payload=JSON.parse(body);if(!Array.isArray(payload.actions)||payload.actions.length>50)return json({error:'Слишком много действий.'},400);
   const actions=payload.actions.map(validate);for(const op of actions)await mutate(env.DB,op);
@@ -44,4 +44,12 @@ export default {async fetch(request,env){try{const url=new URL(request.url),path
  const state=await snapshot(env.DB);const md=await markdown(env.DB,state);
  if(path==='/shopping-list.md')return new Response(md,{headers:{...headers,'Content-Type':'text/markdown; charset=utf-8','Content-Disposition':'attachment; filename="shopping-list.md"'}});
  return json(state);
- }catch(error){return json({error:error instanceof SyntaxError?'Не удалось прочитать данные.':error.message||'Не удалось сохранить изменения.'},400);}}};
+ }catch(error){return json({error:error instanceof SyntaxError?'Не удалось прочитать данные.':error.message||'Не удалось сохранить изменения.'},400);}}
+
+function allowedOrigin(request){const origin=request.headers.get('Origin');return origin===new URL(request.url).origin||origin==='https://bggrowthhack-optimizer.github.io';}
+export default {async fetch(request,env){
+ const origin=request.headers.get('Origin'),allowed=allowedOrigin(request),path=new URL(request.url).pathname;
+ const cors=allowed?{'Access-Control-Allow-Origin':origin,'Vary':'Origin','Access-Control-Allow-Methods':'GET,POST,OPTIONS','Access-Control-Allow-Headers':'Content-Type,X-Shopping-Key','Access-Control-Max-Age':'600'}:{};
+ if(request.method==='OPTIONS')return new Response(null,{status:allowed&&['/api/state','/api/actions','/shopping-list.md'].includes(path)?204:403,headers:{...headers,...cors}});
+ const response=await handleRequest(request,env);return new Response(response.body,{status:response.status,headers:{...Object.fromEntries(response.headers),...cors}});
+}};

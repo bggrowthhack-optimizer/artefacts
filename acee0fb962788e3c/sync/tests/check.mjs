@@ -7,6 +7,7 @@ async function call(path,{auth='service',method='GET',body,requestOrigin=origin}
 assert.equal((await call('/api/state',{auth:'none'})).status,401);assert.equal((await call('/api/actions',{auth:'link',method:'POST',body:{actions:[]},requestOrigin:'https://other.test'})).status,403);
 let response=await call('/api/state',{auth:'link'});assert.equal(response.status,200);let state=await response.json();assert.equal(state.items.length,34);assert.equal(state.revision,0);
 async function action(op){const r=await call('/api/actions',{method:'POST',body:{actions:[op]}});const s=await r.json();assert.equal(r.status,200,JSON.stringify(s));return s;}
+state=await action({id:'import-empty-device',type:'import',items:seedItems(seed)});
 state=await action({id:'a1',type:'archive',itemId:'item-17'});assert(state.items.find(i=>i.id==='item-17').archived);assert.equal(counts(state.items).total,31);
 state=await action({id:'a2',type:'restore',itemId:'item-17'});assert(!state.items.find(i=>i.id==='item-17').checked);
 state=await action({id:'a3',type:'check',itemId:'item-17',value:true});assert(state.items.find(i=>i.id==='item-17').checked);const rev=state.revision;
@@ -21,3 +22,15 @@ console.log('Проверено: старый список и новые тов�
 
 assert.equal((await call('/api/state',{auth:'wrong'})).status,401);assert.equal((await call('/api/state',{auth:'owner'})).status,401);assert.equal((await call('/shopping-list.md',{auth:'link'})).status,200);assert.equal((await call('/api/actions',{auth:'link',method:'POST',body:{actions:[]}})).status,200);
 console.log('Проверено: доступ без аккаунта по ключу, неверный ключ отклонён, MD и запись доступны по секретной ссылке.');
+
+const ghOrigin='https://bggrowthhack-optimizer.github.io';
+const preflight=await worker.fetch(new Request(origin+'/api/actions',{method:'OPTIONS',headers:{Origin:ghOrigin,'Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'content-type,x-shopping-key'}}),env);
+assert.equal(preflight.status,204);assert.equal(preflight.headers.get('Access-Control-Allow-Origin'),ghOrigin);assert(preflight.headers.get('Access-Control-Allow-Headers').includes('X-Shopping-Key'));
+const crossRead=await call('/api/state',{auth:'link',requestOrigin:ghOrigin});
+const crossPost=await call('/api/actions',{auth:'link',method:'POST',body:{actions:[]},requestOrigin:ghOrigin});assert.equal(crossPost.status,200);assert.equal(crossPost.headers.get('Access-Control-Allow-Origin'),ghOrigin);
+const badPreflight=await worker.fetch(new Request(origin+'/api/actions',{method:'OPTIONS',headers:{Origin:'https://other.test'}}),env);assert.equal(badPreflight.status,403);assert.equal(badPreflight.headers.get('Access-Control-Allow-Origin'),null);
+const ghError=await worker.fetch(new Request(origin+'/api/state',{headers:{Origin:ghOrigin,'X-Shopping-Key':'wrong-key'}}),env);assert.equal(ghError.status,401);assert.equal(ghError.headers.get('Access-Control-Allow-Origin'),ghOrigin);
+assert(!fs.readFileSync(new URL('../outputs/github/index.html',import.meta.url),'utf8').includes('location.replace'));
+console.log('Проверено: интерфейс GitHub Pages, preflight, запись с разрешённого домена, отклонение постороннего домена и доступ с ключом.');
+
+state=await action({id:'import-user-phone',type:'import',items:legacy});assert(state.items.find(i=>i.id==='item-0').archived);state=await action({id:'import-family-empty',type:'import',items:seedItems(seed)});assert(state.items.find(i=>i.id==='item-0').archived);console.log('Проверено: перенос отметок телефона после первичного импорта и защита от пустого списка другого устройства.');
