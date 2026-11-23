@@ -1,7 +1,7 @@
 // The build embeds CORE, SEED and the three static assets in this module.
 const headers={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'same-origin'};
 function json(value,status=200){return new Response(JSON.stringify(value),{status,headers:{...headers,'Content-Type':'application/json; charset=utf-8'}});}
-function authorized(request,env){const key=request.headers.get('X-Shopping-Service');return !!(env.SHOP_SERVICE_TOKEN&&key===env.SHOP_SERVICE_TOKEN)||!!(env.SHOP_OWNER_EMAIL&&request.headers.get('oai-authenticated-user-email')?.toLowerCase()===env.SHOP_OWNER_EMAIL.toLowerCase());}
+function authorized(request,env){return service(request,env)||!!(env.SHOP_LINK_KEY&&request.headers.get('X-Shopping-Key')===env.SHOP_LINK_KEY);}
 function service(request,env){return !!env.SHOP_SERVICE_TOKEN&&request.headers.get('X-Shopping-Service')===env.SHOP_SERVICE_TOKEN;}
 function itemStatement(db,item,guard){return db.prepare('INSERT INTO shopping_items (id,name,quantity,note,section,optional,alternative,archived,checked,edited_at) SELECT ?,?,?,?,?,?,?,?,?,? WHERE NOT EXISTS(SELECT 1 FROM shopping_operations WHERE id=?) ON CONFLICT(id) DO NOTHING').bind(item.id,item.name,item.quantity,item.note,item.section,+item.optional,+item.alternative,+item.archived,+item.checked,item.edited_at||0,guard);}
 async function initialize(db){const found=await db.prepare('SELECT revision FROM shopping_meta WHERE id=1').first();if(found)return;const statements=seedItems(SEED).map(i=>itemStatement(db,i,'seed'));statements.push(db.prepare('INSERT OR IGNORE INTO shopping_meta (id,revision,updated_at) VALUES (1,0,?)').bind(Date.now()));await db.batch(statements);}
@@ -29,10 +29,7 @@ export default {async fetch(request,env){try{const url=new URL(request.url),path
  if(path==='/core.js')return new Response(CORE_PUBLIC,{headers:{'Content-Type':'text/javascript; charset=utf-8',...headers}});
  if(path==='/'||path==='/app/'||path==='/app')return new Response(HTML,{headers:{'Content-Type':'text/html; charset=utf-8',...headers,'Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'self' https://chatgpt.com; base-uri 'self'; form-action 'self'"}});
  if(path!=='/api/state'&&path!=='/api/actions'&&path!=='/shopping-list.md')return new Response('Не найдено',{status:404,headers});
- if(!authorized(request,env)){
-  if(path==='/shopping-list.md')return Response.redirect(url.origin+'/signin-with-chatgpt?return_to='+encodeURIComponent('/shopping-list.md'),303);
-  return json({error:request.headers.get('oai-authenticated-user-email')?'Этот список доступен только владельцу.':'Войди через ChatGPT, чтобы сохранять общий список.'},request.headers.get('oai-authenticated-user-email')?403:401);
- }
+ if(!authorized(request,env))return json({error:'Для доступа к списку нужна секретная ссылка.'},401);
  if(!env.DB)return json({error:'Общее хранилище ещё подключается. Локальные изменения сохранены.'},503);
  await initialize(env.DB);
  if(path==='/api/actions'){
