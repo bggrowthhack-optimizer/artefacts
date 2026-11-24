@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><title>Очки для всех · инструкция по таблице</title><meta name="viewport" content="width=device-width, initial-scale=1"><style>
+:root{
+  --ink:#1b2428; --muted:#5d6f75; --accent:#0f5d6e; --accent2:#0b4653;
+  --soft:#eef4f5; --line:#d7e1e3; --field:#9fb4b8; --warn:#7a4a15; --warnbg:#f7f1e8;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  color:var(--ink); background:#fff; font-size:10.4pt; line-height:1.42;
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+.sheet{width:210mm;background:#fff;padding:16mm 18mm}
+@media screen{
+  body{background:#e7ebed;padding:26px 0}
+  .sheet{margin:0 auto 26px;box-shadow:0 2px 16px rgba(0,0,0,.15);border-radius:2px}
+}
+@media print{
+  @page{size:A4;margin:15mm 16mm}
+  body{background:#fff;padding:0}
+  .sheet{width:auto;margin:0;padding:0;box-shadow:none;border-radius:0}
+  .sheet+.sheet{page-break-before:always}
+}
+.doc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:6mm;
+  border-bottom:1.1pt solid var(--accent);padding-bottom:2.6mm;margin-bottom:3.4mm}
+.kicker{font-size:7pt;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:700;margin:0 0 1.1mm}
+h1{font-size:20pt;line-height:1.1;margin:0;font-weight:700;letter-spacing:-.015em}
+.lead{font-size:9.9pt;color:var(--muted);margin:1.2mm 0 0}
+.brand{text-align:right;flex-shrink:0;line-height:1.3}
+.brand b{display:block;font-size:7.4pt;letter-spacing:.13em;text-transform:uppercase;color:var(--ink);font-weight:700}
+.brand span{display:block;font-size:6.6pt;color:var(--muted);letter-spacing:.03em;margin-top:.5mm}
+h2{font-size:8.4pt;letter-spacing:.085em;text-transform:uppercase;color:var(--accent);font-weight:700;
+  margin:5mm 0 1.6mm;border-bottom:.4pt solid var(--line);padding-bottom:1mm}
+p{margin:0 0 1.8mm}
+ol.steps{list-style:none;margin:0;padding:0;counter-reset:s}
+ol.steps>li{counter-increment:s;position:relative;padding-left:6.6mm;margin:0 0 1.5mm}
+ol.steps>li:before{content:counter(s);position:absolute;left:0;top:.15mm;width:4.6mm;height:4.6mm;border-radius:50%;
+  background:var(--accent);color:#fff;font-size:7.2pt;font-weight:700;display:flex;align-items:center;justify-content:center}
+ol.steps b{font-weight:650}
+ul.checks{list-style:none;margin:0;padding:0}
+ul.checks li{position:relative;padding-left:5.4mm;margin:0 0 1.2mm}
+ul.checks li:before{content:"";position:absolute;left:0;top:1.1mm;width:2.8mm;height:2.8mm;
+  border:.55pt solid var(--accent);border-radius:.5mm}
+.note{background:var(--soft);border-left:2pt solid var(--accent);padding:2mm 2.8mm;margin:2mm 0;font-size:9.4pt}
+.note .t{font-size:6.9pt;text-transform:uppercase;letter-spacing:.07em;color:var(--accent);font-weight:700;margin-bottom:.6mm}
+.avoid{background:var(--warnbg);border-left:2pt solid var(--warn);padding:2mm 2.8mm;margin:2mm 0;font-size:9.4pt}
+.avoid .t{font-size:6.9pt;text-transform:uppercase;letter-spacing:.07em;color:var(--warn);font-weight:700;margin-bottom:.6mm}
+.kpi{border:.5pt solid var(--line);border-radius:1mm;padding:1.8mm 2.4mm;margin:2.4mm 0 0;font-size:9.4pt;color:var(--accent2)}
+.kpi b{color:var(--ink)}
+.doc-foot{margin-top:3.4mm;border-top:.45pt solid var(--line);padding-top:1.8mm;display:flex;
+  justify-content:space-between;align-items:flex-end;gap:5mm;font-size:6.7pt;color:var(--muted)}
+.mark{color:var(--accent2);font-weight:650;letter-spacing:.03em;white-space:nowrap}
+.mark:before{content:"";display:inline-block;width:2.3mm;height:2.3mm;background:var(--accent);
+  margin-right:1.5mm;vertical-align:-.2mm;border-radius:.4mm}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:2.4mm 5mm}
+.field.full{grid-column:1/-1}
+.field .lab{font-size:6.8pt;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:650;margin-bottom:.6mm}
+.line{height:6.4mm;border-bottom:.5pt solid var(--field)}
+.line.tall{height:12.5mm}
+.opts{display:flex;gap:7mm;margin-top:.5mm}
+.opt{display:flex;align-items:center;gap:1.8mm;font-size:9pt}
+.box{width:3.2mm;height:3.2mm;border:.55pt solid var(--accent);border-radius:.4mm;flex-shrink:0}
+.sample{border:.55pt solid var(--line);border-radius:1.2mm;padding:2.6mm 3mm;background:#fcfdfd}
+.srow{display:flex;gap:3mm;padding:1.1mm 0;border-bottom:.35pt dotted #c3d2d5}
+.srow:last-child{border-bottom:none}
+.srow .k{width:34%;font-size:6.9pt;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:650;padding-top:.4mm}
+.srow .v{flex:1;font-size:8.8pt;font-style:italic;color:var(--accent2)}
+.tip{font-size:8.2pt;color:var(--muted);margin-top:1.2mm}
+table{width:100%;border-collapse:collapse;font-size:8.5pt}
+th{background:var(--soft);text-align:left;font-size:6.9pt;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--accent);padding:1.7mm 2mm;border-bottom:.6pt solid var(--accent);font-weight:700}
+td{padding:1.4mm 2mm;border-bottom:.4pt solid var(--line);vertical-align:top}
+td.blank{height:9mm}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 8mm}
+.kv{display:flex;gap:2mm;padding:1.3mm 0;border-bottom:.4pt solid var(--line)}
+.kv .k{width:42%;font-size:7.1pt;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:650;padding-top:.4mm}
+.kv .v{flex:1;font-size:8.8pt}
+.sign{display:grid;grid-template-columns:1fr 1fr;gap:5mm 8mm;margin-top:3.4mm}
+.sign .field .line{height:7.4mm}
+.sign .field.full{grid-column:1/-1}
+</style></head><body>
+<div class="sheet">
+<div class="doc-head">
+  <div><div class="kicker">Очки для всех · консультант и руководитель</div><h1>Таблица: как заполнять строку</h1><p class="lead">Одна строка — один родственник. Заполняется в тот же день и сверяется с ежедневной задачей.</p></div>
+  <div class="brand"><b>Оптимайзер</b><span>создано · 24.11.2026</span></div>
+</div>
+<h2>Что считаем записью</h2>
+<p>Запись — это строка с датой записи, независимо от того, пришёл человек или нет. Купон без даты записи и без телефона родственника в норму не идёт. Приход и заказ считаются отдельно: «записал», «пришёл», «купил» — три разных числа, и путать их нельзя.</p>
+<h2>Поля строки и пример</h2>
+<div class="grid2">
+  <div class="kv"><div class="k">Дата</div><div class="v">24.11.2026</div></div>
+  <div class="kv"><div class="k">Филиал</div><div class="v">Ленина</div></div>
+  <div class="kv"><div class="k">Сотрудник</div><div class="v">кто предложил</div></div>
+  <div class="kv"><div class="k">Клиент-источник</div><div class="v">Смирнова О. И.</div></div>
+  <div class="kv"><div class="k">Родственник</div><div class="v">Смирнова А. П., мама</div></div>
+  <div class="kv"><div class="k">Телефон</div><div class="v">+7 917 123-45-67</div></div>
+  <div class="kv"><div class="k">Где предложил</div><div class="v">выдача заказа</div></div>
+  <div class="kv"><div class="k">Бланк</div><div class="v">есть</div></div>
+  <div class="kv"><div class="k">Купон</div><div class="v">выдан, № 0142</div></div>
+  <div class="kv"><div class="k">Дата звонка</div><div class="v">25.11.2026</div></div>
+  <div class="kv"><div class="k">Дозвонились</div><div class="v">со второй попытки</div></div>
+  <div class="kv"><div class="k">Записан</div><div class="v">30.11, 10:30</div></div>
+  <div class="kv"><div class="k">Пришёл</div><div class="v">да</div></div>
+  <div class="kv"><div class="k">Заказ и сумма</div><div class="v">очки для чтения, 4 800 ₽</div></div>
+  <div class="kv"><div class="k">Причина отказа</div><div class="v">—</div></div>
+  <div class="kv"><div class="k">Следующий шаг</div><div class="v">—</div></div>
+</div>
+<h2>Два примера строк</h2>
+<table>
+  <thead><tr><th style="width:12%">Дата</th><th style="width:36%">Родственник и телефон</th><th style="width:14%">Записан</th><th style="width:18%">Итог</th><th style="width:20%">Следующий шаг</th></tr></thead>
+  <tbody>
+    <tr><td>24.11</td><td>Смирнова А. П., мама<br>+7 917 123-45-67</td><td>30.11,<br>10:30</td><td>пришла,<br>заказ 4 800 ₽</td><td>закрыта</td></tr>
+    <tr><td>24.11</td><td>Кузнецов И. С., брат<br>+7 917 765-43-21</td><td>—</td><td>отказ:<br>«далеко ехать»</td><td>позвонить<br>07.12</td></tr>
+  </tbody>
+</table>
+<p class="tip">Первая строка — запись и заказ. Вторая — отказ, но с причиной и датой следующего шага: строка остаётся в работе.</p>
+<h2>Три ошибки, из-за которых таблица бесполезна</h2>
+<ol class="steps">
+  <li><b>Пустая причина отказа.</b> Не видно, потеряли человека или он ещё в работе.</li>
+  <li><b>Нет следующего шага и даты.</b> Строка живёт один день и забывается.</li>
+  <li><b>Запись без даты записи.</b> Человек согласился, но времени нет: по таблице это «предложили», а не «записали».</li>
+</ol>
+<h2>Сверка в конце дня</h2>
+<p>В ежедневной задаче сотрудник пишет одной строкой: предложено, купонов выдано, записано, пришло, заказов, что мешало. Цифры задачи должны совпадать со строками таблицы за день; расхождение разбирается в тот же день.</p>
+<div class="doc-foot">
+  <span>Очки для всех · инструкция по таблице · v1.0</span>
+  <span class="mark">Создано Оптимайзером</span>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow">
+<title>Очки для всех · листы для сотрудников</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{--ink:#1b2428;--muted:#5d6f75;--accent:#0f5d6e;--soft:#eef4f5;--line:#d7e1e3}
+*{box-sizing:border-box}
+body{margin:0;padding:32px 20px 48px;background:#e7ebed;color:var(--ink);
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:14px;line-height:1.45}
+.wrap{max-width:900px;margin:0 auto}
+.card{background:#fff;border-radius:3px;box-shadow:0 2px 16px rgba(0,0,0,.13);padding:28px 32px 32px}
+.kicker{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:700;margin:0 0 6px}
+h1{font-size:27px;line-height:1.12;margin:0 0 8px;letter-spacing:-.015em}
+.lead{color:var(--muted);margin:0 0 20px;max-width:72ch}
+h2{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);
+ margin:28px 0 8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--soft);text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.05em;
+ color:var(--accent);padding:9px 10px;border-bottom:1.5px solid var(--accent);font-weight:700}
+td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+td.acts{white-space:nowrap;font-weight:600}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+ol{margin:6px 0 0;padding-left:20px}
+li{margin-bottom:6px}
+.mark{margin-top:24px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;color:var(--accent);font-weight:600}
+.mark:before{content:"";display:inline-block;width:9px;height:9px;background:var(--accent);margin-right:7px;border-radius:1px;vertical-align:0}
+.tip{background:#f7f1e8;border-left:3px solid #7a4a15;padding:10px 12px;font-size:13px;margin:14px 0}
+</style></head>
+<body><div class="wrap"><div class="card">
+<div class="kicker">Очки для всех · материалы для сотрудников</div>
+<h1>Печатные листы процесса «Родственники»</h1>
+<p class="lead">Шесть листов вместо регламента: у каждой роли свой. PDF — для печати как есть, HTML — чтобы править текст.</p>
+<table>
+  <thead><tr><th>Лист</th><th>Кому</th><th>Формат</th><th>Скачать</th></tr></thead>
+  <tbody>
+    <tr><td>Карточка приёма</td><td>Врач и оптометрист</td><td>A5 · ламинат на столе</td><td class="acts"><a href="01-kartochka-priema.pdf">PDF</a> · <a href="01-kartochka-priema.html">HTML</a></td></tr>
+    <tr><td>Бланк наследственности</td><td>Врач и оптометрист</td><td>A5 · двусторонне</td><td class="acts"><a href="02-blank-nasledstvennosti.pdf">PDF</a> · <a href="02-blank-nasledstvennosti.html">HTML</a></td></tr>
+    <tr><td>Купон и запись</td><td>Консультант</td><td>A5 · на стойке и в кармане</td><td class="acts"><a href="03-shpargalka-konsultanta.pdf">PDF</a> · <a href="03-shpargalka-konsultanta.html">HTML</a></td></tr>
+    <tr><td>Таблица: как заполнять строку</td><td>Консультант, Ольга</td><td>A4 · одна страница</td><td class="acts"><a href="04-instrukciya-po-tablice.pdf">PDF</a> · <a href="04-instrukciya-po-tablice.html">HTML</a></td></tr>
+    <tr><td>Памятка сотруднику</td><td>Все сотрудники</td><td>A4 · на подпись</td><td class="acts"><a href="05-pamyatka-podpis.pdf">PDF</a> · <a href="05-pamyatka-podpis.html">HTML</a></td></tr>
+    <tr><td>Лист ознакомления</td><td>Ольга и Вера</td><td>A4 · хранится у Веры</td><td class="acts"><a href="06-list-oznakomleniya.pdf">PDF</a> · <a href="06-list-oznakomleniya.html">HTML</a></td></tr>
+  </tbody>
+</table>
+<h2>Как печатать</h2>
+<ol>
+  <li>Печать PDF — масштаб 100%, «по размеру страницы» не включать: размеры A5 и A4 уже заданы в файле.</li>
+  <li>Карточки A5 при печати на A4 — по одной на страницу, затем обрезать по краю или заламинировать.</li>
+  <li>Бланк наследственности печатать двусторонне: лицевая сторона — поля, оборот — пример заполнения.</li>
+  <li>В чёрно-белой печати листы читаются: акцент становится серым, смысл не теряется.</li>
+</ol>
+<div class="tip">Сотруднику выдаются только те листы, которые нужны в его работе. Полный регламент остаётся у руководителя, лист ознакомления ссылается на него.</div>
+<h2>Как править</h2>
+<p>Текст лежит прямо в HTML-файлах, сборки нет. Править в любом текстовом редакторе, но не в Word — он испортит вёрстку. После правки открыть лист в браузере, проверить, что он остался на одной странице, и обновить PDF через «Печать → Сохранить как PDF».</p>
+<div class="mark">Создано Оптимайзером</div>
+</div></div></body></html>
