@@ -38,6 +38,19 @@ li{margin-bottom:8px}
 .tip{background:var(--soft);border-left:3px solid var(--accent);padding:12px 14px;font-size:14px;margin:16px 0 0}
 .mark{margin-top:28px;padding-top:14px;border-top:1px solid var(--line);font-size:12.5px;color:var(--accent);font-weight:600}
 .mark:before{content:"";display:inline-block;width:9px;height:9px;background:var(--accent);margin-right:7px;border-radius:1px;vertical-align:0}
+.tabs{margin:20px 0 0}
+.tabs>input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.tabbar{display:flex;gap:8px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tabbar label{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;
+ border:1px solid var(--line);border-bottom:none;border-radius:3px 3px 0 0;cursor:pointer;font-size:14px;
+ font-weight:650;color:var(--muted);background:#f7f9f9;margin-bottom:-1px;user-select:none}
+.tabbar label:hover{color:var(--accent)}
+.tabs>input:focus-visible+.tabbar label{outline:2px solid var(--accent);outline-offset:2px}
+#t-rel:checked~.tabbar label[for=t-rel],
+#t-call:checked~.tabbar label[for=t-call]{color:#fff;background:var(--accent);border-color:var(--accent)}
+.panel{display:none}
+#t-rel:checked~.panel-rel,#t-call:checked~.panel-call{display:block}
+.panel .sheets{margin:0}
 @media screen and (max-width:600px){
  body{padding:0;background:#fff;font-size:15px}
  .wrap{max-width:none}
@@ -54,15 +67,25 @@ li{margin-bottom:8px}
  ol{padding-left:20px;font-size:14.5px;line-height:1.5}
  .tip{font-size:14px}
  .mark{font-size:12px}
+ .tabbar{gap:6px}
+ .tabbar label{flex:1 1 100%;font-size:14.5px;padding:0 10px}
 }
 </style></head>
 <body><div class="wrap"><div class="card">
 <div class="kicker">Очки для всех · материалы для сотрудников</div>
-<h1>Печатные листы процесса «Родственники»</h1>
-<p class="lead">Шесть листов вместо регламента: у каждой роли свой. Открывать лист можно прямо с телефона, PDF — для печати.</p>
-<div class="hint">С телефона удобнее «Открыть лист»: текст подстроится под ширину экрана. PDF нужен только для печати — он повторяет лист один в один.</div>
+<h1>Печатные листы: родственники и звонки по базе</h1>
+<p class="lead">Два процесса — две вкладки. Внутри каждой по шесть листов: у каждой роли свой. Открывать можно с телефона, PDF — для печати.</p>
+<div class="hint">С телефона удобнее «Открыть лист»: текст подстроится под ширину экрана. PDF повторяет лист один в один и нужен только для печати.</div>
 
-<div class="sheets">
+<div class="tabs">
+<input type="radio" name="tab" id="t-rel" checked>
+<input type="radio" name="tab" id="t-call">
+<div class="tabbar">
+<label for="t-rel">Родственники · 6 листов</label>
+<label for="t-call">Звонки по базе · 6 листов</label>
+</div>
+
+<div class="panel panel-rel"><div class="sheets">
   <div class="sheet-row">
     <div class="what"><b>Карточка приёма</b><span>Врач и оптометрист</span><i>A5 · ламинат на столе</i></div>
     <div class="acts"><a class="btn primary" href="01-kartochka-priema.html">Открыть лист</a><a class="btn" href="01-kartochka-priema.pdf" download>Скачать PDF</a></div>
@@ -87,16 +110,44 @@ li{margin-bottom:8px}
     <div class="what"><b>Лист ознакомления</b><span>Ольга и Вера</span><i>A4 · хранится у Веры</i></div>
     <div class="acts"><a class="btn primary" href="06-list-oznakomleniya.html">Открыть лист</a><a class="btn" href="06-list-oznakomleniya.pdf" download>Скачать PDF</a></div>
   </div>
+</div></div>
+
+<div class="panel panel-call"><div class="sheets">
+  <div class="sheet-row">
+    <div class="what"><b>Как устроен процесс</b><span>Все участники</span><i>A4 · одна страница</i></div>
+    <div class="acts"><a class="btn primary" href="zvonki-01-kak-ustroen-process.html">Открыть лист</a><a class="btn" href="zvonki-01-kak-ustroen-process.pdf" download>Скачать PDF</a></div>
+  </div>
+  <div class="sheet-row">
+    <div class="what"><b>Деление базы</b><span>Вера</span><i>A4 · правило и чек-лист</i></div>
+    <div class="acts"><a class="btn primary" href="zvonki-02-delenie-bazy.html">Открыть лист</a><a class="btn" href="zvonki-02-delenie-bazy.pdf" download>Скачать PDF</a></div>
+  </div>
+  <div class="sheet-row">
+    <div class="what"><b>Карточка звонка</b><span>Консультант и КЦ</span><i>A5 · ламинат, перед глазами</i></div>
+    <div class="acts"><a class="btn primary" href="zvonki-03-kartochka-zvona.html">Открыть лист</a><a class="btn" href="zvonki-03-kartochka-zvona.pdf" download>Скачать PDF</a></div>
+  </div>
+  <div class="sheet-row">
+    <div class="what"><b>Таблица: как заполнять строку</b><span>Звонящие, Ольга</span><i>A4 · одна страница</i></div>
+    <div class="acts"><a class="btn primary" href="zvonki-04-tablica-stroka.html">Открыть лист</a><a class="btn" href="zvonki-04-tablica-stroka.pdf" download>Скачать PDF</a></div>
+  </div>
+  <div class="sheet-row">
+    <div class="what"><b>Статистика и сравнение</b><span>Ольга</span><i>A4 · недельная сводка</i></div>
+    <div class="acts"><a class="btn primary" href="zvonki-05-pamyatka-statistika.html">Открыть лист</a><a class="btn" href="zvonki-05-pamyatka-statistika.pdf" download>Скачать PDF</a></div>
+  </div>
+  <div class="sheet-row">
+    <div class="what"><b>Лист ознакомления</b><span>Ольга</span><i>A4 · подписи звонящих</i></div>
+    <div class="acts"><a class="btn primary" href="zvonki-06-list-oznakomleniya.html">Открыть лист</a><a class="btn" href="zvonki-06-list-oznakomleniya.pdf" download>Скачать PDF</a></div>
+  </div>
+</div></div>
 </div>
 
 <h2>Как печатать</h2>
 <ol>
   <li>Печать PDF — масштаб 100%, «по размеру страницы» не включать: размеры A5 и A4 уже заданы в файле.</li>
-  <li>Карточки A5 при печати на A4 — по одной на страницу, затем обрезать по краю или заламинировать.</li>
+  <li>Листы A5 (карточки) печатать на A4 по одной на страницу, затем обрезать или заламинировать.</li>
   <li>Бланк наследственности печатать двусторонне: лицевая сторона — поля, оборот — пример заполнения.</li>
   <li>В чёрно-белой печати листы читаются: акцент становится серым, смысл не теряется.</li>
 </ol>
-<div class="tip">Сотруднику выдаются только те листы, которые нужны в его работе. Полный регламент остаётся у руководителя, лист ознакомления ссылается на него.</div>
+<div class="tip">Сотруднику выдаются только листы его роли. Полный регламент остаётся у руководителя: у родственников — [регламент 0.7], у звонков — [регламент 0.2] в базе. Лист ознакомления ссылается на них.</div>
 <h2>Как править</h2>
 <p>Текст лежит прямо в HTML-файлах, сборки нет. Править в любом текстовом редакторе, но не в Word — он испортит вёрстку. После правки открыть лист в браузере, проверить, что он остался на одной странице, и обновить PDF через «Печать → Сохранить как PDF».</p>
 <div class="mark">Создано Оптимайзером</div>
