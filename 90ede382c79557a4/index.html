@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Спектр - финмодель</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    --background: #F5F7F9;
+    --card: #FFFFFF;
+    --foreground: #0D121B;
+    --muted: #F3F5F9;
+    --muted-foreground: #646972;
+    --primary: #2B62EF;
+    --border: #DBDEE5;
+    --border-strong: #BFC4CD;
+    --chart-1: #4076F5;
+    --radius-card: 14px;
+    --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --slide-w: 1280px;
+    --slide-h: 720px;
+    --slide-pad: 38px;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    background: #2b2e33;
+    font-family: var(--font-sans);
+    color: var(--foreground);
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+    min-height: 100%;
+    overflow: auto;
+  }
+  .viewport {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 0;
+  }
+  .stage {
+    position: relative;
+    width: var(--slide-w);
+    height: var(--slide-h);
+    flex-shrink: 0;
+    transform-origin: center center;
+  }
+  .slide {
+    width: var(--slide-w);
+    height: var(--slide-h);
+    background: var(--background);
+    position: absolute;
+    inset: 0;
+    padding: var(--slide-pad) 46px 30px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.35);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .eyebrow {
+    font-size: 12.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--primary);
+  }
+  .slide h1 {
+    font-size: 30px; font-weight: 700; line-height: 1.15; letter-spacing: -0.02em;
+    margin: 7px 0 8px; white-space: nowrap;
+  }
+  .sub {
+    font-size: 15.5px; font-weight: 400; color: var(--muted-foreground);
+    margin: 0 0 13px; line-height: 1.3; white-space: nowrap;
+  }
+  .rule { border: none; border-top: 1px solid var(--border); margin: 0 0 12px; }
+  .body { flex: 1; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+  }
+  .main-row { display: flex; gap: 12px; flex: 1; min-height: 0; }
+  .now-card { flex: 0 0 300px; padding: 16px 18px; display: flex; flex-direction: column; }
+  .model-card { flex: 1; padding: 16px 18px; min-width: 0; }
+  .results { flex: 0 0 300px; display: flex; flex-direction: column; gap: 10px; }
+  .result-card { flex: 1; padding: 12px 16px; display: flex; flex-direction: column; justify-content: center; }
+
+  .card-title { font-size: 13.5px; font-weight: 600; margin-bottom: 10px; }
+  .kpi { margin-bottom: 11px; }
+  .kpi-value { font-size: 32px; font-weight: 700; line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .kpi-label { font-size: 12px; color: var(--muted-foreground); margin-top: 3px; }
+  .base-note { font-size: 11px; color: var(--muted-foreground); margin-top: auto; line-height: 1.35; }
+
+  .scenario { font-size: 12.5px; color: var(--muted-foreground); }
+  .scenario b { color: var(--primary); font-weight: 600; }
+  .steps { display: flex; gap: 6px; margin: 8px 0 13px; }
+  .steps button {
+    flex: 1; padding: 6px 2px; font-size: 11.5px; font-weight: 600; font-family: inherit;
+    border: 1.5px solid var(--border-strong); background: var(--card); color: var(--foreground);
+    border-radius: 7px; cursor: pointer; white-space: nowrap;
+  }
+  .steps button.active { border-color: var(--primary); background: var(--primary); color: #fff; }
+  .slider-block { margin-bottom: 10px; }
+  .slider-row { display: flex; justify-content: space-between; align-items: baseline; }
+  .slider-row span { font-size: 12.5px; color: var(--muted-foreground); }
+  .slider-row b { font-size: 13px; color: var(--primary); font-variant-numeric: tabular-nums; }
+  .slider-block input[type=range] { width: 100%; margin: 5px 0 2px; accent-color: var(--primary); }
+  .slider-note { font-size: 11px; color: var(--muted-foreground); }
+  .hint {
+    font-size: 11.5px; color: var(--muted-foreground); line-height: 1.35;
+    border-top: 1px solid var(--border); padding-top: 8px; margin-top: 4px;
+  }
+
+  .result-label { font-size: 12px; color: var(--muted-foreground); }
+  .result-value { font-size: 28px; font-weight: 700; line-height: 1.06; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .result-sub { font-size: 11.5px; color: var(--muted-foreground); margin-top: 3px; }
+  #splitText { font-size: 10.5px; }
+
+  .path-card { flex: 0 0 150px; padding: 11px 18px 9px; display: flex; flex-direction: column; }
+  .path-head { display: flex; justify-content: space-between; align-items: baseline; }
+  .path-head span:first-child { font-size: 13px; font-weight: 600; }
+  .path-unit { font-size: 11px; color: var(--muted-foreground); }
+  .bars { display: flex; gap: 8px; height: 106px; margin-top: 4px; }
+  .bar-col {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    background: none; border: 0; padding: 0; cursor: pointer; font-family: inherit; color: inherit;
+  }
+  .bar-value { font-size: 12px; font-weight: 600; height: 16px; line-height: 16px; font-variant-numeric: tabular-nums; }
+  .bar-track { height: 54px; width: 100%; display: flex; align-items: flex-end; justify-content: center; }
+  .bar { width: 62%; max-width: 120px; border-radius: 4px 4px 0 0; background: #C9D6FB; transition: height .15s ease, background .15s ease; }
+  .bar-col.reached .bar { background: var(--chart-1); }
+  .bar-col.current .bar { background: var(--primary); }
+  .bar-label { font-size: 11px; font-weight: 600; margin-top: 5px; white-space: nowrap; }
+  .bar-rate { font-size: 10.5px; color: var(--muted-foreground); }
+  .bar-col:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 6px; }
+
+  .footnote {
+    font-size: 10.5px; color: var(--muted-foreground); line-height: 1.35;
+    margin-top: 6px; padding-top: 0;
+  }
+</style>
+</head>
+<body>
+<div class="viewport">
+  <div class="stage" id="stage">
+    <div class="slide">
+      <div class="eyebrow">Финмодель · 12 стационарных салонов</div>
+      <h1>Сколько дают конверсия и доля целевых линз</h1>
+      <div class="sub">Выгрузка 1С «Спектра» · январь-сентябрь 2026 · тот же поток диагностик и средний чек 15 646 ₽</div>
+      <hr class="rule">
+      <div class="body">
+        <div class="main-row">
+          <div class="card now-card">
+            <div class="card-title">Сейчас</div>
+            <div class="kpi">
+              <div class="kpi-value">54,5%</div>
+              <div class="kpi-label">доходят от приема до заказа</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-value">21,5%</div>
+              <div class="kpi-label">доля ВТЛ в заказах</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-value">15 646 ₽</div>
+              <div class="kpi-label">средний чек очков</div>
+            </div>
+            <div class="base-note">1 432 диагностики в месяц · 780 заказов в месяц · 12 стационарных салонов</div>
+          </div>
+          <div class="card model-card">
+            <div class="scenario">Сценарий: <b id="scenarioName">Полная ставка</b></div>
+            <div class="steps" id="steps"></div>
+            <div class="slider-block">
+              <div class="slider-row"><span>Доходят от приема до заказа</span><b id="convBadge">70,0%</b></div>
+              <input id="convSlider" type="range" min="54.5" max="70" step="0.1" value="70" aria-label="Доля доходящих до заказа">
+              <div class="slider-note">сейчас 54,5%</div>
+            </div>
+            <div class="slider-block">
+              <div class="slider-row"><span>Доля ВТЛ в заказах</span><b id="vtlBadge">30,0%</b></div>
+              <input id="vtlSlider" type="range" min="21.5" max="30" step="0.1" value="30" aria-label="Доля ВТЛ в заказах">
+              <div class="slider-note">сейчас 21,5%</div>
+            </div>
+            <div class="hint" id="hint"></div>
+          </div>
+          <div class="results">
+            <div class="card result-card">
+              <div class="result-label">Прирост выручки</div>
+              <div class="result-value" id="totalMoney">5 115 тыс ₽</div>
+              <div class="result-sub" id="annualText">61,4 млн ₽ в год</div>
+              <div class="result-sub" id="splitText">заказы +3 474 · линзы +1 641 тыс ₽/мес</div>
+            </div>
+            <div class="card result-card">
+              <div class="result-label">Ставка Оптимайзера</div>
+              <div class="result-value" id="rateBig">360 тыс ₽</div>
+              <div class="result-sub" id="rateSub">полная ставка · 30 тыс ₽ за салон</div>
+            </div>
+            <div class="card result-card">
+              <div class="result-label">ROI к ставке</div>
+              <div class="result-value" id="roiBig">×14,2</div>
+              <div class="result-sub">прирост выручки / ставка</div>
+            </div>
+          </div>
+        </div>
+        <div class="card path-card">
+          <div class="path-head"><span>Путь к цели: пять ступеней</span><span class="path-unit">прирост, тыс ₽ в месяц</span></div>
+          <div class="bars" id="bars"></div>
+        </div>
+      </div>
+      <div class="footnote">Как считаем: прирост заказов = диагностики × изменение конверсии × средний чек; эффект линз пересчитан на выросшее число заказов. Старт - 15 тыс ₽ за салон (180 тыс ₽), полная ставка - 30 тыс ₽ за салон (360 тыс ₽). Оценка, не обещание.</div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var STEPS = [
+    { name: 'Старт',      short: 'Старт',    conv: 54.5, vtl: 21.5, money: 0,    rate: 180 },
+    { name: 'Ступень 1',  short: 'Ступень 1', conv: 57.6, vtl: 23.2, money: 965,  rate: 216 },
+    { name: 'Ступень 2',  short: 'Ступень 2', conv: 60.7, vtl: 24.9, money: 1959, rate: 252 },
+    { name: 'Ступень 3',  short: 'Ступень 3', conv: 63.8, vtl: 26.6, money: 2982, rate: 288 },
+    { name: 'Ступень 4',  short: 'Ступень 4', conv: 66.9, vtl: 28.3, money: 4034, rate: 324 },
+    { name: 'Полная ставка', short: 'Полная', conv: 70.0, vtl: 30.0, money: 5115, rate: 360 }
+  ];
+  var N = 1432.3;        // диагностики в месяц
+  var CHECK = 15646;     // средний чек очков, ₽
+  var BASE_CONV = 54.5;  // конверсия сейчас, %
+  var BASE_VTL = 21.5;   // доля ВТЛ сейчас, %
+  var LENS_FULL = 1278;  // линзовый эффект при 30% на текущем потоке, тыс ₽/мес
+  var MAX_MONEY = 5115;
+
+  var conv = 70.0, vtl = 30.0;
+
+  var $ = function(id){ return document.getElementById(id); };
+  var convSlider = $('convSlider'), vtlSlider = $('vtlSlider');
+  var barsEl = $('bars'), stepsEl = $('steps');
+
+  function fmt(n){ return Math.round(n).toLocaleString('ru-RU'); }
+  function fmt1(n){ return (Math.round(n * 10) / 10).toLocaleString('ru-RU', { minimumFractionDigits: 1, maximumFractionDigits: 1 }); }
+  function pct(n){ return fmt1(n) + '%'; }
+
+  function calc(c, v){
+    var orders = N * (c - BASE_CONV) / 100;              // дополнительных заказов в месяц
+    var moneyOrders = orders * CHECK / 1000;             // тыс ₽/мес
+    var lens = LENS_FULL * ((v - BASE_VTL) / 8.5) * (c / BASE_CONV); // тыс ₽/мес
+    var total = moneyOrders + lens;
+    var k = 0;
+    STEPS.forEach(function(s, i){ if (c >= s.conv - 1e-9 && v >= s.vtl - 1e-9) k = i; });
+    var rate = STEPS[k].rate;
+    return {
+      orders: orders,
+      moneyOrders: moneyOrders,
+      lens: lens,
+      total: total,
+      annual: total * 12 / 1000,
+      step: k,
+      rate: rate,
+      roi: rate > 0 && total > 0 ? total / rate : null
+    };
+  }
+
+  function rateSubText(k){
+    if (k === 0) return 'старт · 15 тыс ₽ за салон';
+    if (k === 5) return 'полная ставка · 30 тыс ₽ за салон';
+    return STEPS[k].name + ' · ' + (15 + 3 * k) + ' тыс ₽ за салон';
+  }
+
+  function buildBars(){
+    barsEl.innerHTML = '';
+    STEPS.forEach(function(s, i){
+      var col = document.createElement('button');
+      col.type = 'button';
+      col.className = 'bar-col';
+      col.setAttribute('aria-label', s.name + ': прирост ' + fmt(s.money) + ' тыс ₽ в месяц, ставка ' + fmt(s.rate) + ' тыс ₽');
+      col.innerHTML =
+        '<span class="bar-value">' + fmt(s.money) + '</span>' +
+        '<span class="bar-track"><span class="bar" style="height:' + Math.max(2, Math.round(s.money / MAX_MONEY * 100)) + '%"></span></span>' +
+        '<span class="bar-label">' + s.short + '</span>' +
+        '<span class="bar-rate">' + fmt(s.rate) + '</span>';
+      col.addEventListener('click', function(){ setStep(i); });
+      barsEl.appendChild(col);
+    });
+  }
+
+  function buildSteps(){
+    stepsEl.innerHTML = '';
+    STEPS.forEach(function(s, i){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = s.short;
+      b.addEventListener('click', function(){ setStep(i); });
+      stepsEl.appendChild(b);
+    });
+  }
+
+  function setStep(i){
+    conv = STEPS[i].conv;
+    vtl = STEPS[i].vtl;
+    convSlider.value = conv;
+    vtlSlider.value = vtl;
+    render();
+  }
+
+  function render(){
+    var r = calc(conv, vtl);
+
+    $('convBadge').textContent = pct(conv);
+    $('vtlBadge').textContent = pct(vtl);
+
+    $('scenarioName').textContent = STEPS[r.step].name;
+
+    $('totalMoney').textContent = fmt(r.total) + ' тыс ₽';
+    $('annualText').textContent = fmt1(r.annual) + ' млн ₽ в год';
+    $('splitText').textContent = 'заказы +' + fmt(r.moneyOrders) + ' · линзы +' + fmt(r.lens) + ' тыс ₽/мес';
+    $('rateBig').textContent = fmt(r.rate) + ' тыс ₽';
+    $('rateSub').textContent = rateSubText(r.step);
+    $('roiBig').textContent = r.roi === null ? '-' : '×' + fmt1(r.roi);
+
+    if (r.step < 5) {
+      var nxt = STEPS[r.step + 1];
+      var needC = Math.max(0, nxt.conv - conv);
+      var needV = Math.max(0, nxt.vtl - vtl);
+      $('hint').textContent = 'До «' + nxt.name + '»: ' +
+        (needC > 0 ? '+' + fmt1(needC) + ' п.п. конверсии' : '') +
+        (needC > 0 && needV > 0 ? ' и ' : '') +
+        (needV > 0 ? '+' + fmt1(needV) + ' п.п. доли ВТЛ' : '') + '.';
+    } else {
+      $('hint').textContent = 'Полная ставка: выше нее не растет. Дальше растут только показатели и результат.';
+    }
+
+    var cols = barsEl.children;
+    for (var i = 0; i < cols.length; i++) {
+      var col = cols[i];
+      col.classList.toggle('reached', i <= r.step);
+      col.classList.toggle('current', i === r.step);
+      var bar = col.querySelector('.bar');
+      var h = Math.max(2, Math.round(STEPS[i].money / MAX_MONEY * 100));
+      bar.style.height = h + '%';
+    }
+    var buttons = stepsEl.children;
+    for (var j = 0; j < buttons.length; j++) {
+      buttons[j].classList.toggle('active', j === r.step);
+    }
+  }
+
+  convSlider.addEventListener('input', function(){ conv = parseFloat(convSlider.value); render(); });
+  vtlSlider.addEventListener('input', function(){ vtl = parseFloat(vtlSlider.value); render(); });
+
+  buildSteps();
+  buildBars();
+  render();
+
+  function fit(){
+    var stage = $('stage');
+    var w = window.innerWidth - 16;
+    var h = window.innerHeight - 16;
+    var scale = Math.min(w / 1280, h / 720);
+    if (!isFinite(scale) || scale <= 0) scale = 1;
+    stage.style.transform = 'scale(' + scale + ')';
+    document.querySelector('.viewport').style.minHeight = Math.ceil(720 * scale + 16) + 'px';
+  }
+  window.addEventListener('resize', fit);
+  fit();
+})();
+</script>
+</body>
+</html>
