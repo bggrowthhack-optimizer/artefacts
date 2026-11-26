@@ -65,10 +65,20 @@
     border-radius: 4px;
     overflow: hidden;
   }
+  .topline { display: flex; align-items: center; gap: 12px; }
   .eyebrow {
     font-size: 12.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
     color: var(--primary);
   }
+  .tabs { margin-left: auto; display: flex; gap: 6px; }
+  .tabs button {
+    padding: 5px 12px; font-size: 11.5px; font-weight: 600; font-family: inherit;
+    border: 1.5px solid var(--border-strong); background: var(--card); color: var(--foreground);
+    border-radius: 7px; cursor: pointer; white-space: nowrap;
+  }
+  .tabs button.active { border-color: var(--primary); background: var(--primary); color: #fff; }
+  .pane { display: none; flex-direction: column; flex: 1; min-height: 0; }
+  .pane.active { display: flex; }
   .slide h1 {
     font-size: 30px; font-weight: 700; line-height: 1.15; letter-spacing: -0.02em;
     margin: 7px 0 8px; white-space: nowrap;
@@ -87,7 +97,7 @@
   .main-row { display: flex; gap: 12px; flex: 1; min-height: 0; }
   .now-card { flex: 0 0 300px; padding: 16px 18px; display: flex; flex-direction: column; }
   .model-card { flex: 1; padding: 16px 18px; min-width: 0; }
-  .results { flex: 0 0 300px; display: flex; flex-direction: column; gap: 10px; }
+  .results { flex: 0 0 320px; display: flex; flex-direction: column; gap: 10px; }
   .result-card { flex: 1; padding: 12px 16px; display: flex; flex-direction: column; justify-content: center; }
 
   .card-title { font-size: 13.5px; font-weight: 600; margin-bottom: 10px; }
@@ -115,16 +125,56 @@
     font-size: 11.5px; color: var(--muted-foreground); line-height: 1.35;
     border-top: 1px solid var(--border); padding-top: 8px; margin-top: 4px;
   }
+  .model-footer { margin-top: auto; }
+  .solo { margin-top: 8px; border-top: 1px solid var(--border); padding-top: 7px; }
+  .solo-title { font-size: 11px; color: var(--muted-foreground); margin-bottom: 3px; }
+  .solo-line { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted-foreground); line-height: 1.5; }
+  .solo-line b { color: var(--foreground); font-variant-numeric: tabular-nums; }
 
   .result-label { font-size: 12px; color: var(--muted-foreground); }
   .result-value { font-size: 28px; font-weight: 700; line-height: 1.06; margin-top: 2px; font-variant-numeric: tabular-nums; }
   .result-sub { font-size: 11.5px; color: var(--muted-foreground); margin-top: 3px; }
-  #splitText { font-size: 10.5px; }
+  .result-big .result-value { font-size: 30px; }
 
-  .path-card { flex: 0 0 150px; padding: 11px 18px 9px; display: flex; flex-direction: column; }
+  .split-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 12px; padding: 3px 0; border-top: 1px solid var(--border);
+  }
+  .split-row:first-of-type { border-top: 0; }
+  .split-row span { color: var(--muted-foreground); }
+  .split-row b { font-variant-numeric: tabular-nums; }
+  .split-row.total { border-top: 1.5px solid var(--border-strong); margin-top: 3px; padding-top: 5px; }
+  .split-row.total b { color: var(--primary); }
+
+  .path-card { flex: 0 0 168px; padding: 11px 18px 9px; display: flex; flex-direction: column; }
   .path-head { display: flex; justify-content: space-between; align-items: baseline; }
   .path-head span:first-child { font-size: 13px; font-weight: 600; }
   .path-unit { font-size: 11px; color: var(--muted-foreground); }
+
+  .matrix-wrap { display: flex; gap: 18px; flex: 1; min-height: 0; margin-top: 6px; }
+  .matrix {
+    flex: 1; min-width: 0; display: grid; grid-template-columns: 74px repeat(6, 1fr);
+    grid-auto-rows: 15.5px; gap: 2px 3px;
+  }
+  .mhead { font-size: 9.5px; color: var(--muted-foreground); text-align: center; align-self: center; font-variant-numeric: tabular-nums; }
+  .mrow-label { font-size: 10px; color: var(--muted-foreground); text-align: right; align-self: center; padding-right: 3px; font-variant-numeric: tabular-nums; }
+  .mcell {
+    display: flex; align-items: center; justify-content: center;
+    border: 0; padding: 0; border-radius: 4px; background: var(--muted);
+    font-family: inherit; color: inherit; font-size: 10px; font-variant-numeric: tabular-nums;
+    cursor: pointer; white-space: nowrap;
+  }
+  .mcell:hover { outline: 1.5px solid var(--primary); outline-offset: -1px; }
+  .mcell.sel { outline: 2px solid var(--primary); outline-offset: -1px; font-weight: 700; }
+  .insight {
+    flex: 0 0 372px; border-left: 1px solid var(--border); padding-left: 18px;
+    display: flex; flex-direction: column; justify-content: center; gap: 3px;
+  }
+  .insight-title { font-size: 12.5px; font-weight: 600; margin-bottom: 3px; }
+  .insight-line { font-size: 11.5px; color: var(--muted-foreground); line-height: 1.35; }
+  .insight-line b { color: var(--foreground); font-variant-numeric: tabular-nums; }
+  .insight-line b.accent { color: var(--primary); }
+
   .bars { display: flex; gap: 8px; height: 106px; margin-top: 4px; }
   .bar-col {
     flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
@@ -139,6 +189,26 @@
   .bar-rate { font-size: 10.5px; color: var(--muted-foreground); }
   .bar-col:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 6px; }
 
+  .ladder-card { flex: 0 0 400px; padding: 14px 16px; display: flex; flex-direction: column; }
+  .ladder { display: flex; flex-direction: column; gap: 3px; margin-top: 8px; }
+  .step-row {
+    display: grid; grid-template-columns: 1fr auto; gap: 1px 8px;
+    padding: 5px 9px; border: 1px solid transparent; border-radius: 8px;
+    background: none; font-family: inherit; color: inherit; text-align: left; cursor: pointer;
+  }
+  .step-row:hover { background: var(--muted); }
+  .step-row.active { background: var(--muted); border-color: var(--primary); }
+  .step-name { font-size: 12.5px; font-weight: 600; }
+  .step-roi { font-size: 12.5px; font-weight: 700; color: var(--primary); font-variant-numeric: tabular-nums; }
+  .step-detail { grid-column: 1 / -1; font-size: 10.5px; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+
+  .why-card { flex: 1; padding: 14px 18px; display: flex; flex-direction: column; justify-content: center; }
+  .why-title { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+  .why-line { font-size: 11.5px; color: var(--muted-foreground); line-height: 1.38; margin: 0 0 6px; }
+  .why-line b { color: var(--foreground); }
+  .why-line b.accent { color: var(--primary); }
+  .why-line:last-child { margin-bottom: 0; }
+
   .footnote {
     font-size: 10.5px; color: var(--muted-foreground); line-height: 1.35;
     margin-top: 6px; padding-top: 0;
@@ -149,79 +219,150 @@
 <div class="viewport">
   <div class="stage" id="stage">
     <div class="slide">
-      <div class="eyebrow">Финмодель · 12 стационарных салонов</div>
-      <h1>Сколько дают конверсия и доля целевых линз</h1>
-      <div class="sub">Выгрузка 1С «Спектра» · январь-сентябрь 2026 · тот же поток диагностик и средний чек 15 646 ₽</div>
-      <hr class="rule">
-      <div class="body">
-        <div class="main-row">
-          <div class="card now-card">
-            <div class="card-title">Сейчас</div>
-            <div class="kpi">
-              <div class="kpi-value">54,5%</div>
-              <div class="kpi-label">доходят от приема до заказа</div>
-            </div>
-            <div class="kpi">
-              <div class="kpi-value">21,5%</div>
-              <div class="kpi-label">доля ВТЛ в заказах</div>
-            </div>
-            <div class="kpi">
-              <div class="kpi-value">15 646 ₽</div>
-              <div class="kpi-label">средний чек очков</div>
-            </div>
-            <div class="base-note">1 432 диагностики в месяц · 780 заказов в месяц · 12 стационарных салонов</div>
-          </div>
-          <div class="card model-card">
-            <div class="scenario">Сценарий: <b id="scenarioName">Полная ставка</b></div>
-            <div class="steps" id="steps"></div>
-            <div class="slider-block">
-              <div class="slider-row"><span>Доходят от приема до заказа</span><b id="convBadge">70,0%</b></div>
-              <input id="convSlider" type="range" min="54.5" max="70" step="0.1" value="70" aria-label="Доля доходящих до заказа">
-              <div class="slider-note">сейчас 54,5%</div>
-            </div>
-            <div class="slider-block">
-              <div class="slider-row"><span>Доля ВТЛ в заказах</span><b id="vtlBadge">30,0%</b></div>
-              <input id="vtlSlider" type="range" min="21.5" max="30" step="0.1" value="30" aria-label="Доля ВТЛ в заказах">
-              <div class="slider-note">сейчас 21,5%</div>
-            </div>
-            <div class="hint" id="hint"></div>
-          </div>
-          <div class="results">
-            <div class="card result-card">
-              <div class="result-label">Прирост выручки</div>
-              <div class="result-value" id="totalMoney">5 115 тыс ₽</div>
-              <div class="result-sub" id="annualText">61,4 млн ₽ в год</div>
-              <div class="result-sub" id="splitText">заказы +3 474 · линзы +1 641 тыс ₽/мес</div>
-            </div>
-            <div class="card result-card">
-              <div class="result-label">Ставка Оптимайзера</div>
-              <div class="result-value" id="rateBig">360 тыс ₽</div>
-              <div class="result-sub" id="rateSub">полная ставка · 30 тыс ₽ за салон</div>
-            </div>
-            <div class="card result-card">
-              <div class="result-label">ROI к ставке</div>
-              <div class="result-value" id="roiBig">×14,2</div>
-              <div class="result-sub">прирост выручки / ставка</div>
-            </div>
-          </div>
-        </div>
-        <div class="card path-card">
-          <div class="path-head"><span>Путь к цели: пять ступеней</span><span class="path-unit">прирост, тыс ₽ в месяц</span></div>
-          <div class="bars" id="bars"></div>
+      <div class="topline">
+        <div class="eyebrow">Финмодель · 12 стационарных салонов</div>
+        <div class="tabs">
+          <button type="button" id="tabGrowth" class="active">Механика роста</button>
+          <button type="button" id="tabRate">Ставка и ROI</button>
         </div>
       </div>
-      <div class="footnote">Как считаем: прирост заказов = диагностики × изменение конверсии × средний чек; эффект линз - на выросшее число заказов. Каждая ступень: +3,1 п.п. конверсии и +1,7 п.п. доли ВТЛ, зачет по обоим показателям. Старт - 15 тыс ₽ за салон, полная ставка - 30 тыс ₽ за салон. Оценка, не обещание.</div>
+
+      <div class="pane active" id="paneGrowth">
+        <h1>Сколько дают конверсия и доля целевых линз</h1>
+        <div class="sub">Выгрузка 1С «Спектра» · январь-сентябрь 2026 · тот же поток диагностик и средний чек 15 646 ₽</div>
+        <hr class="rule">
+        <div class="body">
+          <div class="main-row">
+            <div class="card now-card">
+              <div class="card-title">Сейчас</div>
+              <div class="kpi">
+                <div class="kpi-value">54,5%</div>
+                <div class="kpi-label">доходят от приема до заказа</div>
+              </div>
+              <div class="kpi">
+                <div class="kpi-value">21,5%</div>
+                <div class="kpi-label">доля ВТЛ в заказах</div>
+              </div>
+              <div class="kpi">
+                <div class="kpi-value">15 646 ₽</div>
+                <div class="kpi-label">средний чек очков</div>
+              </div>
+              <div class="base-note">1 432 диагностики в месяц · 780 заказов в месяц · 12 стационарных салонов</div>
+            </div>
+            <div class="card model-card">
+              <div class="scenario">Сценарий: <b id="scenarioName">Полный рост</b></div>
+              <div class="steps" id="stepsGrowth"></div>
+              <div class="slider-block">
+                <div class="slider-row"><span>Доходят от приема до заказа</span><b id="convBadge">70,0%</b></div>
+                <input id="convSlider" type="range" min="54.5" max="70" step="0.1" value="70" aria-label="Доля доходящих до заказа">
+                <div class="slider-note">сейчас 54,5%</div>
+              </div>
+              <div class="slider-block">
+                <div class="slider-row"><span>Доля ВТЛ в заказах</span><b id="vtlBadge">30,0%</b></div>
+                <input id="vtlSlider" type="range" min="21.5" max="30" step="0.1" value="30" aria-label="Доля ВТЛ в заказах">
+                <div class="slider-note">сейчас 21,5%</div>
+              </div>
+              <div class="model-footer">
+                <div class="hint" id="growthHint"></div>
+                <div class="solo">
+                  <div class="solo-title">Если двигать по одной, тыс ₽/мес</div>
+                  <div class="solo-line"><span>только конверсия, при доле ВТЛ 21,5%</span><b id="soloConv">+3 474</b></div>
+                  <div class="solo-line"><span>только доля ВТЛ, при конверсии 54,5%</span><b id="soloVtl">+1 278</b></div>
+                </div>
+              </div>
+            </div>
+            <div class="results">
+              <div class="card result-card result-big">
+                <div class="result-label">При совместном росте метрик</div>
+                <div class="result-value" id="totalMoney">5 115 тыс ₽</div>
+                <div class="result-sub" id="annualText">61,4 млн ₽ в год</div>
+                <div class="result-sub" id="ordersText">заказы 780 → 1 003 в месяц</div>
+              </div>
+              <div class="card result-card">
+                <div class="card-title" style="margin-bottom:6px">Из чего складывается</div>
+                <div class="split-row"><span>Конверсия</span><b id="bdConv">+3 474</b></div>
+                <div class="split-row"><span>Доля линз на текущем потоке</span><b id="bdLens">+1 278</b></div>
+                <div class="split-row"><span>Совместный эффект</span><b id="bdSyn">+363</b></div>
+                <div class="split-row total"><span>Итого, тыс ₽/мес</span><b id="bdTotal">+5 115</b></div>
+              </div>
+            </div>
+          </div>
+          <div class="card path-card">
+            <div class="path-head">
+              <span>Сочетания метрик: прирост выручки, тыс ₽ в месяц</span>
+              <span class="path-unit">строки - доля ВТЛ, столбцы - конверсия · клик по клетке ставит оба показателя</span>
+            </div>
+            <div class="matrix-wrap">
+              <div class="matrix" id="matrix"></div>
+              <div class="insight">
+                <div class="insight-title">Вместе больше, чем по отдельности</div>
+                <div class="insight-line">Если сложить эффекты: <b>3 474 + 1 278 = 4 752</b> тыс ₽/мес.</div>
+                <div class="insight-line">Совместный рост на полной цели: <b>5 115</b> тыс ₽/мес.</div>
+                <div class="insight-line">Разница: <b class="accent">+363 тыс ₽/мес</b>.</div>
+                <div class="insight-line">Линзы растут на уже выросшем числе заказов: вторая метрика усиливает первую.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="footnote">Как считаем: прирост заказов = диагностики × изменение конверсии × средний чек; эффект линз - на выросшее число заказов. Каждая ступень: +3,1 п.п. конверсии и +1,7 п.п. доли ВТЛ. Оценка, не обещание.</div>
+      </div>
+
+      <div class="pane" id="paneRate">
+        <h1>Сколько возвращает каждая ступень ставки</h1>
+        <div class="sub">Прирост тот же, что в модели роста · здесь только ставка, окупаемость и ROI</div>
+        <hr class="rule">
+        <div class="body">
+          <div class="main-row">
+            <div class="card ladder-card">
+              <div class="card-title" style="margin-bottom:0">Ступени</div>
+              <div class="ladder" id="ladder"></div>
+            </div>
+            <div class="card why-card">
+              <div class="why-title">Почему ROI растет</div>
+              <p class="why-line"><b>Старт, ×0.</b> 180 тыс ₽ - плата за вход: прироста еще нет.</p>
+              <p class="why-line"><b>Полная, ×14,2.</b> 360 тыс ₽ ставки возвращают 5 115 тыс ₽ прироста в месяц.</p>
+              <p class="why-line"><b>Предельная отдача, ×26,8-30,0.</b> Каждая ступень стоит +36 тыс ₽ и добавляет 965-1 081 тыс ₽ прироста в месяц.</p>
+              <p class="why-line"><b>Ставка растет медленнее результата.</b> На последней ступени ставка +11%, прирост +27%.</p>
+            </div>
+            <div class="results">
+              <div class="card result-card">
+                <div class="result-label">Прирост выручки</div>
+                <div class="result-value" id="rateInc">5 115 тыс ₽</div>
+                <div class="result-sub" id="rateIncAnnual">61,4 млн ₽ в год</div>
+              </div>
+              <div class="card result-card">
+                <div class="result-label">Ставка</div>
+                <div class="result-value" id="rateBig">360 тыс ₽</div>
+                <div class="result-sub" id="rateSub">полная ставка · 30 тыс ₽ за салон</div>
+              </div>
+              <div class="card result-card">
+                <div class="result-label">ROI к ставке</div>
+                <div class="result-value" id="roiBig">×14,2</div>
+                <div class="result-sub" id="roiSub">1 ₽ ставки дает 14,2 ₽ прироста в месяц</div>
+              </div>
+            </div>
+          </div>
+          <div class="card path-card">
+            <div class="path-head">
+              <span>ROI по ступеням: сколько прироста на 1 ₽ ставки</span>
+              <span class="path-unit" id="marginalNote">предельная отдача ступени: ×26,8 → ×30,0</span>
+            </div>
+            <div class="bars" id="roiBars"></div>
+          </div>
+        </div>
+        <div class="footnote">Ставка: 180 тыс ₽ на старте, +36 тыс ₽ за ступень (15-30 тыс ₽ за салон). ROI = прирост выручки в месяц / ставка в месяц. Предельная отдача = приращение прироста / приращение ставки. Оценка, не обещание.</div>
+      </div>
     </div>
   </div>
 </div>
 <script>
 (function(){
   var STEPS = [
-    { name: 'Старт',      short: 'Старт',    conv: 54.5, vtl: 21.5, money: 0,    rate: 180 },
-    { name: 'Ступень 1',  short: 'Ступень 1', conv: 57.6, vtl: 23.2, money: 965,  rate: 216 },
-    { name: 'Ступень 2',  short: 'Ступень 2', conv: 60.7, vtl: 24.9, money: 1959, rate: 252 },
-    { name: 'Ступень 3',  short: 'Ступень 3', conv: 63.8, vtl: 26.6, money: 2982, rate: 288 },
-    { name: 'Ступень 4',  short: 'Ступень 4', conv: 66.9, vtl: 28.3, money: 4034, rate: 324 },
+    { name: 'Старт',         short: 'Старт',  conv: 54.5, vtl: 21.5, money: 0,    rate: 180 },
+    { name: 'Ступень 1',     short: '1',      conv: 57.6, vtl: 23.2, money: 965,  rate: 216 },
+    { name: 'Ступень 2',     short: '2',      conv: 60.7, vtl: 24.9, money: 1959, rate: 252 },
+    { name: 'Ступень 3',     short: '3',      conv: 63.8, vtl: 26.6, money: 2982, rate: 288 },
+    { name: 'Ступень 4',     short: '4',      conv: 66.9, vtl: 28.3, money: 4034, rate: 324 },
     { name: 'Полная ставка', short: 'Полная', conv: 70.0, vtl: 30.0, money: 5115, rate: 360 }
   ];
   var N = 1432.3;        // диагностики в месяц
@@ -230,34 +371,38 @@
   var BASE_VTL = 21.5;   // доля ВТЛ сейчас, %
   var LENS_FULL = 1278;  // линзовый эффект при 30% на текущем потоке, тыс ₽/мес
   var MAX_MONEY = 5115;
+  var CONV_GRID = [54.5, 57.6, 60.7, 63.8, 66.9, 70.0];
+  var VTL_GRID = [21.5, 23.2, 24.9, 26.6, 28.3, 30.0];
+  var GROWTH_NAMES = ['Сейчас', 'Шаг 1', 'Шаг 2', 'Шаг 3', 'Шаг 4', 'Полный рост'];
 
-  var conv = 70.0, vtl = 30.0;
+  var conv = 70.0, vtl = 30.0, rateStep = 5;
 
-  var $ = function(id){ return document.getElementById(id); };
-  var convSlider = $('convSlider'), vtlSlider = $('vtlSlider');
-  var barsEl = $('bars'), stepsEl = $('steps');
-
+  function $(id){ return document.getElementById(id); }
   function fmt(n){ return Math.round(n).toLocaleString('ru-RU'); }
   function fmt1(n){ return (Math.round(n * 10) / 10).toLocaleString('ru-RU', { minimumFractionDigits: 1, maximumFractionDigits: 1 }); }
   function pct(n){ return fmt1(n) + '%'; }
+  function signed(n){ return (n >= 0 ? '+' : '-') + fmt(Math.abs(n)); }
 
-  function calc(c, v){
-    var orders = N * (c - BASE_CONV) / 100;              // дополнительных заказов в месяц
-    var moneyOrders = orders * CHECK / 1000;             // тыс ₽/мес
-    var lens = LENS_FULL * ((v - BASE_VTL) / 8.5) * (c / BASE_CONV); // тыс ₽/мес
+  function growth(c, v){
+    var orders = N * (c - BASE_CONV) / 100;                        // дополнительных заказов в месяц
+    var moneyOrders = orders * CHECK / 1000;                       // тыс ₽/мес
+    var lensFull = LENS_FULL * ((v - BASE_VTL) / 8.5);             // эффект линз, если поток не вырос
+    var lens = lensFull * (c / BASE_CONV);                         // эффект линз на выросшем потоке
     var total = moneyOrders + lens;
-    var k = 0;
-    STEPS.forEach(function(s, i){ if (c >= s.conv - 1e-9 && v >= s.vtl - 1e-9) k = i; });
-    var rate = STEPS[k].rate;
+    var baseOrders = N * BASE_CONV / 100;
+    var baseRevenue = baseOrders * CHECK / 1000;
     return {
       orders: orders,
       moneyOrders: moneyOrders,
+      lensFull: lensFull,
       lens: lens,
+      synergy: lens - lensFull,
       total: total,
-      annual: total * 12 / 1000,
-      step: k,
-      rate: rate,
-      roi: rate > 0 && total > 0 ? total / rate : null
+      baseOrders: baseOrders,
+      newOrders: baseOrders + orders,
+      baseRevenue: baseRevenue,
+      newRevenue: baseRevenue + total,
+      annual: total * 12 / 1000
     };
   }
 
@@ -267,90 +412,205 @@
     return STEPS[k].name + ' · ' + (15 + 3 * k) + ' тыс ₽ за салон';
   }
 
-  function buildBars(){
-    barsEl.innerHTML = '';
-    STEPS.forEach(function(s, i){
-      var col = document.createElement('button');
-      col.type = 'button';
-      col.className = 'bar-col';
-      col.setAttribute('aria-label', s.name + ': прирост ' + fmt(s.money) + ' тыс ₽ в месяц, ставка ' + fmt(s.rate) + ' тыс ₽');
-      col.innerHTML =
-        '<span class="bar-value">' + fmt(s.money) + '</span>' +
-        '<span class="bar-track"><span class="bar" style="height:' + Math.max(2, Math.round(s.money / MAX_MONEY * 100)) + '%"></span></span>' +
-        '<span class="bar-label">' + s.short + '</span>' +
-        '<span class="bar-rate">' + fmt(s.rate) + '</span>';
-      col.addEventListener('click', function(){ setStep(i); });
-      barsEl.appendChild(col);
-    });
+  function growthStepIndex(c, v){
+    for (var i = 0; i < STEPS.length; i++) {
+      if (Math.abs(c - STEPS[i].conv) < 0.05 && Math.abs(v - STEPS[i].vtl) < 0.05) return i;
+    }
+    return -1;
   }
 
-  function buildSteps(){
-    stepsEl.innerHTML = '';
-    STEPS.forEach(function(s, i){
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.textContent = s.short;
-      b.addEventListener('click', function(){ setStep(i); });
-      stepsEl.appendChild(b);
-    });
-  }
-
-  function setStep(i){
-    conv = STEPS[i].conv;
-    vtl = STEPS[i].vtl;
-    convSlider.value = conv;
-    vtlSlider.value = vtl;
-    render();
-  }
-
-  function render(){
-    var r = calc(conv, vtl);
-
+  function renderGrowth(){
+    var r = growth(conv, vtl);
     $('convBadge').textContent = pct(conv);
     $('vtlBadge').textContent = pct(vtl);
 
-    $('scenarioName').textContent = STEPS[r.step].name;
+    var gi = growthStepIndex(conv, vtl);
+    $('scenarioName').textContent = gi >= 0 ? GROWTH_NAMES[gi] : 'Свои значения';
 
     $('totalMoney').textContent = fmt(r.total) + ' тыс ₽';
     $('annualText').textContent = fmt1(r.annual) + ' млн ₽ в год';
-    $('splitText').textContent = 'заказы +' + fmt(r.moneyOrders) + ' · линзы +' + fmt(r.lens) + ' тыс ₽/мес';
-    $('rateBig').textContent = fmt(r.rate) + ' тыс ₽';
-    $('rateSub').textContent = rateSubText(r.step);
-    $('roiBig').textContent = r.roi === null ? '-' : '×' + fmt1(r.roi);
+    $('ordersText').textContent = 'заказы ' + fmt(Math.floor(r.baseOrders)) + ' → ' + fmt(r.newOrders) + ' в месяц';
 
-    if (r.step < 5) {
-      var nxt = STEPS[r.step + 1];
-      var needC = Math.max(0, nxt.conv - conv);
-      var needV = Math.max(0, nxt.vtl - vtl);
-      $('hint').textContent = 'До «' + nxt.name + '»: ' +
+    $('soloConv').textContent = signed(r.moneyOrders);
+    $('soloVtl').textContent = signed(r.lensFull);
+
+    $('bdConv').textContent = signed(r.moneyOrders);
+    $('bdLens').textContent = signed(r.lensFull);
+    $('bdSyn').textContent = signed(r.synergy);
+    $('bdTotal').textContent = signed(r.total);
+
+    if (conv < 70 - 0.05 || vtl < 30 - 0.05) {
+      var needC = Math.max(0, 70 - conv);
+      var needV = Math.max(0, 30 - vtl);
+      $('growthHint').textContent = 'До полного роста: ' +
         (needC > 0 ? '+' + fmt1(needC) + ' п.п. конверсии' : '') +
         (needC > 0 && needV > 0 ? ' и ' : '') +
         (needV > 0 ? '+' + fmt1(needV) + ' п.п. доли ВТЛ' : '') + '.';
     } else {
-      $('hint').textContent = 'Полная ставка: выше нее не растет. Дальше растут только показатели и результат.';
+      $('growthHint').textContent = 'Полный рост: выше цели обе метрики не растут.';
     }
 
-    var cols = barsEl.children;
-    for (var i = 0; i < cols.length; i++) {
-      var col = cols[i];
-      col.classList.toggle('reached', i <= r.step);
-      col.classList.toggle('current', i === r.step);
-      var bar = col.querySelector('.bar');
-      var h = Math.max(2, Math.round(STEPS[i].money / MAX_MONEY * 100));
-      bar.style.height = h + '%';
-    }
-    var buttons = stepsEl.children;
-    for (var j = 0; j < buttons.length; j++) {
-      buttons[j].classList.toggle('active', j === r.step);
+    var btns = $('stepsGrowth').children;
+    for (var i = 0; i < btns.length; i++) btns[i].classList.toggle('active', i === gi);
+
+    var cells = $('matrix').querySelectorAll('.mcell');
+    for (var j = 0; j < cells.length; j++) {
+      var cell = cells[j];
+      var isSel = Math.abs(conv - parseFloat(cell.dataset.conv)) < 0.05 &&
+                  Math.abs(vtl - parseFloat(cell.dataset.vtl)) < 0.05;
+      cell.classList.toggle('sel', isSel);
     }
   }
 
-  convSlider.addEventListener('input', function(){ conv = parseFloat(convSlider.value); render(); });
-  vtlSlider.addEventListener('input', function(){ vtl = parseFloat(vtlSlider.value); render(); });
+  function buildGrowthPresets(){
+    var box = $('stepsGrowth');
+    for (var i = 0; i < STEPS.length; i++) {
+      (function(idx){
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = idx === 0 ? 'Сейчас' : (idx === 5 ? 'Полный рост' : 'Шаг ' + idx);
+        b.addEventListener('click', function(){ setGrowth(STEPS[idx].conv, STEPS[idx].vtl); });
+        box.appendChild(b);
+      })(i);
+    }
+  }
 
-  buildSteps();
-  buildBars();
-  render();
+  function setGrowth(c, v){
+    conv = c; vtl = v;
+    $('convSlider').value = conv;
+    $('vtlSlider').value = vtl;
+    renderGrowth();
+  }
+
+  function buildMatrix(){
+    var box = $('matrix');
+    var head = document.createElement('div');
+    head.className = 'mhead';
+    head.textContent = 'ВТЛ ↓';
+    box.appendChild(head);
+    CONV_GRID.forEach(function(c){
+      var h = document.createElement('div');
+      h.className = 'mhead';
+      h.textContent = pct(c);
+      box.appendChild(h);
+    });
+    VTL_GRID.forEach(function(v){
+      var lab = document.createElement('div');
+      lab.className = 'mrow-label';
+      lab.textContent = pct(v);
+      box.appendChild(lab);
+      CONV_GRID.forEach(function(c){
+        var r = growth(c, v);
+        var cell = document.createElement('button');
+        cell.type = 'button';
+        cell.className = 'mcell';
+        cell.dataset.conv = c;
+        cell.dataset.vtl = v;
+        cell.textContent = r.total > 0.5 ? fmt(r.total) : '0';
+        var alpha = 0.03 + 0.13 * Math.min(1, r.total / MAX_MONEY);
+        cell.style.background = 'rgba(43, 98, 239, ' + alpha.toFixed(3) + ')';
+        cell.addEventListener('click', function(){ setGrowth(c, v); });
+        box.appendChild(cell);
+      });
+    });
+  }
+
+  function renderRate(){
+    var s = STEPS[rateStep];
+    var inc = s.money;
+    var rate = s.rate;
+    var roi = inc > 0 ? inc / rate : null;
+    $('rateInc').textContent = fmt(inc) + ' тыс ₽';
+    $('rateIncAnnual').textContent = fmt1(inc * 12 / 1000) + ' млн ₽ в год';
+    $('rateBig').textContent = fmt(rate) + ' тыс ₽';
+    $('rateSub').textContent = rateSubText(rateStep);
+    $('roiBig').textContent = roi === null ? '-' : '×' + fmt1(roi);
+    $('roiSub').textContent = roi === null
+      ? 'на старте прироста нет: ставка - плата за вход'
+      : '1 ₽ ставки дает ' + fmt1(roi) + ' ₽ прироста в месяц';
+
+    var rows = $('ladder').children;
+    for (var i = 0; i < rows.length; i++) rows[i].classList.toggle('active', i === rateStep);
+
+    var cols = $('roiBars').children;
+    for (var j = 0; j < cols.length; j++) {
+      var col = cols[j];
+      var st = STEPS[j];
+      var val = st.money > 0 ? st.money / st.rate : 0;
+      col.classList.toggle('reached', j <= rateStep);
+      col.classList.toggle('current', j === rateStep);
+      col.querySelector('.bar').style.height = Math.max(2, Math.round(val / 14.21 * 100)) + '%';
+    }
+  }
+
+  function buildLadder(){
+    var box = $('ladder');
+    for (var i = 0; i < STEPS.length; i++) {
+      (function(idx){
+        var s = STEPS[idx];
+        var roi = s.money > 0 ? '×' + fmt1(s.money / s.rate) : '-';
+        var row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'step-row';
+        row.innerHTML = '<span class="step-name">' + s.name + '</span>' +
+          '<span class="step-roi">' + roi + '</span>' +
+          '<span class="step-detail">прирост ' + fmt(s.money) + ' · ставка ' + fmt(s.rate) + ' тыс ₽</span>';
+        row.addEventListener('click', function(){ rateStep = idx; renderRate(); });
+        box.appendChild(row);
+      })(i);
+    }
+  }
+
+  function buildRoiBars(){
+    var box = $('roiBars');
+    for (var i = 0; i < STEPS.length; i++) {
+      (function(idx){
+        var s = STEPS[idx];
+        var roi = s.money > 0 ? s.money / s.rate : 0;
+        var col = document.createElement('button');
+        col.type = 'button';
+        col.className = 'bar-col';
+        col.setAttribute('aria-label', s.name + ': ROI ' + (s.money > 0 ? '×' + fmt1(roi) : '-'));
+        col.innerHTML =
+          '<span class="bar-value">' + (s.money > 0 ? '×' + fmt1(roi) : '-') + '</span>' +
+          '<span class="bar-track"><span class="bar" style="height:' + Math.max(2, Math.round(roi / 14.21 * 100)) + '%"></span></span>' +
+          '<span class="bar-label">' + (idx === 0 ? 'Старт' : (idx === 5 ? 'Полная' : 'Ступень ' + idx)) + '</span>' +
+          '<span class="bar-rate">' + fmt(s.rate) + '</span>';
+        col.addEventListener('click', function(){ rateStep = idx; renderRate(); });
+        box.appendChild(col);
+      })(i);
+    }
+  }
+
+  function showTab(name, push){
+    var isRate = name === 'rate';
+    $('tabGrowth').classList.toggle('active', !isRate);
+    $('tabRate').classList.toggle('active', isRate);
+    $('paneGrowth').classList.toggle('active', !isRate);
+    $('paneRate').classList.toggle('active', isRate);
+    if (push) {
+      try { history.replaceState(null, '', isRate ? '#rate' : '#growth'); } catch (e) { location.hash = isRate ? '#rate' : '#growth'; }
+    }
+  }
+
+  function applyHash(){
+    var h = (location.hash || '').replace('#', '');
+    showTab(h === 'rate' ? 'rate' : 'growth', false);
+  }
+
+  $('convSlider').addEventListener('input', function(){ conv = parseFloat($('convSlider').value); renderGrowth(); });
+  $('vtlSlider').addEventListener('input', function(){ vtl = parseFloat($('vtlSlider').value); renderGrowth(); });
+  $('tabGrowth').addEventListener('click', function(){ showTab('growth', true); });
+  $('tabRate').addEventListener('click', function(){ showTab('rate', true); });
+  window.addEventListener('hashchange', applyHash);
+
+  buildGrowthPresets();
+  buildMatrix();
+  buildLadder();
+  buildRoiBars();
+  renderGrowth();
+  renderRate();
+  applyHash();
 
   function fit(){
     var stage = $('stage');
